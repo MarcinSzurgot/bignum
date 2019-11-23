@@ -7,7 +7,14 @@ namespace
 
 void trimLeadingZeros(std::vector<bignum::digit_type>& digits)
 {
-    
+    const auto lastNonZero = std::find_if_not
+    (
+        rbegin(digits),
+        rend(digits),
+        bignum::digit_type()
+    );
+
+    digits.resize(std::distance(rbegin(digits), lastNonZero));
 }
 
 }
@@ -21,10 +28,10 @@ Unsigned::Unsigned()
 
 }
 
-Unsigned::Unsigned(std::vector<digit_type> digits)
+Unsigned::Unsigned(const std::vector<digit_type>& digits)
 : digits_(digits.empty() ? {0} : digits)
 {
-
+    ::trimLeadingZeros(digits_);
 }
 
 Comparison Unsigned::compare(const Unsigned& other) const
@@ -50,7 +57,6 @@ Comparison Unsigned::compare(const Unsigned& other) const
                 return Comparison::GT;
             }
         }
-
         return Comparison::EQ;
     }
 }
