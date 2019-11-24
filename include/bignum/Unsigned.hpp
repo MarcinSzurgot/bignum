@@ -1,5 +1,7 @@
 #pragma once
 
+#include "DigitSet.hpp"
+
 #include <cstdint>
 #include <vector>
 
@@ -10,10 +12,10 @@ enum class Comparison {LT, EQ, GT};
 
 struct Unsigned
 {
-    using size_type = typename std::vector<digit_type>::size_type;
+    using size_type = typename DigitSet::size_type;
 
     Unsigned();
-    Unsigned(const std::vector<digit_type>& digits);
+    Unsigned(const DigitSet& digits);
 
     /**
      * Returns the number of digits. It is always greater than zero.
@@ -23,10 +25,10 @@ struct Unsigned
 
     digit_type digit(size_type index) const { return digits_[index]; }
 
-    Comparison compare(const Unsigned& other) const;
+    friend Comparison compare(const Unsigned& lhs, const Unsigned& rhs);
 
 private:
-    std::vector<digit_type> digits_;
+    DigitSet digits_;
 };
 
 }

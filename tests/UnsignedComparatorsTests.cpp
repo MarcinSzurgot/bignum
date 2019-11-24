@@ -9,7 +9,7 @@ TEST(Unsigned, LessMagnitudeIsLessThan)
     const auto greaterMagnitude = bignum::Unsigned({1, 2, 3});
 
     // when
-    const auto comparison = lessMagnitude.compare(greaterMagnitude);
+    const auto comparison = compare(lessMagnitude, greaterMagnitude);
 
     // then
     ASSERT_EQ(comparison, bignum::Comparison::LT);
