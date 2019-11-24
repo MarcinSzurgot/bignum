@@ -25,7 +25,16 @@ struct Unsigned
 
     digit_type digit(size_type index) const { return digits_[index]; }
 
+    operator bool() const { return magnitude() > 1 || digit(0); }
+
     friend Comparison compare(const Unsigned& lhs, const Unsigned& rhs);
+
+    friend bool operator==(const Unsigned& lhs, const Unsigned& rhs);
+    friend bool operator!=(const Unsigned& lhs, const Unsigned& rhs);
+    friend bool operator> (const Unsigned& lhs, const Unsigned& rhs);
+    friend bool operator< (const Unsigned& lhs, const Unsigned& rhs);
+    friend bool operator>=(const Unsigned& lhs, const Unsigned& rhs);
+    friend bool operator<=(const Unsigned& lhs, const Unsigned& rhs);
 
 private:
     DigitSet digits_;

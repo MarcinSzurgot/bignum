@@ -43,4 +43,44 @@ Comparison compare(const Unsigned& lhs, const Unsigned& rhs)
     }
 }
 
+bool operator==(const Unsigned& lhs, const Unsigned& rhs)
+{
+    switch (compare(lhs, rhs))
+    {
+    case Comparison::LT:
+    case Comparison::GT: return false;
+    case Comparison::EQ: return true;
+    }
+}
+
+bool operator!=(const Unsigned& lhs, const Unsigned& rhs)
+{
+    return !(lhs == rhs);
+}
+
+bool operator>(const Unsigned& lhs, const Unsigned& rhs)
+{
+    switch(compare(lhs, rhs))
+    {
+    case Comparison::LT:
+    case Comparison::EQ: return false;
+    case Comparison::GT: return true;
+    }
+}
+
+bool operator<(const Unsigned& lhs, const Unsigned& rhs)
+{
+    return rhs > lhs;
+}
+
+bool operator>=(const Unsigned& lhs, const Unsigned& rhs)
+{
+    return !(lhs < rhs);
+}
+
+bool operator<=(const Unsigned& lhs, const Unsigned& rhs)
+{
+    return !(lhs > rhs);
+}
+
 }
