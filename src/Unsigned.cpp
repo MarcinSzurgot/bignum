@@ -28,13 +28,14 @@ Comparison compare(const Unsigned& lhs, const Unsigned& rhs)
     }
     else
     {
-        for(auto d = lhs.magnitude() - 1u; d >= 0u; --d)
+        for(auto d = lhs.magnitude(); d > 0u; --d)
         {
-            if (lhs.digit(d) < rhs.digit(d))
+            const auto digit = d - 1;
+            if (lhs.digit(digit) < rhs.digit(digit))
             {
                 return Comparison::LT;
             }
-            else if (lhs.digit(d) > rhs.digit(d))
+            else if (lhs.digit(digit) > rhs.digit(digit))
             {
                 return Comparison::GT;
             }
@@ -51,6 +52,7 @@ bool operator==(const Unsigned& lhs, const Unsigned& rhs)
     case Comparison::GT: return false;
     case Comparison::EQ: return true;
     }
+    return false;
 }
 
 bool operator!=(const Unsigned& lhs, const Unsigned& rhs)
@@ -66,6 +68,7 @@ bool operator>(const Unsigned& lhs, const Unsigned& rhs)
     case Comparison::EQ: return false;
     case Comparison::GT: return true;
     }
+    return false;
 }
 
 bool operator<(const Unsigned& lhs, const Unsigned& rhs)
