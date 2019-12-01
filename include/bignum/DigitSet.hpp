@@ -14,6 +14,7 @@ struct DigitSet
     DigitSet();
     DigitSet(const std::vector<digit_type>& digits);
     DigitSet(std::initializer_list<digit_type> list);
+    DigitSet(size_type size, const digit_type& sample = {});
 
     void trim();
     void push_front(digit_type digit);

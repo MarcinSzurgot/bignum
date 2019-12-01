@@ -14,9 +14,16 @@ add_subdirectory(
 
 add_executable(
     tests
+
     main.cpp
+
     DigitSet/DigitSetTests.cpp
+
+    Unsigned/UnsignedBinaryShiftTests.cpp
+    Unsigned/UnsignedComparatorTests.cpp
     Unsigned/UnsignedTests.cpp
+
+    Utility/UtilityTests.cpp
 )
 
 target_link_libraries(

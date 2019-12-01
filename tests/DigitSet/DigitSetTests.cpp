@@ -62,6 +62,19 @@ TEST(DigitSetTests, testThatInitsWithZero)
     ASSERT_EQ(expected.front(), value[0]);
 }
 
+TEST(DigitSetTests, testThatInitsWithSizeIsNotZero)
+{
+    // given
+    const auto zeroSize = 0u;
+    const auto expected = 1u;
+
+    // when
+    const auto given = bignum::DigitSet(zeroSize);
+
+    // then
+    ASSERT_EQ(given.size(), expected);
+}
+
 TEST(DigitSetTests, testThatTrimsLeadingZeros)
 {
     // given

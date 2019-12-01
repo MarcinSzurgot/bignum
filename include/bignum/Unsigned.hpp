@@ -15,7 +15,24 @@ struct Unsigned
     using size_type = typename DigitSet::size_type;
 
     Unsigned();
-    Unsigned(const DigitSet& digits);
+
+    Unsigned(digit_type digit)
+    : digits_({digit})
+    {
+
+    }
+
+    Unsigned(const DigitSet& digits)
+    : digits_(digits)
+    {
+
+    }
+
+    Unsigned(DigitSet&& digits)
+    : digits_(std::move(digits))
+    {
+
+    }
 
     /**
      * Returns the number of digits. It is always greater than zero.
@@ -25,7 +42,7 @@ struct Unsigned
 
     digit_type digit(size_type index) const { return digits_[index]; }
 
-    operator bool() const { return magnitude() > 1 || digit(0); }
+    explicit operator bool() const { return magnitude() > 1 || digit(0); }
 
     friend Comparison compare(const Unsigned& lhs, const Unsigned& rhs);
 
@@ -35,6 +52,12 @@ struct Unsigned
     friend bool operator< (const Unsigned& lhs, const Unsigned& rhs);
     friend bool operator>=(const Unsigned& lhs, const Unsigned& rhs);
     friend bool operator<=(const Unsigned& lhs, const Unsigned& rhs);
+
+    friend Unsigned operator<<(const Unsigned& value, size_type offset);
+    friend Unsigned operator>>(const Unsigned& value, size_type offset);
+
+    friend Unsigned operator+(const Unsigned& value);
+    friend Unsigned operator-(const Unsigned& value);
 
 private:
     DigitSet digits_;

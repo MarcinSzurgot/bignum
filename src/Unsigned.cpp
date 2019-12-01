@@ -1,5 +1,7 @@
 #include "Unsigned.hpp"
 
+#include "Utility.hpp"
+
 #include <algorithm>
 
 namespace bignum
@@ -9,11 +11,6 @@ Unsigned::Unsigned()
 : Unsigned(DigitSet())
 {
 
-}
-
-Unsigned::Unsigned(const DigitSet& digits)
-: digits_(digits)
-{
 }
 
 Comparison compare(const Unsigned& lhs, const Unsigned& rhs)
@@ -84,6 +81,39 @@ bool operator>=(const Unsigned& lhs, const Unsigned& rhs)
 bool operator<=(const Unsigned& lhs, const Unsigned& rhs)
 {
     return !(lhs > rhs);
+}
+
+Unsigned operator<<(const Unsigned& value, Unsigned::size_type offset)
+{
+    const auto binarySize = sizeof(bignum::digit_type) * 8u;
+    const auto digitsOffset = offset / binarySize;
+    const auto bitOffset = offset % binarySize;
+    const auto reversedBitOffset = binarySize - bitOffset;
+    const auto size = value.magnitude() + digitsOffset + 1u;
+
+    auto digits = bignum::DigitSet(size, bignum::digit_type());
+    for(auto i = 0u; i < value.magnitude(); ++i)
+    {
+        digits[i + digitsOffset + 0] |= value.digit(i) << bitOffset;
+        digits[i + digitsOffset + 1] |= value.digit(i) >> reversedBitOffset;
+    }
+    digits.trim();
+    return {digits};
+}
+
+Unsigned operator>>(const Unsigned& value, Unsigned::size_type offset)
+{
+    return {};
+}
+
+Unsigned operator+(const Unsigned& value)
+{
+    return value;
+}
+
+Unsigned operator-(const Unsigned& value)
+{
+    return value;
 }
 
 }

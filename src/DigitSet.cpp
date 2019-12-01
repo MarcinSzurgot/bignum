@@ -23,6 +23,12 @@ DigitSet::DigitSet(std::initializer_list<digit_type> list)
 
 }
 
+DigitSet::DigitSet(size_type size, const digit_type& sample)
+: digits_(size ? size : 1u, sample)
+{
+
+}
+
 void DigitSet::trim()
 {
     auto lastNonZeroIndex = size_type();
