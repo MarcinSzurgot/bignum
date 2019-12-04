@@ -42,6 +42,16 @@ struct Unsigned
 
     digit_type digit(size_type index) const { return digits_[index]; }
 
+    /**
+     * @return the most significant digit.
+     */
+    digit_type msd() const { return digit(magnitude() - 1u); }
+
+    /**
+     * @return the least significant digit.
+     */
+    digit_type lsd() const { return digit(0); }
+
     explicit operator bool() const { return magnitude() > 1 || digit(0); }
 
     friend Comparison compare(const Unsigned& lhs, const Unsigned& rhs);
@@ -55,6 +65,9 @@ struct Unsigned
 
     friend Unsigned operator<<(const Unsigned& value, size_type offset);
     friend Unsigned operator>>(const Unsigned& value, size_type offset);
+
+    friend Unsigned operator<<=(Unsigned& value, size_type offset) { return value = value << offset; }
+    friend Unsigned operator>>=(Unsigned& value, size_type offset) { return value = value >> offset; }
 
     friend Unsigned operator+(const Unsigned& value);
     friend Unsigned operator-(const Unsigned& value);
