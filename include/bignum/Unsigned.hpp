@@ -2,6 +2,7 @@
 
 #include "DigitSet.hpp"
 
+#include <iostream>
 #include <cstdint>
 #include <vector>
 
@@ -54,6 +55,8 @@ struct Unsigned
 
     explicit operator bool() const { return magnitude() > 1 || digit(0); }
 
+    friend bool operator!(const Unsigned& value) { return !static_cast<bool>(value); }
+
     friend Comparison compare(const Unsigned& lhs, const Unsigned& rhs);
 
     friend bool operator==(const Unsigned& lhs, const Unsigned& rhs);
@@ -71,6 +74,8 @@ struct Unsigned
 
     friend Unsigned operator+(const Unsigned& value);
     friend Unsigned operator-(const Unsigned& value);
+
+    friend std::ostream& operator<<(std::ostream& os, const Unsigned& value);
 
 private:
     DigitSet digits_;

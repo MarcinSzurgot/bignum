@@ -7,7 +7,17 @@
 namespace
 {
 
-constexpr auto bitsPerDigit = sizeof(bignum::digit_type) * 8u;
+template<typename Integer>
+std::string binary(Integer integer)
+{
+    constexpr auto one = Integer(1);
+    auto binary = std::string(sizeof(Integer) * 8u, '0');
+    for (auto bit = binary.size(); bit > 0u; --bit)
+    {
+        binary[binary.size() - bit] += (bool) (integer & (one << bit - 1));
+    }
+    return binary;
+}
 
 }
 
@@ -92,16 +102,16 @@ bool operator<=(const Unsigned& lhs, const Unsigned& rhs)
 
 Unsigned operator<<(const Unsigned& value, Unsigned::size_type offset)
 {
-    const auto digitOffset = offset / bitsPerDigit;
-    const auto bitOffset = offset % bitsPerDigit;
-    const auto reversedBitOffset = bitsPerDigit - bitOffset;
+    const auto digitOffset = offset / bitsPerDigitType;
+    const auto bitOffset = offset % bitsPerDigitType;
+    const auto reversedBitOffset = bitsPerDigitType - bitOffset;
     const auto size = value.magnitude() + digitOffset + 1u;
 
     auto digits = bignum::DigitSet(size, bignum::digit_type());
     for(auto i = 0u; i < value.magnitude(); ++i)
     {
-        digits[i + digitOffset + 0] |= value.digit(i) << bitOffset;
-        digits[i + digitOffset + 1] |= value.digit(i) >> reversedBitOffset;
+        digits[i + digitOffset + 0] |= bignum::digit_type(value.digit(i) << bitOffset);
+        digits[i + digitOffset + 1] |= bignum::digit_type(value.digit(i) >> reversedBitOffset);
     }
     digits.trim();
     return {digits};
@@ -109,27 +119,30 @@ Unsigned operator<<(const Unsigned& value, Unsigned::size_type offset)
 
 Unsigned operator>>(const Unsigned& value, Unsigned::size_type offset)
 {
-    const auto digitOffset = offset / bitsPerDigit;
-    const auto bitOffset = offset % bitsPerDigit;
-    const auto reversedBitOffset = bitsPerDigit - bitOffset;
-    const auto size = value.magnitude() - std::min(digitOffset, value.magnitude());
-
-    auto digits = bignum::DigitSet(size, bignum::digit_type());
-
-    if (digits.size() > 2u)
+    if (offset >= bignum::highestBitNumber(value).value_or(0u))
     {
-        for(auto i = 1u; i < digits.size(); ++i)
-        {
-            digits[i - 0] |= value.digit(digitOffset) >> bitOffset;
-            digits[i - 1] |= value.digit(digitOffset) << reversedBitOffset;
-        }
+        return {};
     }
-    else
+
+    const auto digitOffset = offset / bitsPerDigitType;
+    const auto bitOffset = offset % bitsPerDigitType;
+    const auto reversedBitOffset = bitsPerDigitType - bitOffset;
+    const auto highestBit = *bignum::highestBitNumber(value.msd());
+
+    auto digits = bignum::DigitSet
+    (
+        digitOffset >= value.magnitude() ? 1u : value.magnitude() - digitOffset
+    );
+
+    digits[0] |= value.digit(digitOffset) >> bitOffset;
+    for (auto digit = 1u; digit < digits.size(); ++digit)
     {
-        digits[0] = value.digit(digitOffset) >> bitOffset;
+        digits[digit - 0] |= value.digit(digit + digitOffset) >> bitOffset;
+        digits[digit - 1] |= value.digit(digit + digitOffset) << reversedBitOffset;
     }
+
     digits.trim();
-    return {digits};
+    return bignum::Unsigned(digits);
 }
 
 Unsigned operator+(const Unsigned& value)
@@ -140,6 +153,15 @@ Unsigned operator+(const Unsigned& value)
 Unsigned operator-(const Unsigned& value)
 {
     return value;
+}
+
+std::ostream& operator<<(std::ostream& os, const Unsigned& value)
+{
+    for(auto digit = value.magnitude(); digit > 0u; --digit)
+    {
+        os << +value.digit(digit - 1) << ", ";
+    }
+    return os;
 }
 
 }

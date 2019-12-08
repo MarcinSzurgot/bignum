@@ -6,6 +6,8 @@
 namespace bignum
 {
 
+struct Unsigned;
+
 template
 <
     typename Integer,
@@ -22,5 +24,7 @@ std::optional<std::size_t> highestBitNumber(Integer value)
     }
     return std::nullopt;
 }
+
+std::optional<std::size_t> highestBitNumber(const Unsigned& value);
 
 }
