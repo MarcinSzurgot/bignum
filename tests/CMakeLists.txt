@@ -19,6 +19,7 @@ add_executable(
 
     DigitSet/DigitSetTests.cpp
 
+    Unsigned/UnsignedAdditionAndSubtractionOperatorsTests.cpp
     Unsigned/UnsignedBinaryShiftTests.cpp
     Unsigned/UnsignedComparatorTests.cpp
     Unsigned/UnsignedTests.cpp

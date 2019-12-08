@@ -75,6 +75,9 @@ struct Unsigned
     friend Unsigned operator+(const Unsigned& value);
     friend Unsigned operator-(const Unsigned& value);
 
+    friend Unsigned operator+(const Unsigned& lhs, const Unsigned& rhs);
+    friend Unsigned operator-(const Unsigned& lhs, const Unsigned& rhs);
+
     friend std::ostream& operator<<(std::ostream& os, const Unsigned& value);
 
 private:

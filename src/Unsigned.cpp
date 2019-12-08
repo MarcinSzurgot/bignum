@@ -155,6 +155,31 @@ Unsigned operator-(const Unsigned& value)
     return value;
 }
 
+Unsigned operator+(const Unsigned& lhs, const Unsigned& rhs)
+{
+    const auto isSmaller = lhs.magnitude() < rhs.magnitude();
+    const auto& smaller = isSmaller ? lhs : rhs;
+    const auto& greater = isSmaller ? rhs : lhs;
+
+    auto result = bignum::DigitSet(greater.magnitude());
+    for(auto digit = 0u; digit < smaller.magnitude(); ++digit)
+    {
+        result[digit] = smaller.digit(digit) + greater.digit(digit);
+    }
+
+    for(auto digit = smaller.magnitude(); digit < greater.magnitude(); ++digit)
+    {
+        result[digit] = greater.digit(digit);
+    }
+
+    return bignum::Unsigned(result);
+}
+
+Unsigned operator-(const Unsigned& lhs, const Unsigned& rhs)
+{
+    return {};
+}
+
 std::ostream& operator<<(std::ostream& os, const Unsigned& value)
 {
     for(auto digit = value.magnitude(); digit > 0u; --digit)
