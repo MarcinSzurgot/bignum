@@ -110,9 +110,3 @@ TEST(UnsignedAdditionAndSubtractionOperatorsTests, testThatAddsDifferentMagnitud
         ASSERT_EQ(given, expected);
     }
 }
-
-TEST(UnsignedAdditionAndSubtractionOperatorsTests, testThat)
-{
-    // given
-
-}

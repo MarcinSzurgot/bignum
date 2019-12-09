@@ -17,7 +17,7 @@ target_include_directories(
     PRIVATE
         ${CMAKE_SOURCE_DIR}/include/bignum
         ${CMAKE_SOURCE_DIR}/src
-        
+
     INTERFACE
         ${CMAKE_SOURCE_DIR}/include
 )

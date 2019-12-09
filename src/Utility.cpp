@@ -12,8 +12,8 @@ std::optional<std::size_t> highestBitNumber(const Unsigned& value)
         return std::nullopt;
     }
 
-    const auto msdHighestBit = highestBitNumber(value.msd());
-    return value.magnitude() * bitsPerDigitType + msdHighestBit.value();
+    const auto msdHighestBit = highestBitNumber(value.msd()).value();
+    return (value.magnitude() - 1) * bitsPerDigitType + msdHighestBit;
 }
 
 }

@@ -29,9 +29,4 @@ std::optional<std::size_t> highestBitNumber(Integer value)
 
 std::optional<std::size_t> highestBitNumber(const Unsigned& value);
 
-inline std::pair<digit_type, digit_type> addWithCarry(digit_type lhs, digit_type rhs, digit_type carry)
-{
-
-}
-
 }

@@ -17,6 +17,8 @@ add_executable(
 
     main.cpp
 
+    Addition/AdditionTests.cpp
+
     DigitSet/DigitSetTests.cpp
 
     Unsigned/UnsignedAdditionAndSubtractionOperatorsTests.cpp

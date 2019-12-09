@@ -6,7 +6,7 @@
 #include <limits>
 #include <vector>
 
-TEST(Utility, testThatThereIsNoHighestBit)
+TEST(UtilityTests, testThatThereIsNoHighestBit)
 {
     // given
     const auto zero = 0u;
@@ -19,7 +19,7 @@ TEST(Utility, testThatThereIsNoHighestBit)
     ASSERT_EQ(actual, expected);
 }
 
-TEST(Utility, testThatIsNoHighestBitZeroBigUnsigned)
+TEST(UtilityTests, testThatIsNoHighestBitZeroBigUnsigned)
 {
     // given
     const auto zero = bignum::Unsigned();
@@ -32,7 +32,7 @@ TEST(Utility, testThatIsNoHighestBitZeroBigUnsigned)
     ASSERT_EQ(actual, expected);
 }
 
-TEST(Utility, testThatNegativeIntegerAlwaysHasHighestBit)
+TEST(UtilityTests, testThatNegativeIntegerAlwaysHasHighestBit)
 {
     // given
     const auto expected = sizeof(int) * 8 - 1;
@@ -56,7 +56,7 @@ TEST(Utility, testThatNegativeIntegerAlwaysHasHighestBit)
     }
 }
 
-TEST(Utility, testThatIsHighestBit)
+TEST(UtilityTests, testThatIsHighestBit)
 {
     // given
     const auto unsigneds = []()
@@ -79,7 +79,7 @@ TEST(Utility, testThatIsHighestBit)
     }
 }
 
-TEST(Utility, testThatFindsHighestBitInBigUnsigned)
+TEST(UtilityTests, testThatFindsHighestBitInBigUnsigned)
 {
     // given
     const auto bigUnsigned = bignum::Unsigned
@@ -87,7 +87,7 @@ TEST(Utility, testThatFindsHighestBitInBigUnsigned)
         bignum::digit_type(),
         bignum::digit_type(),
         bignum::digit_type(),
-        bignum::digit_type(1),
+        bignum::digit_type(1 << 1),
     });
     const auto expected = 3 * bignum::bitsPerDigitType + 1;
 
