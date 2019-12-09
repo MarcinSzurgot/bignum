@@ -245,3 +245,26 @@ TEST(UnsignedBinaryShiftTests, testThatRightShiftZeroesWhenIsBiggerThanHighestBi
     // then
     ASSERT_EQ(given, bignum::Unsigned());
 }
+
+TEST(UnsignedBinaryShiftTests, testThatRightShiftsZeroToZero)
+{
+    // given
+    const auto expected = bignum::Unsigned();
+    const auto offset0   = 0u;
+    const auto offset1   = 1u;
+    const auto offset100 = 100u;
+
+    // when
+    const auto givens =
+    {
+        expected >> offset0,
+        expected >> offset1,
+        expected >> offset100
+    };
+
+    // then
+    for(const auto& given : givens)
+    {
+        EXPECT_EQ(given, expected);
+    }
+}

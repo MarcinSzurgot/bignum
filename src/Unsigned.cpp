@@ -119,7 +119,7 @@ Unsigned operator<<(const Unsigned& value, Unsigned::size_type offset)
 
 Unsigned operator>>(const Unsigned& value, Unsigned::size_type offset)
 {
-    if (offset >= bignum::highestBitNumber(value).value_or(0u))
+    if (const auto hbn = bignum::highestBitNumber(value); !hbn || offset > *hbn)
     {
         return {};
     }
@@ -127,7 +127,6 @@ Unsigned operator>>(const Unsigned& value, Unsigned::size_type offset)
     const auto digitOffset = offset / bitsPerDigitType;
     const auto bitOffset = offset % bitsPerDigitType;
     const auto reversedBitOffset = bitsPerDigitType - bitOffset;
-    const auto highestBit = *bignum::highestBitNumber(value.msd());
 
     auto digits = bignum::DigitSet
     (
