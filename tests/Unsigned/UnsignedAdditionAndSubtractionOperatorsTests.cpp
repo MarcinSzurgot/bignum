@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+// Addition
+
 TEST(UnsignedAdditionAndSubtractionOperatorsTests, testThatUnaryPlusDoesNotChange)
 {
     // given
@@ -76,7 +78,7 @@ TEST(UnsignedAdditionAndSubtractionOperatorsTests, testThatSimplyAddsDigits)
     ASSERT_EQ(given, expected);
 }
 
-TEST(UnsignedAdditionAndSubtractionOperatorsTests, testThatAddDifferentMagnitudeValues)
+TEST(UnsignedAdditionAndSubtractionOperatorsTests, testThatAddsDifferentMagnitudeValues)
 {
     // given
     const auto smaller = bignum::Unsigned
@@ -107,4 +109,10 @@ TEST(UnsignedAdditionAndSubtractionOperatorsTests, testThatAddDifferentMagnitude
     {
         ASSERT_EQ(given, expected);
     }
+}
+
+TEST(UnsignedAdditionAndSubtractionOperatorsTests, testThat)
+{
+    // given
+
 }

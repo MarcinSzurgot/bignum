@@ -1,4 +1,5 @@
 #include <bignum/Utility.hpp>
+#include <bignum/Unsigned.hpp>
 
 #include <gtest/gtest.h>
 
@@ -9,6 +10,19 @@ TEST(Utility, testThatThereIsNoHighestBit)
 {
     // given
     const auto zero = 0u;
+    const auto expected = std::nullopt;
+
+    // when
+    const auto actual = bignum::highestBitNumber(zero);
+
+    // then
+    ASSERT_EQ(actual, expected);
+}
+
+TEST(Utility, testThatIsNoHighestBitZeroBigUnsigned)
+{
+    // given
+    const auto zero = bignum::Unsigned();
     const auto expected = std::nullopt;
 
     // when
@@ -63,4 +77,23 @@ TEST(Utility, testThatIsHighestBit)
         // then
         ASSERT_EQ(given, expected);
     }
+}
+
+TEST(Utility, testThatFindsHighestBitInBigUnsigned)
+{
+    // given
+    const auto bigUnsigned = bignum::Unsigned
+    ({
+        bignum::digit_type(),
+        bignum::digit_type(),
+        bignum::digit_type(),
+        bignum::digit_type(1),
+    });
+    const auto expected = 3 * bignum::bitsPerDigitType + 1;
+
+    // when
+    const auto given = bignum::highestBitNumber(bigUnsigned);
+
+    // then
+    ASSERT_EQ(given.value(), expected);
 }
