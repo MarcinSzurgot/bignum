@@ -15,9 +15,9 @@ struct IntWrapper
     using int_type = IntType;
     using size_type = std::size_t;
 
-    constexpr IntWrapper() : value() {}
-    constexpr IntWrapper(int_type value) : value(value) {}
-    constexpr IntWrapper(const IntWrapper& other) : value(value.value) {}
+    explicit constexpr IntWrapper() : value() {}
+    explicit constexpr IntWrapper(int_type value) : value(value) {}
+    explicit constexpr IntWrapper(const IntWrapper& other) : value(value.value) {}
 
     constexpr IntWrapper& operator=(IntWrapper other) { return value = other.value, *this; }
 

@@ -17,9 +17,9 @@ add_executable(
 
     main.cpp
 
-    # Addition/AdditionTests.cpp
+    Addition/AdditionTests.cpp
 
-    # DigitSet/DigitSetTests.cpp
+    DigitSet/DigitSetTests.cpp
 
     IntWrapper/IntWrapperConversionTests.cpp
 

@@ -14,7 +14,8 @@ struct DigitSet
     using digit_type = DigitType;
     using size_type = typename std::vector<digit_type>::size_type;
 
-    DigitSet() : DigitSet({digit_type()})
+    DigitSet()
+    : digits_(size_type(1), digit_type())
     {
 
     }
@@ -32,7 +33,7 @@ struct DigitSet
     }
 
     DigitSet(std::initializer_list<digit_type> list)
-    : digits_(list)
+    : digits_(list.size() ? list : std::initializer_list<digit_type>{digit_type()})
     {
 
     }

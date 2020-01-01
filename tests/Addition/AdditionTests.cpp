@@ -8,12 +8,12 @@
 TEST(AdditionTests, testThatAddsWithCarry)
 {
     // given
-    const auto operands = std::vector<std::array<bignum::digit_type, 4>>
+    const auto operands = std::vector
     {
-        {1, 1, 0, 2},
-        {0, 0, 1, 1},
-        {1, 1, 1, 3},
-        {0, 0, 0, 0},
+        std::array{1u, 1u, 0u, 2u},
+        std::array{0u, 0u, 1u, 1u},
+        std::array{1u, 1u, 1u, 3u},
+        std::array{0u, 0u, 0u, 0u},
     };
 
     for (const auto [lhs, rhs, carry, expected] : operands)

@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <cstdint>
+#include <type_traits>
 #include <vector>
 
 namespace bignum
@@ -11,9 +12,14 @@ namespace bignum
 
 enum class Comparison {LT, EQ, GT};
 
+template<typename DigitType>
 struct Unsigned
 {
-    using size_type = typename DigitSet::size_type;
+    static_assert(std::is_unsigned_v<DigitType>);
+
+    using digit_type = DigitType;
+    using digit_set = DigitSet<digit_type>;
+    using size_type = typename digit_set::size_type;
 
     Unsigned();
 

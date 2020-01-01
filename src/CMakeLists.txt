@@ -1,21 +1,17 @@
 project(bignum CXX)
 
-add_library(bignum)
+add_library(bignum INTERFACE)
 
 target_sources(
     bignum
-    PUBLIC
-        ${CMAKE_SOURCE_DIR}/include/bignum/IntWrapper.hpp
-        # ${CMAKE_SOURCE_DIR}/include/bignum/Unsigned.hpp
-        ${CMAKE_SOURCE_DIR}/include/bignum/DigitSet.hpp
+    INTERFACE
+    ${CMAKE_SOURCE_DIR}/include/bignum/IntWrapper.hpp
+    ${CMAKE_SOURCE_DIR}/include/bignum/Unsigned.hpp
+    ${CMAKE_SOURCE_DIR}/include/bignum/DigitSet.hpp
 )
 
 target_include_directories(
     bignum
-    PRIVATE
-        ${CMAKE_SOURCE_DIR}/include/bignum
-        ${CMAKE_SOURCE_DIR}/src
-
     INTERFACE
         ${CMAKE_SOURCE_DIR}/include
 )

@@ -1,15 +1,17 @@
 #pragma once
 
-#include "Defines.hpp"
-
+#include <type_traits>
 #include <utility>
 
 namespace bignum
 {
 
-inline std::pair<digit_type, digit_type> addWithCarry(digit_type lhs, digit_type rhs, digit_type carry)
+template<typename UnsignedType>
+std::pair<UnsignedType, UnsignedType> addWithCarry(UnsignedType lhs, UnsignedType rhs, UnsignedType carry)
 {
-    return {lhs + rhs + carry, digit_type()};
+    static_assert(std::is_unsigned_v<UnsignedType>);
+    
+    return {lhs + rhs + carry, UnsignedType()};
 }
 
 }
