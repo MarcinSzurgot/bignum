@@ -17,16 +17,18 @@ add_executable(
 
     main.cpp
 
-    Addition/AdditionTests.cpp
+    # Addition/AdditionTests.cpp
 
-    DigitSet/DigitSetTests.cpp
+    # DigitSet/DigitSetTests.cpp
 
-    Unsigned/UnsignedAdditionAndSubtractionOperatorsTests.cpp
-    Unsigned/UnsignedBinaryShiftTests.cpp
-    Unsigned/UnsignedComparatorTests.cpp
-    Unsigned/UnsignedTests.cpp
+    IntWrapper/IntWrapperConversionTests.cpp
 
-    Utility/UtilityTests.cpp
+    # Unsigned/UnsignedAdditionAndSubtractionOperatorsTests.cpp
+    # Unsigned/UnsignedBinaryShiftTests.cpp
+    # Unsigned/UnsignedComparatorTests.cpp
+    # Unsigned/UnsignedTests.cpp
+    #
+    # Utility/UtilityTests.cpp
 )
 
 target_link_libraries(

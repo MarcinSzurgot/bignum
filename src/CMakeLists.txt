@@ -1,14 +1,12 @@
+project(bignum CXX)
+
 add_library(bignum)
 
 target_sources(
     bignum
-    PRIVATE
-        DigitSet.cpp
-        Unsigned.cpp
-        Utility.cpp
-
     PUBLIC
-        ${CMAKE_SOURCE_DIR}/include/bignum/Unsigned.hpp
+        ${CMAKE_SOURCE_DIR}/include/bignum/IntWrapper.hpp
+        # ${CMAKE_SOURCE_DIR}/include/bignum/Unsigned.hpp
         ${CMAKE_SOURCE_DIR}/include/bignum/DigitSet.hpp
 )
 
@@ -22,8 +20,8 @@ target_include_directories(
         ${CMAKE_SOURCE_DIR}/include
 )
 
-set_target_properties(
-    bignum
-    PROPERTIES
-        CXX_STANDARD 17
-)
+# set_target_properties(
+#     bignum
+#     PROPERTIES
+#         CXX_STANDARD 17
+# )
