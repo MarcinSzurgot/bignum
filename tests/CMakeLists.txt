@@ -21,12 +21,11 @@ add_executable(
 
     DigitSet/DigitSetTests.cpp
 
-    IntWrapper/IntWrapperConversionTests.cpp
-
     # Unsigned/UnsignedAdditionAndSubtractionOperatorsTests.cpp
     # Unsigned/UnsignedBinaryShiftTests.cpp
     # Unsigned/UnsignedComparatorTests.cpp
-    # Unsigned/UnsignedTests.cpp
+    Unsigned/UnsignedComparisonOperatorTests.cpp
+    Unsigned/UnsignedTests.cpp
     #
     # Utility/UtilityTests.cpp
 )

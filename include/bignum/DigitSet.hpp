@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iosfwd>
+#include <type_traits>
 #include <vector>
 
 namespace bignum
@@ -9,7 +10,7 @@ namespace bignum
 template<typename DigitType>
 struct DigitSet
 {
-    static_assert(std::is_integral_v<DigitType>);
+    static_cast(std::is_integer)
 
     using digit_type = DigitType;
     using size_type = typename std::vector<digit_type>::size_type;
@@ -118,6 +119,11 @@ struct DigitSet
     {
         return !(lhs == rhs);
     }
+
+    friend auto begin(      DigitSet& digitSet) { return begin(digitSet.digits_); }
+    friend auto begin(const DigitSet& digitSet) { return begin(digitSet.digits_); }
+    friend auto end(      DigitSet& digitSet) { return end(digitSet.digits_); }
+    friend auto end(const DigitSet& digitSet) { return end(digitSet.digits_); }
 
 private:
     std::vector<digit_type> digits_;
