@@ -23,7 +23,7 @@ add_executable(
 
     # Unsigned/UnsignedAdditionAndSubtractionOperatorsTests.cpp
     # Unsigned/UnsignedBinaryShiftTests.cpp
-    # Unsigned/UnsignedComparatorTests.cpp
+    Unsigned/UnsignedBitshiftOperatorsTests.cpp
     Unsigned/UnsignedComparisonOperatorTests.cpp
     Unsigned/UnsignedTests.cpp
     #

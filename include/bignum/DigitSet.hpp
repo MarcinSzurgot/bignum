@@ -10,7 +10,7 @@ namespace bignum
 template<typename DigitType>
 struct DigitSet
 {
-    static_cast(std::is_integer)
+    static_assert(std::is_integral_v<DigitType>);
 
     using digit_type = DigitType;
     using size_type = typename std::vector<digit_type>::size_type;
@@ -24,13 +24,13 @@ struct DigitSet
     DigitSet(const std::vector<digit_type>& digits)
     : digits_(digits.empty() ? std::vector<digit_type>{digit_type()} : digits)
     {
-        trim();
+
     }
 
     DigitSet(std::vector<digit_type>&& digits)
     : digits_(digits.empty() ? std::vector<digit_type>{digit_type()} : std::move(digits))
     {
-        trim();
+
     }
 
     DigitSet(std::initializer_list<digit_type> list)
@@ -95,17 +95,18 @@ struct DigitSet
         digits_.resize(size ? size : size_type(1));
     }
 
+    template<typename
+    void edit()
+    {
+
+    }
+
     size_type size() const
     {
         return digits_.size();
     }
 
     digit_type operator[](size_type index) const
-    {
-        return digits_[index];
-    }
-
-    digit_type& operator[](size_type index)
     {
         return digits_[index];
     }

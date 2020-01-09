@@ -16,14 +16,14 @@ enum class Comparison {LT, EQ, GT};
 template<typename DigitType>
 struct Unsigned
 {
-    using digit_type = IntWrapper<DigitType>;
+    using digit_type = DigitType;
     using digit_set = DigitSet<digit_type>;
     using size_type = typename digit_set::size_type;
 
     Unsigned() = default;
 
     Unsigned(digit_type digit)
-    : digits_(digit_set(digit))
+    : digits_(digit_set(1, digit))
     {
 
     }
@@ -71,20 +71,22 @@ struct Unsigned
     >
     explicit operator Float() const
     {
-        constexpr auto order = digit_type::max().value + Float(1);
+        constexpr auto order = std::numeric_limits<digit_type>::max() + Float(1);
 
         return std::accumulate
         (
             next(begin(digits_)),
             end(digits_),
             static_cast<Float>(*begin(digits_)),
-            [](auto s, auto d) { return s * order + d.value; }
+            [](auto s, auto d) { return s * order + d; }
         );
     }
 
     explicit operator digit_type() const { return msd(); }
 
     explicit operator bool() const { return static_cast<bool>(msd()); }
+
+    digit_type operator[](size_type digit) const { return digits_[digit]; }
 
     friend bool operator!(const Unsigned& value) { return !static_cast<bool>(value); }
 
@@ -117,4 +119,5 @@ private:
 
 }
 
+#include "Operators/UnsignedBitshiftOperators.hpp"
 #include "Operators/UnsignedComparisonOperators.hpp"

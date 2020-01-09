@@ -7,7 +7,7 @@ TEST(UnsignedTests, testThatCastsToFloat)
     using unsigned_type = bignum::Unsigned<std::uint8_t>;
     using digit_type    = typename unsigned_type::digit_type;
 
-    constexpr auto order = digit_type::max().value + 1.f;
+    constexpr auto order = std::numeric_limits<digit_type>::max() + 1.f;
 
     // given
     const auto value = unsigned_type

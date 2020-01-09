@@ -38,6 +38,18 @@ TEST(DigitSetTests, testThatInitializerListConstructsWithAtLeastOneZero)
     ASSERT_EQ(digits[0], 0);
 }
 
+TEST(DigitSetTests, testThatInitializerListConstructTrims)
+{
+    // given
+    const auto initializerList = std::initializer_list<int>{1, 1, 1, 0};
+
+    // when
+    const auto digits = bignum::DigitSet(initializerList);
+
+    // then
+    ASSERT_EQ(digits.size(), 3);
+}
+
 TEST(DigitSetTests, testThatSizeConstructsWithAtLeatOneZero)
 {
     // given
