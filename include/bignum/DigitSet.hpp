@@ -1,8 +1,10 @@
 #pragma once
 
+#include "NonEmptyVector.hpp"
+
+#include <algorithm>
 #include <iosfwd>
-#include <type_traits>
-#include <vector>
+#include <iterator>
 
 namespace bignum
 {
@@ -13,121 +15,82 @@ struct DigitSet
     static_assert(std::is_integral_v<DigitType>);
 
     using digit_type = DigitType;
-    using size_type = typename std::vector<digit_type>::size_type;
+    using size_type = typename NonEmptyVector<digit_type>::size_type;
+    using const_reference = typename NonEmptyVector<digit_type>::const_reference;
 
     DigitSet()
-    : digits_(size_type(1), digit_type())
+    : digits_()
     {
 
     }
 
-    DigitSet(const std::vector<digit_type>& digits)
-    : digits_(digits.empty() ? std::vector<digit_type>{digit_type()} : digits)
-    {
-
-    }
-
-    DigitSet(std::vector<digit_type>&& digits)
-    : digits_(digits.empty() ? std::vector<digit_type>{digit_type()} : std::move(digits))
+    DigitSet(size_type size, digit_type sample = {})
+    : digits_(sample ? size : size_type(1), sample)
     {
 
     }
 
     DigitSet(std::initializer_list<digit_type> list)
-    : digits_(list.size() ? list : std::initializer_list<digit_type>{digit_type()})
+    : digits_(list)
     {
-
+        trim();
     }
 
-    DigitSet(size_type size, const digit_type& sample = {})
-    : digits_(size ? size : size_type(1), sample)
+    DigitSet(const NonEmptyVector<digit_type>& digits)
+    : digits_(digits)
     {
-
+        trim();
     }
 
-    void trim()
+    DigitSet(NonEmptyVector<digit_type>&& digits)
+    : digits_(std::move(digits))
     {
-        auto lastNonZeroIndex = size_type();
-        for(auto digit = digits_.size(); digit > 0u; --digit)
-        {
-            if (digits_[digit - 1])
-            {
-                lastNonZeroIndex = digit - 1;
-                break;
-            }
-        }
-        digits_.resize(lastNonZeroIndex + 1);
+        trim();
     }
 
-    void push_front(digit_type digit)
+    template<typename Operator>
+    void edit(Operator&& op)
     {
-        digits_.insert(begin(digits_), digit);
+        op(digits_);
+        trim();
     }
 
-    void push_back(digit_type digit)
-    {
-        digits_.push_back(digit);
-    }
+    const_reference operator[](size_type index) const { return digits_[index]; }
 
-    void pop_back()
-    {
-        if (digits_.size() > size_type(1))
-        {
-            digits_.pop_back();
-        }
-    }
+    friend bool empty(const DigitSet& digitSet) { return empty(digitSet.digits_); }
+    friend size_type size(const DigitSet& digitSet) { return size(digitSet.digits_); }
 
-    void pop_front()
-    {
-        if (digits_.size() > size_type(1))
-        {
-            digits_.erase(begin(digits_));
-        }
-    }
+    friend auto begin(DigitSet& digitSet) { return begin(digitSet.digits_); }
+    friend auto   end(DigitSet& digitSet) { return   end(digitSet.digits_); }
 
-    void clear()
-    {
-        *this = {};
-    }
-
-    void resize(size_type size)
-    {
-        digits_.resize(size ? size : size_type(1));
-    }
-
-    template<typename
-    void edit()
-    {
-
-    }
-
-    size_type size() const
-    {
-        return digits_.size();
-    }
-
-    digit_type operator[](size_type index) const
-    {
-        return digits_[index];
-    }
-
-    friend bool operator==(const DigitSet& lhs, const DigitSet& rhs)
-    {
-        return lhs.digits_ == rhs.digits_;
-    }
-
-    friend bool operator!=(const DigitSet& lhs, const DigitSet& rhs)
-    {
-        return !(lhs == rhs);
-    }
-
-    friend auto begin(      DigitSet& digitSet) { return begin(digitSet.digits_); }
     friend auto begin(const DigitSet& digitSet) { return begin(digitSet.digits_); }
-    friend auto end(      DigitSet& digitSet) { return end(digitSet.digits_); }
-    friend auto end(const DigitSet& digitSet) { return end(digitSet.digits_); }
+    friend auto   end(const DigitSet& digitSet) { return   end(digitSet.digits_); }
+
+    friend auto rbegin(DigitSet& digitSet) { return rbegin(digitSet.digits_); }
+    friend auto   rend(DigitSet& digitSet) { return   rend(digitSet.digits_); }
+
+    friend auto rbegin(const DigitSet& digitSet) { return rbegin(digitSet.digits_); }
+    friend auto   rend(const DigitSet& digitSet) { return   rend(digitSet.digits_); }
 
 private:
-    std::vector<digit_type> digits_;
+    void trim()
+    {
+        const auto lastNonZeroReverse = std::find_if
+        (
+            rbegin(digits_),
+            rend(digits_),
+            [](digit_type value)
+            {
+                return value != digit_type();
+            }
+        );
+        const auto lastNonZero = std::next(lastNonZeroReverse).base();
+        const auto firstLeadingZero = std::next(lastNonZero);
+
+        digits_.erase(firstLeadingZero, end(digits_));
+    }
+
+    NonEmptyVector<digit_type> digits_;
 };
 
 }

@@ -23,7 +23,7 @@ struct Unsigned
     Unsigned() = default;
 
     Unsigned(digit_type digit)
-    : digits_(digit_set(1, digit))
+    : digits_(1, digit)
     {
 
     }
@@ -50,7 +50,7 @@ struct Unsigned
      * Returns the number of digits. It is always greater than zero.
      * @return number of digits.
      */
-    size_type magnitude() const { return digits_.size(); }
+    size_type magnitude() const { return size(digits_); }
 
     digit_type digit(size_type index) const { return digits_[index]; }
 

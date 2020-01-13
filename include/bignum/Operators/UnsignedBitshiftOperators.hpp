@@ -18,9 +18,9 @@ Unsigned<DigitType> operator<<
 
     const auto newSize = value.magnitude() + digitOffset;
 
-    auto digits = DigitSet(newSize, DigitType());
-    
-    return digits;
+    auto digits = NonEmptyVector<DigitType>(newSize);
+
+    return Unsigned(DigitSet(digits));
 }
 
 template<typename DigitType>
