@@ -5,10 +5,7 @@ add_library(bignum INTERFACE)
 target_sources(
     bignum
     INTERFACE
-    ${CMAKE_SOURCE_DIR}/include/bignum/DigitSet.hpp
-    ${CMAKE_SOURCE_DIR}/include/bignum/NonEmptyVector.hpp
-    ${CMAKE_SOURCE_DIR}/include/bignum/Operators/UnsignedComparisonOperators.hpp
-    ${CMAKE_SOURCE_DIR}/include/bignum/Unsigned.hpp
+    
 )
 
 target_include_directories(

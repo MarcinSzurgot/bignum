@@ -16,18 +16,6 @@ add_executable(
     tests
 
     main.cpp
-
-    Addition/AdditionTests.cpp
-
-    DigitSet/DigitSetTests.cpp
-
-    # Unsigned/UnsignedAdditionAndSubtractionOperatorsTests.cpp
-    # Unsigned/UnsignedBinaryShiftTests.cpp
-    Unsigned/UnsignedBitshiftOperatorsTests.cpp
-    Unsigned/UnsignedComparisonOperatorTests.cpp
-    Unsigned/UnsignedTests.cpp
-    #
-    # Utility/UtilityTests.cpp
 )
 
 target_link_libraries(
