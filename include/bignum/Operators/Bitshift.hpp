@@ -46,9 +46,45 @@ Unsigned<DigitType> operator<<(const Unsigned<DigitType>& value, typename Unsign
 }
 
 template<typename DigitType>
-Unsigned<DigitType> operator>>(const Unsigned<DigitType>& lhs, typename Unsigned<DigitType>::size_type offset)
+Unsigned<DigitType> operator>>(const Unsigned<DigitType>& value, typename Unsigned<DigitType>::size_type offset)
 {
+    if (!value)
+    {
+        return {};
+    }
+    else
+    {
+        const auto bitsize = sizeof(DigitType) * CHAR_BIT;
+        const auto digitOffset = offset / bitsize;
 
+        if (digitOffset >= value.magnitude())
+        {
+            return {};
+        }
+        else
+        {
+            const auto bitOffset = offset % bitsize;
+
+            auto result = bignum::Unsigned(value.magnitude() - digitOffset, DigitType());
+            if (!bitOffset)
+            {
+                for (auto d = 0u; d < result.magnitude(); ++d)
+                {
+                    result[d] = value[d + digitOffset];
+                }
+            }
+            else
+            {
+                for (auto d = 0u; d < result.magnitude(); ++d)
+                {
+                    result[d] |= value[d + digitOffset + 0] >> bitOffset;
+                    result[d] |= value[d + digitOffset + 1] << (bitsize - bitOffset);
+                }
+                result.trim();
+            }
+            return result;
+        }
+    }
 }
 
 }
