@@ -23,7 +23,7 @@ struct Unsigned
     using size_type = typename std::vector<digit_type>::size_type;
 
     Unsigned()
-    : digits_(1)
+    : digits_(1, digit_type())
     {
 
     }
@@ -68,8 +68,11 @@ struct Unsigned
     template<typename DigitType_> friend bool operator!=(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
 
 
-    template<typename DigitType_> friend Unsigned<DigitType_> operator<<(const Unsigned<DigitType_>& value, typename Unsigned<DigitType_>::size_type offset);
-    template<typename DigitType_> friend Unsigned<DigitType_> operator>>(const Unsigned<DigitType_>& value, typename Unsigned<DigitType_>::size_type offset);
+    template<typename DigitType_, typename Integer> friend Unsigned<DigitType_> operator<<(const Unsigned<DigitType_>& value, Integer offset);
+    template<typename DigitType_, typename Integer> friend Unsigned<DigitType_> operator>>(const Unsigned<DigitType_>& value, Integer offset);
+
+    template<typename DigitType_, typename Integer> friend Unsigned<DigitType_>& operator<<(Unsigned<DigitType_>& value, Integer offset);
+    template<typename DigitType_, typename Integer> friend Unsigned<DigitType_>& operator>>(Unsigned<DigitType_>& value, Integer offset);
 
 private:
     Unsigned(size_type size, digit_type sample)
@@ -98,3 +101,4 @@ private:
 }
 
 #include "Operators/Bitshift.hpp"
+#include "Operators/Comparison.hpp"

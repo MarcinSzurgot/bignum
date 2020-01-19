@@ -3,13 +3,13 @@
 #include "../Unsigned.hpp"
 #include "../Utility.hpp"
 
-#include <iostream>
+#include <type_traits>
 
 namespace bignum
 {
 
-template<typename DigitType>
-Unsigned<DigitType> operator<<(const Unsigned<DigitType>& value, typename Unsigned<DigitType>::size_type offset)
+template<typename DigitType, typename Integer>
+Unsigned<DigitType> operator<<(const Unsigned<DigitType>& value, Integer offset)
 {
     if (!value)
     {
@@ -39,14 +39,17 @@ Unsigned<DigitType> operator<<(const Unsigned<DigitType>& value, typename Unsign
                 result[d + digitOffset + 0] |= value[d] << bitOffset;
                 result[d + digitOffset + 1] |= value[d] >> (bitsize - bitOffset);
             }
-            result.trim();
+            if (!result.msd() && result.magnitude() > 1)
+            {
+                result.digits_.pop_back();
+            }
             return result;
         }
     }
 }
 
-template<typename DigitType>
-Unsigned<DigitType> operator>>(const Unsigned<DigitType>& value, typename Unsigned<DigitType>::size_type offset)
+template<typename DigitType, typename Integer>
+Unsigned<DigitType> operator>>(const Unsigned<DigitType>& value, Integer offset)
 {
     if (!value)
     {
@@ -80,11 +83,27 @@ Unsigned<DigitType> operator>>(const Unsigned<DigitType>& value, typename Unsign
                     result[d] |= value[d + digitOffset + 0] >> bitOffset;
                     result[d] |= value[d + digitOffset + 1] << (bitsize - bitOffset);
                 }
-                result.trim();
+                if (!result.msd() && result.magnitude() > 1)
+                {
+                    result.digits_.pop_back();
+                }
             }
             return result;
         }
     }
 }
+
+template<typename DigitType_, typename Integer>
+Unsigned<DigitType_>& operator<<(Unsigned<DigitType_>& value, Integer offset)
+{
+    return value = value << offset;
+}
+
+template<typename DigitType_, typename Integer>
+Unsigned<DigitType_>& operator>>(Unsigned<DigitType_>& value, Integer offset)
+{
+    return value = value >> offset;
+}
+
 
 }
