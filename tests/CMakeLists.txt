@@ -14,9 +14,11 @@ add_subdirectory(
 
 add_executable(
     tests
-    Unsigned/UnsignedTests.cpp
+    Unsigned/UnsignedAddDiffTests.cpp
     Unsigned/UnsignedBitshiftTests.cpp
     Unsigned/UnsignedComparisonTests.cpp
+    Unsigned/UnsignedMulDivTests.cpp
+    Unsigned/UnsignedTests.cpp
     UtilityTests.cpp
     main.cpp
 )
