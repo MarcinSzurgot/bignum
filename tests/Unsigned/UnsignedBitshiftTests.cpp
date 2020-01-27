@@ -1,26 +1,9 @@
-#include <bignum/Unsigned.hpp>
+#include "../TestHelpers.hpp"
 
+#include <bignum/Unsigned.hpp>
 #include <gtest/gtest.h>
 
 #include <sstream>
-
-namespace
-{
-
-template<typename T>
-std::string toString(const bignum::Unsigned<T>& value)
-{
-    auto stream = std::stringstream();
-    stream << "{";
-    for (auto d = 0u; d < value.magnitude(); ++d)
-    {
-        stream << +value[d] << ", ";
-    }
-    stream << "}";
-    return stream.str();
-}
-
-}
 
 TEST(UnsignedBitshiftTests, testThatLeftShiftsByWholeDigits)
 {

@@ -1,41 +1,9 @@
-#include <bignum/Operators/AddDiff.hpp>
+#include "../TestHelpers.hpp"
 
+#include <bignum/Operators/AddDiff.hpp>
 #include <gtest/gtest.h>
 
 #include <array>
-#include <sstream>
-
-namespace
-{
-
-template<typename T>
-std::string toString(const bignum::Unsigned<T>& value)
-{
-    auto stream = std::stringstream();
-    stream << "{";
-    for (auto d = 0u; d < value.magnitude(); ++d)
-    {
-        stream << +value[d] << ", ";
-    }
-    stream << "}";
-    return stream.str();
-}
-
-template<typename Integer>
-std::string toBinString(Integer value)
-{
-    constexpr auto bitSize = sizeof(Integer) * CHAR_BIT;
-
-    auto binary = std::string(bitSize, '0');
-    for (auto& bit : binary)
-    {
-        bit += static_cast<bool>(value & (Integer(1) << (bitSize - 1)));
-        value <<= 1;
-    }
-    return binary;
-}
-
-}
 
 TEST(UnsignedAddDiffTests, testThatAddsSingleDigits)
 {

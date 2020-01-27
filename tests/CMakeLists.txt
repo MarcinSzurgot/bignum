@@ -14,13 +14,15 @@ add_subdirectory(
 
 add_executable(
     tests
+
+    main.cpp
+    TestHelpers.hpp
     Unsigned/UnsignedAddDiffTests.cpp
     Unsigned/UnsignedBitshiftTests.cpp
     Unsigned/UnsignedComparisonTests.cpp
     Unsigned/UnsignedMulDivTests.cpp
     Unsigned/UnsignedTests.cpp
     UtilityTests.cpp
-    main.cpp
 )
 
 target_link_libraries(

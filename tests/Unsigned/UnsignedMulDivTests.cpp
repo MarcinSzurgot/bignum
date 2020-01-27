@@ -1,41 +1,9 @@
-#include <bignum/Unsigned.hpp>
+#include "../TestHelpers.hpp"
 
+#include <bignum/Unsigned.hpp>
 #include <gtest/gtest.h>
 
 #include <array>
-#include <sstream>
-
-namespace
-{
-
-template<typename T>
-std::string toString(const bignum::Unsigned<T>& value)
-{
-    auto stream = std::stringstream();
-    stream << "{";
-    for (auto d = 0u; d < value.magnitude(); ++d)
-    {
-        stream << +value[d] << ", ";
-    }
-    stream << "}";
-    return stream.str();
-}
-
-template<typename Integer>
-std::string toBinString(Integer value)
-{
-    constexpr auto bitSize = sizeof(Integer) * CHAR_BIT;
-
-    auto binary = std::string(bitSize, '0');
-    for (auto& bit : binary)
-    {
-        bit += static_cast<bool>(value & (Integer(1) << (bitSize - 1)));
-        value <<= 1;
-    }
-    return binary;
-}
-
-}
 
 TEST(UnsignedMulDivTests, testThatSingleDigitMultipliesForSimpleCase)
 {
@@ -171,23 +139,18 @@ TEST(UnsignedMulDivTests, testThatMultipliesWithOverflow)
     const auto lhs = bignum::Unsigned
     {
         std::uint8_t(255),
-        // std::uint8_t(255),
-        // std::uint8_t(255),
+        std::uint8_t(255),
     };
     const auto rhs = bignum::Unsigned
     {
         std::uint8_t(255),
-        // std::uint8_t(255),
-        // std::uint8_t(255),
+        std::uint8_t(255),
     };
     const auto expected = bignum::Unsigned
     {
         std::uint8_t(1),
         std::uint8_t(0),
-        std::uint8_t(0),
-
         std::uint8_t(254),
-        std::uint8_t(255),
         std::uint8_t(255),
     };
 
