@@ -60,7 +60,7 @@ constexpr std::pair<DigitType, DigitType> mul(DigitType lhs, DigitType rhs)
 template<typename DigitType>
 Unsigned<DigitType> operator*(const Unsigned<DigitType>& lhs, const Unsigned<DigitType>& rhs)
 {
-    auto result = Unsigned(lhs.magnitude() + rhs.magnitude() + 1, DigitType());
+    auto result = Unsigned(lhs.magnitude() + rhs.magnitude(), DigitType());
     for (auto d1 = 0u; d1 < lhs.magnitude(); ++d1)
     {
         auto carry = false;
@@ -69,12 +69,11 @@ Unsigned<DigitType> operator*(const Unsigned<DigitType>& lhs, const Unsigned<Dig
             const auto [a, b] = mul(lhs[d1], rhs[d2]);
             std::tie(result[d1 + d2 + 0], carry) = add(result[d1 + d2 + 0], a, carry);
             std::tie(result[d1 + d2 + 1], carry) = add(result[d1 + d2 + 1], b, carry);
-        }
 
-        for (auto d2 = rhs.magnitude(); carry; ++d2)
-        {
-            result[d1 + d2] += carry;
-            carry = !result[d1 + d2];
+            for (auto c = 2u; carry; ++c)
+            {
+                std::tie(result[d1 + d2 + c], carry) = add(result[d1 + d2 + c], DigitType(carry));
+            }
         }
     }
     result.trim();

@@ -140,9 +140,13 @@ TEST(UnsignedMulDivTests, testThatMultipliesWithOverflow)
     {
         std::uint8_t(255),
         std::uint8_t(255),
+        std::uint8_t(255),
+        std::uint8_t(255),
     };
     const auto rhs = bignum::Unsigned
     {
+        std::uint8_t(255),
+        std::uint8_t(255),
         std::uint8_t(255),
         std::uint8_t(255),
     };
@@ -150,7 +154,11 @@ TEST(UnsignedMulDivTests, testThatMultipliesWithOverflow)
     {
         std::uint8_t(1),
         std::uint8_t(0),
+        std::uint8_t(0),
+        std::uint8_t(0),
         std::uint8_t(254),
+        std::uint8_t(255),
+        std::uint8_t(255),
         std::uint8_t(255),
     };
 
