@@ -34,6 +34,18 @@ struct Unsigned
         trim();
     }
 
+    Unsigned(const std::vector<digit_type>& digits)
+    : digits_(digits)
+    {
+        trim();
+    }
+
+    Unsigned(std::vector<digit_type>&& digits)
+    : digits_(std::move(digits))
+    {
+        trim();
+    }
+
     digit_type msd() const
     {
         return digits_.back();
@@ -82,6 +94,10 @@ struct Unsigned
     template<typename DigitType_> friend Unsigned<DigitType_>& operator+=(Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
     template<typename DigitType_> friend Unsigned<DigitType_>& operator-=(Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
 
+    template<typename DigitType_> friend Unsigned<DigitType_> operator&(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
+    template<typename DigitType_> friend Unsigned<DigitType_> operator|(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
+    template<typename DigitType_> friend Unsigned<DigitType_> operator^(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
+
 private:
     Unsigned(size_type size, digit_type sample)
     : digits_(size, sample)
@@ -110,5 +126,6 @@ private:
 
 #include "Operators/AddDiff.hpp"
 #include "Operators/Bitshift.hpp"
+#include "Operators/BitwiseLogic.hpp"
 #include "Operators/Comparison.hpp"
 #include "Operators/MulDiv.hpp"

@@ -9,6 +9,7 @@ target_sources(
     INTERFACE
     ${INTERFACE_PATH}/Operators/Comparison.hpp
     ${INTERFACE_PATH}/Operators/Bitshift.hpp
+    ${INTERFACE_PATH}/Operators/BitwiseLogic.hpp
     ${INTERFACE_PATH}/Unsigned.hpp
     ${INTERFACE_PATH}/Utility.hpp
 )

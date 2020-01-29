@@ -4,6 +4,8 @@
 #include <gtest/gtest.h>
 
 #include <array>
+#include <chrono>
+#include <random>
 
 TEST(UnsignedMulDivTests, testThatSingleDigitMultipliesForSimpleCase)
 {
@@ -169,4 +171,36 @@ TEST(UnsignedMulDivTests, testThatMultipliesWithOverflow)
     ASSERT_EQ(expected, actual)
         << "Expected: " << toString(expected) << "\n"
         << "Actual:   " << toString(actual);
+}
+
+TEST(UnsignedMulDivTests, testThatMultipliesRandomValues)
+{
+    // given
+    constexpr auto numberOfIterations = 10000u;
+    constexpr auto maxSize = 5u;
+    const auto seed = std::uint64_t
+    (
+        std::chrono::high_resolution_clock::now()
+        .time_since_epoch()
+        .count()
+    );
+    auto generator = std::mt19937_64(seed);
+
+    for (auto i = 0u; i < numberOfIterations; ++i)
+    {
+        // given
+        const auto lhs = randomUnsigned<std::uint8_t>(generator, maxSize);
+        const auto rhs = randomUnsigned<std::uint8_t>(generator, maxSize);
+        const auto expected = additionBasedMultiplication(lhs, rhs);
+
+        // when
+        const auto actual = lhs * rhs;
+
+        // then
+        ASSERT_EQ(expected, actual)
+            << "lhs:      " << toString(lhs) << "\n"
+            << "rhs:      " << toString(rhs) << "\n"
+            << "Expected: " << toString(expected) << "\n"
+            << "Actual:   " << toString(actual);
+    }
 }

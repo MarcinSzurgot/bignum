@@ -19,6 +19,7 @@ add_executable(
     TestHelpers.hpp
     Unsigned/UnsignedAddDiffTests.cpp
     Unsigned/UnsignedBitshiftTests.cpp
+    Unsigned/UnsignedBitwiseLogicTests.cpp
     Unsigned/UnsignedComparisonTests.cpp
     Unsigned/UnsignedMulDivTests.cpp
     Unsigned/UnsignedTests.cpp
