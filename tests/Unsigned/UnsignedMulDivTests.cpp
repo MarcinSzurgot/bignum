@@ -178,7 +178,7 @@ TEST(UnsignedMulDivTests, testThatMultipliesRandomValues)
     // given
     constexpr auto numberOfIterations = 10000u;
     constexpr auto maxSize = 5u;
-    const auto seed = std::uint64_t
+    const auto seed = std::int64_t
     (
         std::chrono::high_resolution_clock::now()
         .time_since_epoch()
@@ -202,5 +202,33 @@ TEST(UnsignedMulDivTests, testThatMultipliesRandomValues)
             << "rhs:      " << toString(rhs) << "\n"
             << "Expected: " << toString(expected) << "\n"
             << "Actual:   " << toString(actual);
+    }
+}
+
+TEST(UnsignedMulDivTests, testThatDividesRandomValues)
+{
+    // given
+    constexpr auto numberOfIterations = 10000u;
+    constexpr auto maxSize = 10u;
+    const auto seed = std::int64_t
+    (
+        std::chrono::high_resolution_clock::now()
+        .time_since_epoch()
+        .count()
+    );
+    auto generator = std::mt19937_64(seed);
+
+    for (auto i = 0u; i < numberOfIterations; ++i)
+    {
+        // given
+        const auto divider = randomUnsigned<std::uint8_t>(generator, maxSize);
+        const auto expected = randomUnsigned<std::uint8_t>(generator, maxSize);
+        const auto multiplied = divider * expected;
+
+        // when
+        const auto actual = multiplied / divider;
+
+        // then
+        ASSERT_EQ(expected, actual);
     }
 }

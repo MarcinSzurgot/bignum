@@ -4,25 +4,10 @@
 
 #include "../Unsigned.hpp"
 
-#include <iostream>
 #include <tuple>
 
 namespace bignum
 {
-
-template<typename Integer>
-std::string toBinString(Integer value)
-{
-    constexpr auto bitSize = sizeof(Integer) * CHAR_BIT;
-
-    auto binary = std::string(bitSize, '0');
-    for (auto& bit : binary)
-    {
-        bit += static_cast<bool>(value & (Integer(1) << (bitSize - 1)));
-        value <<= 1;
-    }
-    return binary;
-}
 
 // TODO: Consider optimization for specific unsigned types.
 template<typename DigitType>
@@ -58,6 +43,12 @@ constexpr std::pair<DigitType, DigitType> mul(DigitType lhs, DigitType rhs)
 }
 
 template<typename DigitType>
+constexpr std::pair<DigitType, DigitType> div(std::pair<DigitType, DigitType> lhs, DigitType rhs)
+{
+    return {};
+}
+
+template<typename DigitType>
 Unsigned<DigitType> operator*(const Unsigned<DigitType>& lhs, const Unsigned<DigitType>& rhs)
 {
     auto result = Unsigned(lhs.magnitude() + rhs.magnitude(), DigitType());
@@ -80,10 +71,24 @@ Unsigned<DigitType> operator*(const Unsigned<DigitType>& lhs, const Unsigned<Dig
     return result;
 }
 
-template<typename DigitType> Unsigned<DigitType>
-operator/(const Unsigned<DigitType>& lhs, const Unsigned<DigitType>& rhs)
+template<typename DigitType>
+Unsigned<DigitType> operator/(const Unsigned<DigitType>& lhs, const Unsigned<DigitType>& rhs)
 {
-    return {};
+    constexpr auto bitSize = sizeof(DigitType) * CHAR_BIT;
+
+    auto result = Unsigned
+    (
+        lhs.magnitude() < rhs.magnitude()
+        ? lhs.magnitude() - rhs.magnitude()
+        : 0,
+        DigitType()
+    );
+    // for (auto dividend = lhs, divisor = rhs; dividend < rhs;)
+    // {
+    //     const auto shift = dividend.magnitude() - rhs.magnitude();
+    //     divisor <= shift * b
+    // }
+    return result;
 }
 
 }
