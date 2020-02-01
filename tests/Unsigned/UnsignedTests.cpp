@@ -2,10 +2,12 @@
 
 #include <gtest/gtest.h>
 
+#include <vector>
+
 TEST(UnsignedTests, testThatListInitializerTrimsLeadingZeroes)
 {
     // given
-    const auto digits = {1u, 1u, 1u, 0u, 0u, 0u};
+    const auto digits = std::vector{1u, 1u, 1u, 0u, 0u, 0u};
     const auto expected = bignum::Unsigned{1u, 1u, 1u};
 
     // when
@@ -18,7 +20,7 @@ TEST(UnsignedTests, testThatListInitializerTrimsLeadingZeroes)
 TEST(UnsignedTests, testThatListInitializerLeavesOneDigit)
 {
     // given
-    const auto digits = {0u, 0u, 0u};
+    const auto digits = std::vector{0u, 0u, 0u};
     const auto expected = bignum::Unsigned<unsigned>();
 
     // when

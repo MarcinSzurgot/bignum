@@ -230,7 +230,7 @@ TEST(UnsignedBitshiftTests, testThatRightShiftsAllValues)
         }
         return digits;
     }();
-    constexpr auto bitShiftLimit = 2u;
+    constexpr auto bitShiftLimit = 16u;
 
     for (const auto a : digits)
     {
@@ -266,20 +266,4 @@ TEST(UnsignedBitshiftTests, testThatRightShiftsAllValues)
             }
         }
     }
-}
-
-TEST(UnsignedBitshiftTests, testThatRightShiftsVerySpecificCase)
-{
-    // given
-    const auto initial = bignum::Unsigned{std::uint8_t(204), std::uint8_t(146)};
-    const auto offset  = 2u;
-    const auto expected = bignum::Unsigned{std::uint8_t(179), std::uint8_t(36)};
-
-    // when
-    const auto actual = initial >> offset;
-
-    // then
-    ASSERT_EQ(expected, actual)
-        << "Expected: " << toString(expected) << "\n"
-        << "Actual:   " << toString(actual) << "\n";
 }
