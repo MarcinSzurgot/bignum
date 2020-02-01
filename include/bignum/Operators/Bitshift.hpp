@@ -3,6 +3,7 @@
 #include "../Unsigned.hpp"
 #include "../Utility.hpp"
 
+#include <iostream>
 #include <type_traits>
 
 namespace bignum
@@ -78,6 +79,7 @@ Unsigned<DigitType> operator>>(const Unsigned<DigitType>& value, Integer offset)
             }
             else
             {
+                // std::cout << "offset: " << offset << "\n";
                 for (auto d = 0u; d < result.magnitude(); ++d)
                 {
                     result[d] |= value[d + digitOffset + 0] >> bitOffset;

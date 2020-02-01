@@ -3,7 +3,7 @@
 #include <bignum/Unsigned.hpp>
 #include <gtest/gtest.h>
 
-#include <sstream>
+#include <array>
 
 TEST(UnsignedBitshiftTests, testThatLeftShiftsByWholeDigits)
 {
@@ -167,4 +167,119 @@ TEST(UnsignedBitshiftTests, testThatRightShiftsToZero)
 
     // then
     ASSERT_EQ(expected, actual) << "Expected: " << toString(expected) << "\nActual: " << toString(actual);
+}
+
+TEST(UnsignedBitshiftTests, testThatLeftShiftsAllValues)
+{
+    // given
+    constexpr auto digits = []()
+    {
+        auto digits = std::array<std::uint8_t, 256>();
+        for (auto digit = 0u; digit < size(digits); ++digit)
+        {
+            digits[digit] = digit;
+        }
+        return digits;
+    }();
+    constexpr auto bitShiftLimit = 16u;
+
+    for (const auto a : digits)
+    {
+        for (const auto b : digits)
+        {
+            for (auto bitShift = 0u; bitShift < bitShiftLimit; ++bitShift)
+            {
+                // given
+                const auto initial = bignum::Unsigned{a, b};
+                const auto initialSingleInt = std::uint32_t((b << 8u) | a);
+                const auto result = initialSingleInt << bitShift;
+                const auto expected = bignum::Unsigned
+                {
+                    std::uint8_t((result >>  0u) & 255),
+                    std::uint8_t((result >>  8u) & 255),
+                    std::uint8_t((result >> 16u) & 255),
+                    std::uint8_t((result >> 24u) & 255),
+                };
+
+                // when
+                const auto actual = initial << bitShift;
+
+                // then
+                ASSERT_EQ(expected, actual)
+                    << "initial single int: " << initialSingleInt << "\n"
+                    << "result:             " << result << "\n"
+                    << "a:                  " << +a << "\n"
+                    << "b:                  " << +b << "\n"
+                    << "bit shift:          " << bitShift << "\n"
+                    << "Expected:           " << toString(expected) << "\n"
+                    << "Actual:             " << toString(actual) << "\n";
+            }
+        }
+    }
+}
+
+TEST(UnsignedBitshiftTests, testThatRightShiftsAllValues)
+{
+    // given
+    constexpr auto digits = []()
+    {
+        auto digits = std::array<std::uint8_t, 256>();
+        for (auto digit = 0u; digit < size(digits); ++digit)
+        {
+            digits[digit] = digit;
+        }
+        return digits;
+    }();
+    constexpr auto bitShiftLimit = 2u;
+
+    for (const auto a : digits)
+    {
+        for (const auto b : digits)
+        {
+            for (auto bitShift = 0u; bitShift < bitShiftLimit; ++bitShift)
+            {
+                // given
+                const auto initial = bignum::Unsigned{a, b};
+                const auto initialSingleInt = std::uint32_t((b << 8u) | a);
+                const auto result = initialSingleInt >> bitShift;
+                const auto expected = bignum::Unsigned
+                {
+                    std::uint8_t((result >>  0u) & 255),
+                    std::uint8_t((result >>  8u) & 255),
+                    std::uint8_t((result >> 16u) & 255),
+                    std::uint8_t((result >> 24u) & 255),
+                };
+
+                // when
+                const auto actual = initial >> bitShift;
+
+                // then
+                ASSERT_EQ(expected, actual)
+                    << "initial:            " << toString(initial) << "\n"
+                    << "initial single int: " << initialSingleInt << "\n"
+                    << "result:             " << result << "\n"
+                    << "a:                  " << +a << "\n"
+                    << "b:                  " << +b << "\n"
+                    << "bit shift:          " << bitShift << "\n"
+                    << "Expected:           " << toString(expected) << "\n"
+                    << "Actual:             " << toString(actual) << "\n";
+            }
+        }
+    }
+}
+
+TEST(UnsignedBitshiftTests, testThatRightShiftsVerySpecificCase)
+{
+    // given
+    const auto initial = bignum::Unsigned{std::uint8_t(204), std::uint8_t(146)};
+    const auto offset  = 2u;
+    const auto expected = bignum::Unsigned{std::uint8_t(179), std::uint8_t(36)};
+
+    // when
+    const auto actual = initial >> offset;
+
+    // then
+    ASSERT_EQ(expected, actual)
+        << "Expected: " << toString(expected) << "\n"
+        << "Actual:   " << toString(actual) << "\n";
 }

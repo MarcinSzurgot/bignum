@@ -205,10 +205,64 @@ TEST(UnsignedMulDivTests, testThatMultipliesRandomValues)
     }
 }
 
+TEST(UnsignedMulDivTests, testThatDividesAllSingleDigitsValues)
+{
+    // given
+    constexpr auto digits = []()
+    {
+        auto digits = std::array<std::uint8_t, 256>();
+        for (auto digit = 0u; digit < size(digits); ++digit)
+        {
+            digits[digit] = digit;
+        }
+        return digits;
+    }();
+
+    for (const auto a : digits)
+    {
+        for (const auto b : digits)
+        {
+            for (const auto c : digits)
+            {
+                // given
+                const auto dividend = std::make_pair
+                (
+                    std::uint8_t(a),
+                    std::uint8_t(b)
+                );
+                const auto divisor = c;
+
+                if (!divisor)
+                {
+                    continue;
+                }
+
+                const auto quotient = std::uint32_t(b * 256 + a) / std::uint32_t(c);
+                const auto expected = std::make_pair
+                (
+                    std::uint8_t(quotient & 255),
+                    std::uint8_t((quotient >> 8u) & 255)
+                );
+
+                // when
+                const auto actual = bignum::div(dividend, divisor);
+
+                // then
+                ASSERT_EQ(expected, actual)
+                    << "Dividend: {" << +dividend.first << ", " << +dividend.second << "}\n"
+                    << "Divisor:   " << +divisor << "\n"
+                    << "Quotient:  " << +quotient << "\n"
+                    << "Expected: {" << +expected.first << ", " << +expected.second << "}\n"
+                    << "Actual:   {" << +actual.first << ", " << +actual.second << "}\n";
+            }
+        }
+    }
+}
+
 TEST(UnsignedMulDivTests, testThatDividesRandomValues)
 {
     // given
-    constexpr auto numberOfIterations = 10000u;
+    constexpr auto numberOfIterations = 100u;
     constexpr auto maxSize = 10u;
     const auto seed = std::int64_t
     (

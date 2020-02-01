@@ -23,7 +23,13 @@ struct Unsigned
     using size_type = typename std::vector<digit_type>::size_type;
 
     Unsigned()
-    : digits_(1, digit_type())
+    : Unsigned(DigitType())
+    {
+
+    }
+
+    Unsigned(DigitType digit)
+    : digits_{digit}
     {
 
     }

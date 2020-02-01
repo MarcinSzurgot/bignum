@@ -1,13 +1,44 @@
-#pragma mark
+#pragma once
 
 #include "AddDiff.hpp"
 
 #include "../Unsigned.hpp"
 
+#include <iostream>
+#include <limits>
+#include <sstream>
 #include <tuple>
 
 namespace bignum
 {
+
+namespace _details
+{
+
+template<typename T>
+std::string toString(const bignum::Unsigned<T>& value)
+{
+    auto stream = std::stringstream();
+    stream << "{";
+    for (auto d = 0u; d < value.magnitude(); ++d)
+    {
+        stream << +value[d] << ", ";
+    }
+    stream << "}";
+    return stream.str();
+}
+
+// divisor must be non-zero
+template<typename DigitType>
+constexpr std::pair<DigitType, DigitType> div(DigitType dividend, DigitType divisor)
+{
+    static_assert(std::is_unsigned_v<DigitType>);
+    const auto quotient = dividend / divisor;
+    const auto remainder = dividend - divisor * quotient;
+    return {quotient, remainder};
+}
+
+}
 
 // TODO: Consider optimization for specific unsigned types.
 template<typename DigitType>
@@ -42,10 +73,26 @@ constexpr std::pair<DigitType, DigitType> mul(DigitType lhs, DigitType rhs)
     return {resultLowerHalf, resultHigherHalf};
 }
 
+// divisor must be non-zero
 template<typename DigitType>
-constexpr std::pair<DigitType, DigitType> div(std::pair<DigitType, DigitType> lhs, DigitType rhs)
+constexpr std::pair<DigitType, DigitType> div(std::pair<DigitType, DigitType> dividend, DigitType divisor)
 {
-    return {};
+    static_assert(std::is_unsigned_v<DigitType>);
+
+    constexpr auto max = std::numeric_limits<DigitType>::max();
+
+    const auto [higherQuotient, higherRemainder] = _details::div(dividend.second, divisor);
+    const auto [maximumQuotient, maximumRemqinder] = _details::div(max, divisor);
+    const auto lowerQuotient = DigitType
+    (
+        higherRemainder
+        * maximumQuotient
+        + (higherRemainder
+           * (maximumRemqinder + 1)
+           + dividend.first)
+          / divisor
+    );
+    return {lowerQuotient, higherQuotient};
 }
 
 template<typename DigitType>
@@ -76,19 +123,50 @@ Unsigned<DigitType> operator/(const Unsigned<DigitType>& lhs, const Unsigned<Dig
 {
     constexpr auto bitSize = sizeof(DigitType) * CHAR_BIT;
 
-    auto result = Unsigned
-    (
-        lhs.magnitude() < rhs.magnitude()
-        ? lhs.magnitude() - rhs.magnitude()
-        : 0,
-        DigitType()
-    );
-    // for (auto dividend = lhs, divisor = rhs; dividend < rhs;)
-    // {
-    //     const auto shift = dividend.magnitude() - rhs.magnitude();
-    //     divisor <= shift * b
-    // }
-    return result;
+    if (!rhs)
+    {
+        throw std::invalid_argument("Cannot divide by zero.");
+    }
+    else
+    {
+        auto result = Unsigned
+        (
+            lhs.magnitude() > rhs.magnitude()
+            ? lhs.magnitude() - rhs.magnitude()
+            : 0,
+            DigitType()
+        );
+
+        auto multiplier = Unsigned(DigitType());
+        auto shift = decltype(rhs.magnitude())(0);
+        for (auto dividend = lhs; dividend >= rhs;)
+        {
+            const auto dividendMsd = dividend.msd();
+            const auto divisorMsd  = rhs.msd();
+            if (dividendMsd < divisorMsd)
+            {
+                const auto dividendPrelastMsd = dividend[dividend.magnitude() - 2];
+                const auto [lowerDigit, higherDigit] = div({dividendPrelastMsd, dividendMsd}, DigitType(divisorMsd + 1));
+                shift = dividend.magnitude() - (rhs.magnitude() + 1);
+                multiplier = Unsigned{lowerDigit, higherDigit};
+            }
+            else
+            {
+                shift = dividend.magnitude() - rhs.magnitude();
+                multiplier = Unsigned(DigitType(dividendMsd / (divisorMsd + 1)));
+            }
+            std::cout << "Shift:        " << shift * bitSize << "\n"
+                      << "multiplier:   " << _details::toString(multiplier) << "\n"
+                      << "Dividend:     " << _details::toString(dividend) << "\n"
+                      << "Divisor:      " << _details::toString(multiplier << shift * bitSize) << "\n"
+                      << "Dividend msd: " << +dividendMsd << "\n"
+                      << "Divisor msd:  " << +divisorMsd << "\n";
+            result += multiplier << shift * bitSize;
+            dividend -= (rhs * multiplier) << (shift * bitSize);
+        }
+        result.trim();
+        return result;
+    }
 }
 
 }
