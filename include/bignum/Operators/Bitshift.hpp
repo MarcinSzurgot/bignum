@@ -79,11 +79,13 @@ Unsigned<DigitType> operator>>(const Unsigned<DigitType>& value, Integer offset)
             }
             else
             {
-                // std::cout << "offset: " << offset << "\n";
                 for (auto d = 0u; d < result.magnitude(); ++d)
                 {
-                    result[d] |= value[d + digitOffset + 0] >> bitOffset;
-                    result[d] |= value[d + digitOffset + 1] << (bitsize - bitOffset);
+                    result[d] |= DigitType(value[d + digitOffset + 0] >> bitOffset);
+                    if (d + digitOffset + 1 < value.magnitude())
+                    {
+                        result[d] |= DigitType(value[d + digitOffset + 1] << (bitsize - bitOffset));
+                    }
                 }
                 if (!result.msd() && result.magnitude() > 1)
                 {
