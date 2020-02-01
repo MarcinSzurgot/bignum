@@ -98,13 +98,13 @@ Unsigned<DigitType> operator>>(const Unsigned<DigitType>& value, Integer offset)
 }
 
 template<typename DigitType_, typename Integer>
-Unsigned<DigitType_>& operator<<(Unsigned<DigitType_>& value, Integer offset)
+Unsigned<DigitType_>& operator<<=(Unsigned<DigitType_>& value, Integer offset)
 {
     return value = value << offset;
 }
 
 template<typename DigitType_, typename Integer>
-Unsigned<DigitType_>& operator>>(Unsigned<DigitType_>& value, Integer offset)
+Unsigned<DigitType_>& operator>>=(Unsigned<DigitType_>& value, Integer offset)
 {
     return value = value >> offset;
 }

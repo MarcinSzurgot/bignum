@@ -155,12 +155,6 @@ Unsigned<DigitType> operator/(const Unsigned<DigitType>& lhs, const Unsigned<Dig
                 shift = dividend.magnitude() - rhs.magnitude();
                 multiplier = Unsigned(DigitType(dividendMsd / (divisorMsd + 1)));
             }
-            std::cout << "Shift:        " << shift * bitSize << "\n"
-                      << "multiplier:   " << _details::toString(multiplier) << "\n"
-                      << "Dividend:     " << _details::toString(dividend) << "\n"
-                      << "Divisor:      " << _details::toString(multiplier << shift * bitSize) << "\n"
-                      << "Dividend msd: " << +dividendMsd << "\n"
-                      << "Divisor msd:  " << +divisorMsd << "\n";
             result += multiplier << shift * bitSize;
             dividend -= (rhs * multiplier) << (shift * bitSize);
         }
