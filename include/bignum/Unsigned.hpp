@@ -96,9 +96,13 @@ struct Unsigned
     template<typename DigitType_> friend Unsigned<DigitType_> operator-(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
     template<typename DigitType_> friend Unsigned<DigitType_> operator*(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
     template<typename DigitType_> friend Unsigned<DigitType_> operator/(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
+    template<typename DigitType_> friend Unsigned<DigitType_> operator%(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
 
     template<typename DigitType_> friend Unsigned<DigitType_>& operator+=(Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
     template<typename DigitType_> friend Unsigned<DigitType_>& operator-=(Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
+    template<typename DigitType_> friend Unsigned<DigitType_>& operator*=(Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
+    template<typename DigitType_> friend Unsigned<DigitType_>& operator/=(Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
+    template<typename DigitType_> friend Unsigned<DigitType_>& operator%=(Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
 
     template<typename DigitType_> friend Unsigned<DigitType_> operator&(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
     template<typename DigitType_> friend Unsigned<DigitType_> operator|(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);

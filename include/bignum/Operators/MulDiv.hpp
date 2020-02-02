@@ -182,4 +182,30 @@ Unsigned<DigitType> operator/(const Unsigned<DigitType>& lhs, const Unsigned<Dig
     }
 }
 
+template<typename DigitType>
+Unsigned<DigitType> operator%(const Unsigned<DigitType>& lhs, const Unsigned<DigitType>& rhs)
+{
+    const auto quotient = lhs / rhs;
+    const auto multiplied = quotient * rhs;
+    return lhs - multiplied;
+}
+
+template<typename DigitType>
+Unsigned<DigitType>& operator*=(Unsigned<DigitType>& lhs, const Unsigned<DigitType>& rhs)
+{
+    return lhs = lhs * rhs;
+}
+
+template<typename DigitType>
+Unsigned<DigitType>& operator/=(Unsigned<DigitType>& lhs, const Unsigned<DigitType>& rhs)
+{
+    return lhs = lhs / rhs;
+}
+
+template<typename DigitType>
+Unsigned<DigitType>& operator%=(Unsigned<DigitType>& lhs, const Unsigned<DigitType>& rhs)
+{
+    return lhs = lhs % rhs;
+}
+
 }
