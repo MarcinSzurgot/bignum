@@ -189,8 +189,8 @@ TEST(UnsignedMulDivTests, testThatMultipliesRandomValues)
     for (auto i = 0u; i < numberOfIterations; ++i)
     {
         // given
-        const auto lhs = randomUnsigned<std::uint8_t>(generator, maxSize);
-        const auto rhs = randomUnsigned<std::uint8_t>(generator, maxSize);
+        const auto lhs = randomUnsigned<std::uint32_t>(generator, maxSize);
+        const auto rhs = randomUnsigned<std::uint32_t>(generator, maxSize);
         const auto expected = additionBasedMultiplication(lhs, rhs);
 
         // when
@@ -361,8 +361,8 @@ TEST(UnsignedMulDivTests, testThatDividesRandomValues)
     for (auto i = 0u; i < numberOfIterations; ++i)
     {
         // given
-        const auto divider = randomUnsigned<std::uint8_t>(generator, maxSize) + bignum::Unsigned{std::uint8_t(1)};
-        const auto expected = randomUnsigned<std::uint8_t>(generator, maxSize);
+        const auto divider = randomUnsigned<std::uint32_t>(generator, maxSize) + bignum::Unsigned{std::uint32_t(1)};
+        const auto expected = randomUnsigned<std::uint32_t>(generator, maxSize);
         const auto multiplied = divider * expected;
 
         // when
