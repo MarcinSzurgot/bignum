@@ -133,7 +133,7 @@ Unsigned<DigitType> operator/(const Unsigned<DigitType>& lhs, const Unsigned<Dig
         (
             lhs.magnitude() > rhs.magnitude()
             ? lhs.magnitude() - rhs.magnitude()
-            : 0,
+            : 1,
             DigitType()
         );
 
@@ -143,17 +143,36 @@ Unsigned<DigitType> operator/(const Unsigned<DigitType>& lhs, const Unsigned<Dig
         {
             const auto dividendMsd = dividend.msd();
             const auto divisorMsd  = rhs.msd();
-            if (dividendMsd < divisorMsd)
+            if (dividendMsd <= divisorMsd)
             {
-                const auto dividendPrelastMsd = dividend[dividend.magnitude() - 2];
-                const auto [lowerDigit, higherDigit] = div({dividendPrelastMsd, dividendMsd}, DigitType(divisorMsd + 1));
-                shift = dividend.magnitude() - (rhs.magnitude() + 1);
-                multiplier = Unsigned{lowerDigit, higherDigit};
+                if (dividend.magnitude() == rhs.magnitude())
+                {
+                    shift = 0;
+                    multiplier = Unsigned{DigitType(1)};
+                }
+                else
+                {
+                    const auto dividendPrelastMsd = dividend[dividend.magnitude() - 2];
+                    if (divisorMsd == 255)
+                    {
+                        multiplier = Unsigned{dividendMsd};
+                    }
+                    else
+                    {
+                        const auto [lowerDigit, higherDigit] = div({dividendPrelastMsd, dividendMsd}, DigitType(divisorMsd + 1));
+                        multiplier = Unsigned{lowerDigit, higherDigit};
+                    }
+                    shift = dividend.magnitude() - (rhs.magnitude() + 1);
+                }
             }
             else
             {
                 shift = dividend.magnitude() - rhs.magnitude();
                 multiplier = Unsigned(DigitType(dividendMsd / (divisorMsd + 1)));
+                if (!multiplier)
+                {
+                    multiplier[0] = 1;
+                }
             }
             result += multiplier << shift * bitSize;
             dividend -= (rhs * multiplier) << (shift * bitSize);

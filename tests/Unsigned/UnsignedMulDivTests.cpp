@@ -176,7 +176,7 @@ TEST(UnsignedMulDivTests, testThatMultipliesWithOverflow)
 TEST(UnsignedMulDivTests, testThatMultipliesRandomValues)
 {
     // given
-    constexpr auto numberOfIterations = 10000u;
+    constexpr auto numberOfIterations = 100000u;
     constexpr auto maxSize = 5u;
     const auto seed = std::int64_t
     (
@@ -259,11 +259,97 @@ TEST(UnsignedMulDivTests, testThatDividesAllSingleDigitsValues)
     }
 }
 
+TEST(UnsignedMulDivTests, testThatDividesLessByGreater)
+{
+    // given
+    const auto less = bignum::Unsigned{0u, 0u, 1u};
+    const auto greater = bignum::Unsigned{0u, 0u, 0u, 1u};
+    const auto expected = bignum::Unsigned{0u};
+
+    // when
+    const auto actual = less / greater;
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(UnsignedMulDivTests, testThatDividesByLessMsdDivisor)
+{
+    // given
+    const auto lhs = bignum::Unsigned{10u};
+    const auto rhs = bignum::Unsigned{3u};
+    const auto expected = bignum::Unsigned{3u};
+
+    // when
+    const auto actual = lhs / rhs;
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(UnsignedMulDivTests, testThatDividesByEqualMsdDivisor)
+{
+    // given
+    const auto lhs = bignum::Unsigned{std::uint8_t(), std::uint8_t(8)};
+    const auto rhs = bignum::Unsigned{std::uint8_t(8)};
+    const auto expected = bignum::Unsigned{std::uint8_t(), std::uint8_t(1)};
+
+    // when
+    const auto actual = lhs / rhs;
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(UnsignedMulDivTests, testThatDividesByGreaterMsdDivisor)
+{
+    // given
+    const auto lhs = bignum::Unsigned{std::uint8_t(), std::uint8_t(8)};
+    const auto rhs = bignum::Unsigned{std::uint8_t(9)};
+    const auto expected = bignum::Unsigned{std::uint8_t(227)};
+
+    // when
+    const auto actual = lhs / rhs;
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(UnsignedMulDivTests, testThatDividesByLessMsdDivisorExtremeCase)
+{
+    // given
+    const auto lhs = bignum::Unsigned{std::uint8_t(), std::uint8_t(), std::uint8_t(8)};
+    const auto rhs = bignum::Unsigned{std::uint8_t(255), std::uint8_t(9)};
+    const auto expected = bignum::Unsigned{std::uint8_t(204)};
+
+    // when
+    const auto actual = lhs / rhs;
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(UnsignedMulDivTests, testThatDividesByEqualMsdDivisorExtremeCase)
+{
+    // given
+    const auto lhs = bignum::Unsigned{std::uint8_t(), std::uint8_t(), std::uint8_t(17)};
+    const auto rhs = bignum::Unsigned{std::uint8_t(255), std::uint8_t(17)};
+    const auto expected = bignum::Unsigned{std::uint8_t(241)};
+
+    // when
+    const auto actual = lhs / rhs;
+
+    // then
+    ASSERT_EQ(expected, actual)
+        << "Expected: " << toString(expected) << "\n"
+        << "Actual:   " << toString(actual) << "\n";
+}
+
 TEST(UnsignedMulDivTests, testThatDividesRandomValues)
 {
     // given
-    constexpr auto numberOfIterations = 100u;
-    constexpr auto maxSize = 10u;
+    constexpr auto numberOfIterations = 100000u;
+    constexpr auto maxSize = 5u;
     const auto seed = std::int64_t
     (
         std::chrono::high_resolution_clock::now()
@@ -275,7 +361,7 @@ TEST(UnsignedMulDivTests, testThatDividesRandomValues)
     for (auto i = 0u; i < numberOfIterations; ++i)
     {
         // given
-        const auto divider = randomUnsigned<std::uint8_t>(generator, maxSize);
+        const auto divider = randomUnsigned<std::uint8_t>(generator, maxSize) + bignum::Unsigned{std::uint8_t(1)};
         const auto expected = randomUnsigned<std::uint8_t>(generator, maxSize);
         const auto multiplied = divider * expected;
 
@@ -283,6 +369,10 @@ TEST(UnsignedMulDivTests, testThatDividesRandomValues)
         const auto actual = multiplied / divider;
 
         // then
-        ASSERT_EQ(expected, actual);
+        ASSERT_EQ(expected, actual)
+            << "divider:    " << toString(divider) << "\n"
+            << "multiplied: " << toString(multiplied) << "\n"
+            << "expected:   " << toString(expected) << "\n"
+            << "actual:     " << toString(actual) << "\n";
     }
 }
