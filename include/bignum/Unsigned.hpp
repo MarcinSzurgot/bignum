@@ -1,6 +1,6 @@
 #pragma once
 
-#include <algorithm>
+#include <iosfwd>
 #include <type_traits>
 #include <vector>
 
@@ -108,6 +108,9 @@ struct Unsigned
     template<typename DigitType_> friend Unsigned<DigitType_> operator|(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
     template<typename DigitType_> friend Unsigned<DigitType_> operator^(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
 
+    template<typename DigitType_> friend std::ostream& operator<<(std::ostream& os, const Unsigned<DigitType_>& value);
+    template<typename DigitType_> friend std::istream& operator>>(std::istream& is,       Unsigned<DigitType_>& value);
+
 private:
     Unsigned(size_type size, digit_type sample)
     : digits_(size, sample)
@@ -139,3 +142,4 @@ private:
 #include "Operators/BitwiseLogic.hpp"
 #include "Operators/Comparison.hpp"
 #include "Operators/MulDiv.hpp"
+#include "Operators/Stream.hpp"

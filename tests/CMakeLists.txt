@@ -22,6 +22,7 @@ add_executable(
     Unsigned/UnsignedBitwiseLogicTests.cpp
     Unsigned/UnsignedComparisonTests.cpp
     Unsigned/UnsignedMulDivTests.cpp
+    Unsigned/UnsignedStreamTests.cpp
     Unsigned/UnsignedTests.cpp
     UtilityTests.cpp
 )
