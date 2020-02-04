@@ -33,6 +33,7 @@ std::istream& operator>>(std::istream& is, Unsigned<DigitType>& value)
 {
     static const auto ten = Unsigned(DigitType(10));
 
+    auto tmp = Unsigned(DigitType());
     value = {};
     for (auto c = is.get(); static_cast<bool>(is); c = is.get())
     {
@@ -46,7 +47,8 @@ std::istream& operator>>(std::istream& is, Unsigned<DigitType>& value)
         {
             value *= ten;
         }
-        value += Unsigned(DigitType(c - '0'));
+        tmp[0] = c - '0';
+        value += tmp;
     }
     return is;
 }

@@ -4,9 +4,7 @@
 
 #include "../Unsigned.hpp"
 
-#include <iostream>
 #include <limits>
-#include <sstream>
 #include <tuple>
 
 namespace bignum
@@ -14,19 +12,6 @@ namespace bignum
 
 namespace _details
 {
-
-template<typename T>
-std::string toString(const bignum::Unsigned<T>& value)
-{
-    auto stream = std::stringstream();
-    stream << "{";
-    for (auto d = 0u; d < value.magnitude(); ++d)
-    {
-        stream << +value[d] << ", ";
-    }
-    stream << "}";
-    return stream.str();
-}
 
 // divisor must be non-zero
 template<typename DigitType>
@@ -153,7 +138,7 @@ Unsigned<DigitType> operator/(const Unsigned<DigitType>& lhs, const Unsigned<Dig
                 else
                 {
                     const auto dividendPrelastMsd = dividend[dividend.magnitude() - 2];
-                    if (divisorMsd == 255)
+                    if (divisorMsd == std::numeric_limits<DigitType>::max())
                     {
                         multiplier = Unsigned{dividendMsd};
                     }
