@@ -8,7 +8,7 @@ namespace bignum
 {
 
 template<typename DigitType>
-constexpr std::pair<DigitType, DigitType> add(DigitType lhs, DigitType rhs, bool carry = false)
+constexpr std::pair<DigitType, bool> add(DigitType lhs, DigitType rhs, bool carry = false)
 {
     static_assert(std::is_unsigned_v<DigitType>);
 
@@ -20,7 +20,7 @@ constexpr std::pair<DigitType, DigitType> add(DigitType lhs, DigitType rhs, bool
 }
 
 template<typename DigitType>
-constexpr std::pair<DigitType, DigitType> diff(DigitType lhs, DigitType rhs, bool carry = false)
+constexpr std::pair<DigitType, bool> diff(DigitType lhs, DigitType rhs, bool carry = false)
 {
     static_assert(std::is_unsigned_v<DigitType>);
 
@@ -31,29 +31,54 @@ constexpr std::pair<DigitType, DigitType> diff(DigitType lhs, DigitType rhs, boo
     return {diff, carry};
 }
 
+namespace details_
+{
+
+template<typename ForwardOutputIterator, typename ForwardInputIterator>
+void iteratorAdd(ForwardOutputIterator outputFirst, ForwardInputIterator lessFirst, ForwardInputIterator lessLast)
+{
+    auto carry = false;
+    for (; lessFirst != lessLast; ++outputFirst, ++lessFirst)
+    {
+        std::tie(*outputFirst, carry) = add(*outputFirst, *lessFirst, carry);
+    }
+
+    for (; carry; ++outputFirst)
+    {
+        *outputFirst += carry;
+        carry = !*outputFirst;
+    }
+}
+
+template<typename ForwardOutputIterator, typename ForwardInputIterator>
+void iteratorDiff(ForwardOutputIterator outputFirst, ForwardInputIterator inputFirst, ForwardInputIterator inputLast)
+{
+    auto carry = false;
+    for (; inputFirst != inputLast; ++outputFirst, ++inputFirst)
+    {
+        std::tie(*outputFirst, carry) = diff(*outputFirst, *inputFirst, carry);
+    }
+
+    using digit_type = typename decltype(outputFirst)::value_type;
+    for (; carry; ++outputFirst)
+    {
+        *outputFirst -= carry;
+        carry = !static_cast<digit_type>(*outputFirst + 1);
+    }
+}
+
+}
+
 template<typename DigitType>
 Unsigned<DigitType> operator+(const Unsigned<DigitType>& lhs, const Unsigned<DigitType>& rhs)
 {
-    const auto& less = lhs.magnitude() < rhs.magnitude() ? lhs : rhs;
-    const auto& greater = lhs.magnitude() < rhs.magnitude() ? rhs : lhs;
+    const auto isLhsLess = lhs.magnitude() < rhs.magnitude();
+    const auto& less    = isLhsLess ? lhs : rhs;
+    const auto& greater = isLhsLess ? rhs : lhs;
 
-    auto result = Unsigned(greater.magnitude() + 1, DigitType());
-    auto carry = false;
-    for (auto d = 0u; d < less.magnitude(); ++d)
-    {
-        std::tie(result[d], carry) = add(less[d], greater[d], carry);
-    }
-
-    for (auto d = less.magnitude(); d < greater.magnitude(); ++d)
-    {
-        std::tie(result[d], carry) = add(DigitType(), greater[d], carry);
-    }
-
-    if (carry)
-    {
-        result[result.magnitude() - 1] = carry;
-    }
-    else
+    auto result = Unsigned(greater, greater.magnitude() + 1);
+    details_::iteratorAdd(begin(result.digits_), begin(less.digits_), end(less.digits_));
+    if (!result.digits_.back())
     {
         result.digits_.pop_back();
     }
@@ -64,21 +89,11 @@ template<typename DigitType>
 Unsigned<DigitType> operator-(const Unsigned<DigitType>& lhs, const Unsigned<DigitType>& rhs)
 {
     const auto isLhsLess = lhs < rhs;
-    const auto& less = isLhsLess ? lhs : rhs;
+    const auto& less    = isLhsLess ? lhs : rhs;
     const auto& greater = isLhsLess ? rhs : lhs;
 
-    auto result = Unsigned(greater.magnitude(), DigitType());
-    auto carry = false;
-    for (auto d = 0u; d < less.magnitude(); ++d)
-    {
-        std::tie(result[d], carry) = diff(greater[d], less[d], carry);
-    }
-
-    for (auto d = less.magnitude(); d < greater.magnitude(); ++d)
-    {
-        std::tie(result[d], carry) = diff(greater[d], DigitType(), carry);
-    }
-
+    auto result = greater;
+    details_::iteratorDiff(begin(result.digits_), begin(less.digits_), end(less.digits_));
     result.trim();
     return result;
 }

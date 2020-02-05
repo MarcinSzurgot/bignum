@@ -10,7 +10,7 @@ TEST(UnsignedAddDiffTests, testThatAddsSingleDigits)
     // given
     const auto lhs      = std::uint8_t(20);
     const auto rhs      = std::uint8_t(40);
-    const auto expected = std::make_pair(std::uint8_t(60), std::uint8_t(0));
+    const auto expected = std::make_pair(std::uint8_t(60), false);
 
     // when
     const auto actual = bignum::add(lhs, rhs);
@@ -24,7 +24,7 @@ TEST(UnsignedAddDiffTests, testThatAddsSingleDigitsWithOverflow)
     // given
     const auto lhs      = std::uint8_t(50);
     const auto rhs      = std::uint8_t(255);
-    const auto expected = std::make_pair(std::uint8_t(49), std::uint8_t(1));
+    const auto expected = std::make_pair(std::uint8_t(49), true);
 
     // when
     const auto actual = bignum::add(lhs, rhs);
@@ -39,7 +39,7 @@ TEST(UnsignedAddDiffTests, testThatAddsSingleDigitsWithCarry)
     const auto lhs      = std::uint8_t(100);
     const auto rhs      = std::uint8_t(100);
     const auto carry    = std::uint8_t(1);
-    const auto expected = std::make_pair(std::uint8_t(201), std::uint8_t(0));
+    const auto expected = std::make_pair(std::uint8_t(201), false);
 
     // when
     const auto actual = bignum::add(lhs, rhs, carry);
@@ -54,7 +54,7 @@ TEST(UnsignedAddDiffTests, testThatAddsSingleDigitsWithCarryOverflow)
     const auto lhs      = std::uint8_t(100);
     const auto rhs      = std::uint8_t(155);
     const auto carry    = std::uint8_t(1);
-    const auto expected = std::make_pair(std::uint8_t(0), std::uint8_t(1));
+    const auto expected = std::make_pair(std::uint8_t(0), true);
 
     // when
     const auto actual = bignum::add(lhs, rhs, carry);
@@ -80,7 +80,7 @@ TEST(UnsignedAddDiffTests, testThatAddsAllSingleDigits)
     {
         for(const auto rhs : values)
         {
-            for (const auto carry : {std::uint8_t(0), std::uint8_t(1)})
+            for (const auto carry : {false, true})
             {
                 const auto result = std::uint16_t
                 (
@@ -91,7 +91,7 @@ TEST(UnsignedAddDiffTests, testThatAddsAllSingleDigits)
                 const auto expected = std::make_pair
                 (
                     std::uint8_t(result & 255),
-                    std::uint8_t(result >> 8u)
+                    static_cast<bool>(std::uint8_t(result >> 8u))
                 );
 
                 // when
@@ -310,4 +310,38 @@ TEST(UnsignedAddDiffTests, testThatEvenDiffsByZero)
 
     // then
     ASSERT_EQ(expected, actual) << "Expected: " << toString(expected) << "\nActual: " << toString(actual);
+}
+
+TEST(UnsignedAddDiffTests, testThatDiffsWithFurtherCarry)
+{
+    // given
+    const auto lhs = bignum::Unsigned
+    {
+        std::uint8_t(30),
+        std::uint8_t(240),
+        std::uint8_t(),
+        std::uint8_t(255),
+        std::uint8_t(1),
+    };
+    const auto rhs = bignum::Unsigned
+    {
+        std::uint8_t(35),
+        std::uint8_t(241),
+    };
+    const auto expected = bignum::Unsigned
+    {
+        std::uint8_t(251),
+        std::uint8_t(254),
+        std::uint8_t(255),
+        std::uint8_t(254),
+        std::uint8_t(1)
+    };
+
+    // when
+    const auto actual = lhs - rhs;
+
+    // then
+    ASSERT_EQ(expected, actual)
+        << "Expected: " << toString(expected) << "\n"
+        << "Actual:   " << toString(actual) << "\n";
 }

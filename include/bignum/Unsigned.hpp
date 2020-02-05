@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <iosfwd>
 #include <type_traits>
 #include <vector>
@@ -116,6 +117,12 @@ private:
     : digits_(size, sample)
     {
 
+    }
+
+    Unsigned(const Unsigned& other, size_type newSize)
+    : digits_(newSize)
+    {
+        std::copy(begin(other.digits_), end(other.digits_), begin(digits_));
     }
 
     void trim()
