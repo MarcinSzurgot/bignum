@@ -29,3 +29,76 @@ TEST(UnsignedTests, testThatListInitializerLeavesOneDigit)
     // then
     ASSERT_EQ(expected, actual);
 }
+
+TEST(UnsignedTests, testThatInitsFromString)
+{
+    // given
+    const auto string = "65536";
+    const auto expected = bignum::Unsigned
+    {
+        std::uint8_t(),
+        std::uint8_t(),
+        std::uint8_t(1)
+    };
+
+    // when
+    const auto actual = bignum::Unsigned<std::uint8_t>(string);
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(UnsignedTests, testThatInitFromStringIgnoresTrailingWhitespaces)
+{
+    // given
+    const auto string = "  \n65536  \t \v";
+    const auto expected = bignum::Unsigned
+    {
+        std::uint8_t(),
+        std::uint8_t(),
+        std::uint8_t(1)
+    };
+
+    // when
+    const auto actual = bignum::Unsigned<std::uint8_t>(string);
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(UnsignedTests, testThatInitFromStringIgnoresLeadingZeroes)
+{
+    // given
+    const auto string = "000065536";
+    const auto expected = bignum::Unsigned
+    {
+        std::uint8_t(),
+        std::uint8_t(),
+        std::uint8_t(1)
+    };
+
+    // when
+    const auto actual = bignum::Unsigned<std::uint8_t>(string);
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(UnsignedTests, testThatInitFromBiggerUint)
+{
+    // given
+    const auto value = std::uint32_t((9 << 24u) | (11 << 16u) | (243 << 8u) | (23 << 0u));
+    const auto expected = bignum::Unsigned
+    {
+        std::uint8_t(23),
+        std::uint8_t(243),
+        std::uint8_t(11),
+        std::uint8_t(9),
+    };
+
+    // when
+    const auto actual = bignum::Unsigned<std::uint8_t>(value);
+
+    // then
+    ASSERT_EQ(expected, actual);
+}

@@ -49,5 +49,22 @@ Unsigned<DigitType> operator^(const Unsigned<DigitType>& lhs, const Unsigned<Dig
     return result;
 }
 
+template<typename DigitType_>
+Unsigned<DigitType_>& operator&=(Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs)
+{
+    return lhs = lhs & rhs;
+}
+
+template<typename DigitType_>
+Unsigned<DigitType_>& operator|=(Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs)
+{
+    return lhs = lhs | rhs;
+}
+
+template<typename DigitType_>
+Unsigned<DigitType_>& operator^=(Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs)
+{
+    return lhs = lhs ^ rhs;
+}
 
 }

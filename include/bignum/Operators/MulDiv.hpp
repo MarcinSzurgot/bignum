@@ -122,7 +122,7 @@ Unsigned<DigitType> operator/(const Unsigned<DigitType>& lhs, const Unsigned<Dig
             DigitType()
         );
 
-        auto multiplier = Unsigned(DigitType());
+        auto multiplier = Unsigned<DigitType>();
         auto shift = decltype(rhs.magnitude())(0);
         for (auto dividend = lhs; dividend >= rhs;)
         {
@@ -153,7 +153,7 @@ Unsigned<DigitType> operator/(const Unsigned<DigitType>& lhs, const Unsigned<Dig
             else
             {
                 shift = dividend.magnitude() - rhs.magnitude();
-                multiplier = Unsigned(DigitType(dividendMsd / (divisorMsd + 1)));
+                multiplier = Unsigned<DigitType>(DigitType(dividendMsd / (divisorMsd + 1)));
                 if (!multiplier)
                 {
                     multiplier[0] = 1;

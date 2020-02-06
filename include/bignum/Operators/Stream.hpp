@@ -10,7 +10,7 @@ namespace bignum
 template<typename DigitType>
 std::ostream& operator<<(std::ostream& os, const Unsigned<DigitType>& value)
 {
-    static const auto ten = Unsigned(DigitType(10));
+    static const auto ten = Unsigned<DigitType>(10u);
 
     if (!value)
     {
@@ -31,9 +31,9 @@ std::ostream& operator<<(std::ostream& os, const Unsigned<DigitType>& value)
 template<typename DigitType>
 std::istream& operator>>(std::istream& is, Unsigned<DigitType>& value)
 {
-    static const auto ten = Unsigned(DigitType(10));
+    static const auto ten = Unsigned<DigitType>(10u);
 
-    auto tmp = Unsigned(DigitType());
+    auto tmp = Unsigned<DigitType>();
     value = {};
     for (auto c = is.get(); static_cast<bool>(is); c = is.get())
     {
