@@ -1,7 +1,5 @@
 #include "../TestHelpers.hpp"
 
-#include <bignum/Operators/BitwiseLogic.hpp>
-
 #include <gtest/gtest.h>
 
 TEST(UnsignedBitwiseLogicTests, testThatNegatesBits)

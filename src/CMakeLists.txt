@@ -7,9 +7,16 @@ set(INTERFACE_PATH ${CMAKE_SOURCE_DIR}/include/bignum)
 target_sources(
     bignum
     INTERFACE
-    ${INTERFACE_PATH}/Operators/Comparison.hpp
-    ${INTERFACE_PATH}/Operators/Bitshift.hpp
-    ${INTERFACE_PATH}/Operators/BitwiseLogic.hpp
+
+    ${INTERFACE_PATH}/IntegerOperators/Comparison.hpp
+
+    ${INTERFACE_PATH}/UnsignedOperators/AddDiff.hpp
+    ${INTERFACE_PATH}/UnsignedOperators/Bitshift.hpp
+    ${INTERFACE_PATH}/UnsignedOperators/BitwiseLogic.hpp
+    ${INTERFACE_PATH}/UnsignedOperators/Comparison.hpp
+    ${INTERFACE_PATH}/UnsignedOperators/MulDiv.hpp
+    ${INTERFACE_PATH}/UnsignedOperators/Stream.hpp
+    
     ${INTERFACE_PATH}/Unsigned.hpp
     ${INTERFACE_PATH}/Utility.hpp
 )

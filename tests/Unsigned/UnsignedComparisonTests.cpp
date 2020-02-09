@@ -1,4 +1,3 @@
-#include <bignum/Operators/Comparison.hpp>
 #include <bignum/Unsigned.hpp>
 
 #include <gtest/gtest.h>

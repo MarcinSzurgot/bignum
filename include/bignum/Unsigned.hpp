@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Comparison.hpp"
+
 #include <algorithm>
 #include <cwctype>
 #include <iosfwd>
@@ -9,13 +11,6 @@
 
 namespace bignum
 {
-
-enum struct Comparison
-{
-    LT,
-    EQ,
-    GT
-};
 
 template<typename DigitType>
 struct Unsigned
@@ -202,9 +197,9 @@ private:
 
 }
 
-#include "Operators/AddDiff.hpp"
-#include "Operators/Bitshift.hpp"
-#include "Operators/BitwiseLogic.hpp"
-#include "Operators/Comparison.hpp"
-#include "Operators/MulDiv.hpp"
-#include "Operators/Stream.hpp"
+#include "UnsignedOperators/AddDiff.hpp"
+#include "UnsignedOperators/Bitshift.hpp"
+#include "UnsignedOperators/BitwiseLogic.hpp"
+#include "UnsignedOperators/Comparison.hpp"
+#include "UnsignedOperators/MulDiv.hpp"
+#include "UnsignedOperators/Stream.hpp"

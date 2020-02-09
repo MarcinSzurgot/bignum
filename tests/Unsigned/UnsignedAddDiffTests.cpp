@@ -1,6 +1,5 @@
 #include "../TestHelpers.hpp"
 
-#include <bignum/Operators/AddDiff.hpp>
 #include <gtest/gtest.h>
 
 #include <array>
