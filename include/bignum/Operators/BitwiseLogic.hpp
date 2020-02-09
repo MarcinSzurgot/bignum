@@ -2,8 +2,25 @@
 
 #include "../Unsigned.hpp"
 
+#include <algorithm>
+
 namespace bignum
 {
+
+template<typename DigitType_>
+Unsigned<DigitType_> operator~(const Unsigned<DigitType_>& value)
+{
+    auto result = value;
+    std::transform
+    (
+        begin(value.digits_),
+        end(value.digits_),
+        begin(result.digits_),
+        std::bit_not<>{}
+    );
+    result.trim();
+    return result;
+}
 
 template<typename DigitType>
 Unsigned<DigitType> operator&(const Unsigned<DigitType>& lhs, const Unsigned<DigitType>& rhs)
@@ -12,10 +29,14 @@ Unsigned<DigitType> operator&(const Unsigned<DigitType>& lhs, const Unsigned<Dig
     const auto& greater = lhs.magnitude() < rhs.magnitude() ? rhs : lhs;
 
     auto result = less;
-    for (auto digit = 0u; digit < less.magnitude(); ++digit)
-    {
-        result[digit] &= greater[digit];
-    }
+    std::transform
+    (
+        begin(greater.digits_),
+        std::next(begin(greater.digits_), less.magnitude()),
+        begin(result.digits_),
+        begin(result.digits_),
+        std::bit_and<>{}
+    );
     result.trim();
     return result;
 }
@@ -27,10 +48,14 @@ Unsigned<DigitType> operator|(const Unsigned<DigitType>& lhs, const Unsigned<Dig
     const auto& greater = lhs.magnitude() < rhs.magnitude() ? rhs : lhs;
 
     auto result = greater;
-    for (auto digit = 0u; digit < less.magnitude(); ++digit)
-    {
-        result[digit] |= less[digit];
-    }
+    std::transform
+    (
+        begin(less.digits_),
+        end(less.digits_),
+        begin(result.digits_),
+        begin(result.digits_),
+        std::bit_or<>{}
+    );
     return result;
 }
 
@@ -41,10 +66,14 @@ Unsigned<DigitType> operator^(const Unsigned<DigitType>& lhs, const Unsigned<Dig
     const auto& greater = lhs.magnitude() < rhs.magnitude() ? rhs : lhs;
 
     auto result = greater;
-    for (auto digit = 0u; digit < less.magnitude(); ++digit)
-    {
-        result[digit] ^= less[digit];
-    }
+    std::transform
+    (
+        begin(less.digits_),
+        end(less.digits_),
+        begin(result.digits_),
+        begin(result.digits_),
+        std::bit_xor<>{}
+    );
     result.trim();
     return result;
 }

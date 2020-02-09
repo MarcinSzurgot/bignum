@@ -156,7 +156,7 @@ Unsigned<DigitType> operator/(const Unsigned<DigitType>& lhs, const Unsigned<Dig
                 multiplier = Unsigned<DigitType>(DigitType(dividendMsd / (divisorMsd + 1)));
                 if (!multiplier)
                 {
-                    multiplier[0] = 1;
+                    multiplier.lsd() = 1;
                 }
             }
             result += multiplier << shift * bitSize;

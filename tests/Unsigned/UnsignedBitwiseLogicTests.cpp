@@ -4,6 +4,50 @@
 
 #include <gtest/gtest.h>
 
+TEST(UnsignedBitwiseLogicTests, testThatNegatesBits)
+{
+    // given
+    const auto value = bignum::Unsigned
+    {
+        std::uint8_t(0b00000000),
+        std::uint8_t(0b11111111),
+        std::uint8_t(0b00001111),
+    };
+    const auto expected = bignum::Unsigned
+    {
+        std::uint8_t(0b11111111),
+        std::uint8_t(0b00000000),
+        std::uint8_t(0b11110000),
+    };
+
+    // when
+    const auto actual = ~value;
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(UnsignedBitwiseLogicTests, testThatNegatesAndTrims)
+{
+    // given
+    const auto value = bignum::Unsigned
+    {
+        std::uint8_t(0b00000000),
+        std::uint8_t(0b11111111),
+        std::uint8_t(0b11111111),
+    };
+    const auto expected = bignum::Unsigned
+    {
+        std::uint8_t(0b11111111),
+    };
+
+    // when
+    const auto actual = ~value;
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
+
 TEST(UnsignedBitwiseLogicTests, testThatPerformsBitwiseAnd)
 {
     // given

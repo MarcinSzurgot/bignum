@@ -39,7 +39,7 @@ struct Unsigned
     {
         if (sizeof(DigitType_) <= sizeof(DigitType))
         {
-            (*this)[0] = value;
+            this->lsd() = value;
         }
         else
         {
@@ -88,7 +88,7 @@ struct Unsigned
             {
                 (*this) *= ten;
             }
-            tmp[0] = c - '0';
+            tmp.lsd() = c - '0';
             *this += tmp;
         }
         trim();
@@ -119,6 +119,11 @@ struct Unsigned
         return msd();
     }
 
+    template<typename DigitType_> friend bool operator!(const Unsigned<DigitType_>& value)
+    {
+        return !static_cast<bool>(value);
+    }
+
     template<typename DigitType_> friend Comparison compare(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
     template<typename DigitType_> friend bool operator< (const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
     template<typename DigitType_> friend bool operator> (const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
@@ -145,6 +150,7 @@ struct Unsigned
     template<typename DigitType_> friend Unsigned<DigitType_>& operator/=(Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
     template<typename DigitType_> friend Unsigned<DigitType_>& operator%=(Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
 
+    template<typename DigitType_> friend Unsigned<DigitType_> operator~(const Unsigned<DigitType_>& value);
     template<typename DigitType_> friend Unsigned<DigitType_> operator&(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
     template<typename DigitType_> friend Unsigned<DigitType_> operator|(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
     template<typename DigitType_> friend Unsigned<DigitType_> operator^(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
@@ -180,6 +186,16 @@ private:
     digit_type& operator[](size_type index)
     {
         return digits_[index];
+    }
+
+    digit_type& msd()
+    {
+        return digits_.back();
+    }
+
+    digit_type& lsd()
+    {
+        return digits_.front();
     }
 
     std::vector<digit_type> digits_;

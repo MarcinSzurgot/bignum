@@ -47,7 +47,7 @@ std::istream& operator>>(std::istream& is, Unsigned<DigitType>& value)
         {
             value *= ten;
         }
-        tmp[0] = c - '0';
+        tmp.lsd() = c - '0';
         value += tmp;
     }
     return is;
