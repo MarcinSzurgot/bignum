@@ -1,12 +1,11 @@
 #pragma once
 
 #include <algorithm>
+#include <cwctype>
 #include <iosfwd>
 #include <string_view>
 #include <type_traits>
 #include <vector>
-
-#include <iostream>
 
 namespace bignum
 {

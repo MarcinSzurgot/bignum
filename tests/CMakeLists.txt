@@ -17,6 +17,9 @@ add_executable(
 
     main.cpp
     TestHelpers.hpp
+
+    Integer/IntegerTests.cpp
+
     Unsigned/UnsignedAddDiffTests.cpp
     Unsigned/UnsignedBitshiftTests.cpp
     Unsigned/UnsignedBitwiseLogicTests.cpp
@@ -24,6 +27,7 @@ add_executable(
     Unsigned/UnsignedMulDivTests.cpp
     Unsigned/UnsignedStreamTests.cpp
     Unsigned/UnsignedTests.cpp
+
     UtilityTests.cpp
 )
 
