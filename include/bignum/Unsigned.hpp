@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Comparison.hpp"
+#include "Types.hpp"
 
 #include <algorithm>
 #include <cwctype>
+#include <exception>
 #include <iosfwd>
 #include <string_view>
 #include <type_traits>
@@ -64,28 +65,47 @@ struct Unsigned
         trim();
     }
 
+    /**
+     * Converts string representation of Unsigned to actual Unsigned class object.
+     * String should match "\s*\+?[0-9]" regex. It ignores leading whitespaces
+     * and optional '+' sign on the beggining of digits string.
+     * Any other character not matching to this pattern ends reading.
+     * If reading was interrupted before any digit appeared then the final value of Unsigned is zero.
+     * @param string is a string representation
+     */
     Unsigned(std::string_view string)
+    : Unsigned()
     {
-        static const auto ten = Unsigned(digit_type(10));
-
-        digits_.reserve(size(string));
-        digits_.push_back(digit_type());
+        static const auto ten = Unsigned(10u);
 
         auto tmp = Unsigned(digit_type());
-        for (const auto c : string)
+        auto first = begin(string), last = end(string);
+
+        // Ignore leading whitespaces.
+        first = std::find_if_not(first, last, std::iswspace);
+
+        // Ignore '+' sign.
+        if (*first == '+')
         {
-            if (std::iswspace(c))
-            {
-                continue;
-            }
-            if (static_cast<bool>(*this))
-            {
-                (*this) *= ten;
-            }
-            tmp.lsd() = c - '0';
-            *this += tmp;
+            ++first;
         }
-        trim();
+
+        // Ignore leading zeroes.
+        first = std::find_if(first, last, [](const auto c){ return c != '0'; });
+
+        // Find end of digits string.
+        last = std::find_if_not(first, last, std::isdigit);
+
+        if (first != last)
+        {
+            tmp.lsd() = *first++ - '0';
+            *this += tmp;
+            std::for_each(first, last, [this, &tmp](const auto c) {
+                tmp.lsd() = c - '0';
+                *this = (*this) * ten + tmp;
+            });
+            trim();
+        }
     }
 
     digit_type msd() const

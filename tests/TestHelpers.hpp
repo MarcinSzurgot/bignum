@@ -1,8 +1,10 @@
 #pragma once
 
+#include <bignum/Integer.hpp>
 #include <bignum/Unsigned.hpp>
 #include <bignum/Utility.hpp>
 
+#include <iostream>
 #include <random>
 #include <string>
 #include <sstream>
@@ -50,6 +52,21 @@ bignum::Unsigned<DigitType> randomUnsigned(Generator& generator, std::size_t max
     return bignum::Unsigned(std::move(digits));
 }
 
+template<typename DigitType, typename Generator>
+bignum::Integer<DigitType> randomInteger(Generator& generator, std::size_t maxDigitsCount)
+{
+    const auto sign = [&]()
+    {
+        switch (std::uniform_int_distribution{0u, 1u}(generator))
+        {
+        case 0u: return bignum::Sign::Minus;
+        case 1u: return bignum::Sign::Plus;
+        }
+    }();
+
+    return bignum::Integer(sign, randomUnsigned<DigitType>(generator, maxDigitsCount));
+}
+
 template<typename DigitType>
 bignum::Unsigned<DigitType> additionBasedMultiplication(const bignum::Unsigned<DigitType>& lhs,
                                                         const bignum::Unsigned<DigitType>& rhs)
@@ -76,4 +93,14 @@ bignum::Unsigned<DigitType> additionBasedMultiplication(const bignum::Unsigned<D
         }
     }
     return result;
+}
+
+inline std::ostream& operator<<(std::ostream& os, bignum::Comparison comparison)
+{
+    return os << bignum::string(comparison);
+}
+
+inline std::ostream& operator<<(std::ostream& os, bignum::Sign sign)
+{
+    return os << bignum::string(sign);
 }

@@ -2,14 +2,11 @@
 
 #include "Unsigned.hpp"
 
+#include <algorithm>
+#include <iosfwd>
+
 namespace bignum
 {
-
-enum class Sign
-{
-    Minus,
-    Plus
-};
 
 template<typename DigitType>
 struct Integer
@@ -49,6 +46,42 @@ struct Integer
 
     }
 
+    Integer(std::string_view string)
+    {
+        auto first = begin(string);
+        auto last = end(string);
+
+        first = std::find_if_not(first, last, std::iswspace);
+        if (*first == '-')
+        {
+            sign_ = Sign::Minus;
+
+            // Unsigned constructor would accept plus sign at the beggining
+            // but it makes no sense to have it right after minus.
+            if (*++first == '+')
+            {
+                sign_ = Sign::Plus;
+                return;
+            }
+        }
+        else
+        {
+            sign_ = Sign::Plus;
+        }
+
+        const auto rest = std::string_view
+        (
+            string.data() + std::distance(begin(string), first),
+            std::distance(first, last)
+        );
+        unsigned_ = Unsigned<DigitType>(rest);
+
+        if (sign_ == Sign::Minus && !unsigned_)
+        {
+            sign_ = Sign::Plus;
+        }
+    }
+
     Sign sign() const
     {
         return sign_;
@@ -73,6 +106,15 @@ struct Integer
     template<typename DigitType_> friend bool operator==(const Integer<DigitType_>& lhs, const Integer<DigitType_>& rhs);
     template<typename DigitType_> friend bool operator!=(const Integer<DigitType_>& lhs, const Integer<DigitType_>& rhs);
 
+    template<typename DigitType_> friend Integer<DigitType_> operator+(const Integer<DigitType_>& lhs, const Integer<DigitType_>& rhs);
+    template<typename DigitType_> friend Integer<DigitType_> operator-(const Integer<DigitType_>& lhs, const Integer<DigitType_>& rhs);
+    template<typename DigitType_> friend Integer<DigitType_> operator*(const Integer<DigitType_>& lhs, const Integer<DigitType_>& rhs);
+    template<typename DigitType_> friend Integer<DigitType_> operator/(const Integer<DigitType_>& lhs, const Integer<DigitType_>& rhs);
+    template<typename DigitType_> friend Integer<DigitType_> operator%(const Integer<DigitType_>& lhs, const Integer<DigitType_>& rhs);
+
+    template<typename DigitType_> friend std::ostream& operator<<(std::ostream& os, const Integer<DigitType_>& value);
+    template<typename DigitType_> friend std::istream& operator>>(std::istream& is,       Integer<DigitType_>& value);
+
 private:
     unsigned_type unsigned_;
     Sign sign_;
@@ -80,4 +122,6 @@ private:
 
 }
 
+#include "IntegerOperators/AddDiff.hpp"
 #include "IntegerOperators/Comparison.hpp"
+#include "IntegerOperators/Stream.hpp"

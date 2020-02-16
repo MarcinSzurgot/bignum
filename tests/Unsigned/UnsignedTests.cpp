@@ -102,3 +102,42 @@ TEST(UnsignedTests, testThatInitFromBiggerUint)
     // then
     ASSERT_EQ(expected, actual);
 }
+
+TEST(UnsignedTests, testThatInitFromStringIgnoresPlusSign)
+{
+    // given
+    const auto string = "+123456789";
+    const auto expected = bignum::Unsigned<unsigned short>(123456789u);
+
+    // when
+    const auto actual = bignum::Unsigned<unsigned short>(string);
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(UnsignedTests, testThatInitFromStringIgnoresTrailingNonDigitCharacters)
+{
+    // given
+    const auto string = "+123456789oiwefowi";
+    const auto expected = bignum::Unsigned<unsigned short>(123456789u);
+
+    // when
+    const auto actual = bignum::Unsigned<unsigned short>(string);
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(UnsignedTests, testThatInitFromStringWithoutDigits)
+{
+    // given
+    const auto string = "+j1234";
+    const auto expected = bignum::Unsigned<unsigned short>();
+
+    // when
+    const auto actual = bignum::Unsigned<unsigned short>(string);
+
+    // then
+    ASSERT_EQ(expected, actual);
+}

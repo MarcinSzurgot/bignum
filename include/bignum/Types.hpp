@@ -6,14 +6,14 @@
 namespace bignum
 {
 
-enum struct Comparison
+enum class Comparison
 {
     LT,
     EQ,
     GT
 };
 
-enum struct Sign
+enum class Sign
 {
     Minus,
     Plus
