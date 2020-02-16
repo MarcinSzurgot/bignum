@@ -376,3 +376,13 @@ TEST(UnsignedMulDivTests, testThatDividesRandomValues)
             << "actual:     " << toString(actual) << "\n";
     }
 }
+
+TEST(UnsignedMulDivTests, testThatDivisionThrowsWhenDividingByZero)
+{
+    // given
+    const auto zero = bignum::Unsigned{0u};
+    const auto one  = bignum::Unsigned{1u};
+
+    // when-then
+    ASSERT_THROW(one / zero, std::invalid_argument);
+}
