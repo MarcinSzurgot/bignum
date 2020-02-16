@@ -20,7 +20,7 @@ std::ostream& operator<<(std::ostream& os, const Integer<DigitType>& value)
 template<typename DigitType>
 std::istream operator>>(std::istream& is, Integer<DigitType>& value)
 {
-
+    return is;
 }
 
 }

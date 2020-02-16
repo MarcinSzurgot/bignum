@@ -23,6 +23,7 @@ template<typename DigitType> Comparison compare(const Integer<DigitType>& lhs, c
         case Sign::Plus:  return compare(lhs.abs(), rhs.abs());
         }
     }
+    throw std::invalid_argument("Invalid comparison value.");
 }
 
 template<typename DigitType> bool operator <(const Integer<DigitType>& lhs, const Integer<DigitType>& rhs)
@@ -33,6 +34,7 @@ template<typename DigitType> bool operator <(const Integer<DigitType>& lhs, cons
     case Comparison::GT: return false;
     case Comparison::LT: return true;
     }
+    throw std::invalid_argument("Invalid comparison value.");
 }
 
 template<typename DigitType> bool operator >(const Integer<DigitType>& lhs, const Integer<DigitType>& rhs)
@@ -58,6 +60,7 @@ template<typename DigitType> bool operator==(const Integer<DigitType>& lhs, cons
     case Comparison::LT: return false;
     case Comparison::EQ: return true;
     }
+    throw std::invalid_argument("Invalid comparison value.");
 }
 
 template<typename DigitType> bool operator!=(const Integer<DigitType>& lhs, const Integer<DigitType>& rhs)

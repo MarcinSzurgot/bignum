@@ -1,6 +1,6 @@
 #pragma once
 
-#include <iosfwd>
+#include <iostream>
 #include <string_view>
 
 namespace bignum
@@ -19,7 +19,7 @@ enum class Sign
     Plus
 };
 
-constexpr std::string_view string(Comparison comparison)
+inline std::string_view string(Comparison comparison)
 {
     switch (comparison)
     {
@@ -30,7 +30,7 @@ constexpr std::string_view string(Comparison comparison)
     throw std::invalid_argument("Invalid comparison value.");
 }
 
-constexpr std::string_view string(Sign sign)
+inline std::string_view string(Sign sign)
 {
     switch (sign)
     {
@@ -49,6 +49,5 @@ inline std::ostream& operator<<(std::ostream& os, Sign sign)
 {
     return os << string(sign);
 }
-
 
 }

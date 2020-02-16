@@ -94,13 +94,3 @@ bignum::Unsigned<DigitType> additionBasedMultiplication(const bignum::Unsigned<D
     }
     return result;
 }
-
-inline std::ostream& operator<<(std::ostream& os, bignum::Comparison comparison)
-{
-    return os << bignum::string(comparison);
-}
-
-inline std::ostream& operator<<(std::ostream& os, bignum::Sign sign)
-{
-    return os << bignum::string(sign);
-}

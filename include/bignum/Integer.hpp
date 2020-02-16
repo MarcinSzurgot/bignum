@@ -26,14 +26,13 @@ struct Integer
 
     Integer(Sign sign, const Unsigned<DigitType>& abs)
     : unsigned_(abs),
-      sign_(sign)
+      sign_(unsigned_ ? sign : Sign::Plus)
     {
-
     }
 
     Integer(Sign sign, Unsigned<DigitType>&& abs)
     : unsigned_(std::move(abs)),
-      sign_(sign)
+      sign_(unsigned_ ? sign : Sign::Plus)
     {
 
     }

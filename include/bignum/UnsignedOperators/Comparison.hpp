@@ -41,6 +41,7 @@ bool operator<(const Unsigned<DigitType>& lhs, const Unsigned<DigitType>& rhs)
     case Comparison::GT: return false;
     case Comparison::LT: return true;
     }
+    throw std::invalid_argument("Invalid comparison value.");
 }
 
 template<typename DigitType>
@@ -70,6 +71,7 @@ bool operator==(const Unsigned<DigitType>& lhs, const Unsigned<DigitType>& rhs)
     case Comparison::GT: return false;
     case Comparison::EQ: return true;
     }
+    throw std::invalid_argument("Invalid comparison value.");
 }
 
 template<typename DigitType>

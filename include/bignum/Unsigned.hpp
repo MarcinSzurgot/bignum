@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 #include "Types.hpp"
 
 #include <algorithm>
@@ -97,7 +95,7 @@ struct Unsigned
         first = std::find_if(first, last, [](const auto c){ return c != '0'; });
 
         // Find end of digits string.
-        last = std::find_if_not(first, last, std::isdigit);
+        last = std::find_if_not(first, last, [](const auto c) { return std::isdigit(c); });
 
         if (first != last)
         {
@@ -136,9 +134,9 @@ struct Unsigned
         return msd();
     }
 
-    template<typename DigitType_> friend bool operator!(const Unsigned<DigitType_>& value)
+    bool operator!()
     {
-        return !static_cast<bool>(value);
+        return !static_cast<bool>(*this);
     }
 
     template<typename DigitType_> friend Comparison compare(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
