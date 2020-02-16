@@ -40,4 +40,15 @@ constexpr std::string_view string(Sign sign)
     throw std::invalid_argument("Invalid sign value.");
 }
 
+inline std::ostream& operator<<(std::ostream& os, Comparison comparison)
+{
+    return os << string(comparison);
+}
+
+inline std::ostream& operator<<(std::ostream& os, Sign sign)
+{
+    return os << string(sign);
+}
+
+
 }

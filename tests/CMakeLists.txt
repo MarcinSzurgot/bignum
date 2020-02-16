@@ -20,6 +20,7 @@ add_executable(
 
     Integer/IntegerAddDiffTests.cpp
     Integer/IntegerComparisonTests.cpp
+    Integer/IntegerMulDivTests.cpp
     Integer/IntegerStreamTests.cpp
     Integer/IntegerTests.cpp
 

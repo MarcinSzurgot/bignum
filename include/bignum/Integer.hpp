@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <iosfwd>
+#include <iostream>
 
 namespace bignum
 {
@@ -124,4 +125,5 @@ private:
 
 #include "IntegerOperators/AddDiff.hpp"
 #include "IntegerOperators/Comparison.hpp"
+#include "IntegerOperators/MulDiv.hpp"
 #include "IntegerOperators/Stream.hpp"

@@ -1,8 +1,11 @@
 #pragma once
 
+#include <iostream>
+
 #include "Types.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <cwctype>
 #include <exception>
 #include <iosfwd>

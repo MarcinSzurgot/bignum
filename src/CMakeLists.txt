@@ -8,7 +8,10 @@ target_sources(
     bignum
     INTERFACE
 
+    ${INTERFACE_PATH}/IntegerOperators/AddDiff.hpp
     ${INTERFACE_PATH}/IntegerOperators/Comparison.hpp
+    ${INTERFACE_PATH}/IntegerOperators/MulDiv.hpp
+    ${INTERFACE_PATH}/IntegerOperators/Stream.hpp
 
     ${INTERFACE_PATH}/UnsignedOperators/AddDiff.hpp
     ${INTERFACE_PATH}/UnsignedOperators/Bitshift.hpp
@@ -16,7 +19,9 @@ target_sources(
     ${INTERFACE_PATH}/UnsignedOperators/Comparison.hpp
     ${INTERFACE_PATH}/UnsignedOperators/MulDiv.hpp
     ${INTERFACE_PATH}/UnsignedOperators/Stream.hpp
-    
+
+    ${INTERFACE_PATH}/Integer.hpp
+    ${INTERFACE_PATH}/Types.hpp
     ${INTERFACE_PATH}/Unsigned.hpp
     ${INTERFACE_PATH}/Utility.hpp
 )
