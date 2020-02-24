@@ -19,6 +19,7 @@ add_executable(
     TestHelpers.hpp
 
     Integer/IntegerAddDiffTests.cpp
+    Integer/IntegerBitwiseLogicTests.cpp
     Integer/IntegerComparisonTests.cpp
     Integer/IntegerMulDivTests.cpp
     Integer/IntegerStreamTests.cpp

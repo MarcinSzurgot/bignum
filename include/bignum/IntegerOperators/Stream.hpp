@@ -21,7 +21,7 @@ template<typename DigitType>
 std::istream& operator>>(std::istream& is, Integer<DigitType>& value)
 {
     is >> std::ws;
-    
+
     auto sign = Sign::Plus;
     if (const auto c = char(is.get()); c == '-')
     {
