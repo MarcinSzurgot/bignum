@@ -24,3 +24,83 @@ TEST(IntegerStreamTests, testThatConvertsNegativeInteger)
     // then
     ASSERT_EQ(expected, actual);
 }
+
+TEST(IntegerStreamTests, testThatConvertsStringToPositiveInteger)
+{
+    // given
+    const auto string = "892839";
+    const auto expected = bignum::Integer<unsigned>(892839u);
+    auto actual = bignum::Integer<unsigned>();
+    auto stream = std::stringstream();
+    stream << string;
+
+    // when
+    stream >> actual;
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(IntegerStreamTests, testThatConvertsStringWithPlusToPositiveInteger)
+{
+    // given
+    const auto string = "+892839";
+    const auto expected = bignum::Integer<unsigned>(892839u);
+    auto actual = bignum::Integer<unsigned>();
+    auto stream = std::stringstream();
+    stream << string;
+
+    // when
+    stream >> actual;
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(IntegerStreamTests, testThatConvertsStringWithMinusToNegativeInteger)
+{
+    // given
+    const auto string = "-892839";
+    const auto expected = bignum::Integer<unsigned>(-892839);
+    auto actual = bignum::Integer<unsigned>();
+    auto stream = std::stringstream();
+    stream << string;
+
+    // when
+    stream >> actual;
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(IntegerStreamTests, testThatConvertsStringWithSignAndInvalidCharactersToZero)
+{
+    // given
+    const auto string = "-i892839";
+    const auto expected = bignum::Integer<unsigned>();
+    auto actual = bignum::Integer<unsigned>();
+    auto stream = std::stringstream();
+    stream << string;
+
+    // when
+    stream >> actual;
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(IntegerStreamTests, testThatIgnoresLeadingWhitespaces)
+{
+    // given
+    const auto string = "   -892839";
+    const auto expected = bignum::Integer<unsigned>(-892839);
+    auto actual = bignum::Integer<unsigned>();
+    auto stream = std::stringstream();
+    stream << string;
+
+    // when
+    stream >> actual;
+
+    // then
+    ASSERT_EQ(expected, actual);
+}
