@@ -40,3 +40,9 @@
 build/
 
 # CMake #
+
+# Visual Code #
+
+.vscode/
+
+# Visual Code #

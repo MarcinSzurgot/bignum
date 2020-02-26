@@ -101,10 +101,11 @@ struct Unsigned
         {
             tmp.lsd() = *first++ - '0';
             *this += tmp;
-            std::for_each(first, last, [this, &tmp](const auto c) {
-                tmp.lsd() = c - '0';
+            for (; first != last; ++first)
+            {
+                tmp.lsd() = *first - '0';
                 *this = (*this) * ten + tmp;
-            });
+            }
             trim();
         }
     }

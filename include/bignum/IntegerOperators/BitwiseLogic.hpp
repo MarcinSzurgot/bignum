@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Integer.hpp"
+
 namespace bignum
 {
 
@@ -15,7 +17,7 @@ Integer<DigitType> operator&(const Integer<DigitType>& lhs, const Integer<DigitT
 {
     const auto sign = lhs.sign() == rhs.sign() && lhs.sign() == Sign::Minus
                       ? Sign::Minus
-                      : Sign::Plus
+                      : Sign::Plus;
     return Integer<DigitType>(sign, lhs.abs() & rhs.abs());
 }
 
