@@ -35,6 +35,8 @@ Integer<DigitType> operator+(const Integer<DigitType>& lhs, const Integer<DigitT
 template<typename DigitType>
 Integer<DigitType> operator-(const Integer<DigitType>& lhs, const Integer<DigitType>& rhs)
 {
+    // FIXME: Either true or false, don't brake any test. 
+    // Problem may be in tests or in implementation.
     return details_::foo<true>(lhs, rhs);
 }
 
