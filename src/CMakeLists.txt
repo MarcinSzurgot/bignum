@@ -9,6 +9,7 @@ target_sources(
     INTERFACE
 
     ${INTERFACE_PATH}/IntegerOperators/AddDiff.hpp
+    ${INTERFACE_PATH}/IntegerOperators/Bitshift.hpp
     ${INTERFACE_PATH}/IntegerOperators/BitwiseLogic.hpp
     ${INTERFACE_PATH}/IntegerOperators/Comparison.hpp
     ${INTERFACE_PATH}/IntegerOperators/MulDiv.hpp

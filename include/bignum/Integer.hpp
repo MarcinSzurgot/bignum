@@ -16,6 +16,7 @@ struct Integer
 
     using digit_type    = DigitType;
     using unsigned_type = Unsigned<digit_type>;
+    using size_type     = typename Unsigned<digit_type>::size_type;
 
     Integer()
     : unsigned_(),
@@ -121,6 +122,11 @@ struct Integer
     template<typename DigitType_> friend Integer<DigitType_>& operator|=(Integer<DigitType_>& lhs, const Integer<DigitType_>& rhs);
     template<typename DigitType_> friend Integer<DigitType_>& operator^=(Integer<DigitType_>& lhs, const Integer<DigitType_>& rhs);
 
+    template<typename DigitType_, typename IntegerType> friend Integer<DigitType_>  operator>> (const Integer<DigitType_>& value, IntegerType offset);
+    template<typename DigitType_, typename IntegerType> friend Integer<DigitType_>  operator<< (const Integer<DigitType_>& value, IntegerType offset);
+    template<typename DigitType_, typename IntegerType> friend Integer<DigitType_>& operator>>=(Integer<DigitType_>& value, IntegerType offset);
+    template<typename DigitType_, typename IntegerType> friend Integer<DigitType_>& operator<<=(Integer<DigitType_>& value, IntegerType offset);
+
     template<typename DigitType_> friend std::ostream& operator<<(std::ostream& os, const Integer<DigitType_>& value);
     template<typename DigitType_> friend std::istream& operator>>(std::istream& is,       Integer<DigitType_>& value);
 
@@ -132,6 +138,7 @@ private:
 }
 
 #include "IntegerOperators/AddDiff.hpp"
+#include "IntegerOperators/Bitshift.hpp"
 #include "IntegerOperators/BitwiseLogic.hpp"
 #include "IntegerOperators/Comparison.hpp"
 #include "IntegerOperators/MulDiv.hpp"
