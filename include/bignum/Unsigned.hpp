@@ -11,6 +11,8 @@
 #include <type_traits>
 #include <vector>
 
+#include <climits>
+
 namespace bignum
 {
 

@@ -6,6 +6,8 @@
 #include <iostream>
 #include <type_traits>
 
+#include <climits>
+
 namespace bignum
 {
 

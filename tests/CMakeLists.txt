@@ -1,9 +1,12 @@
 include(FetchContent)
 
+set(OLD_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+
 FetchContent_Declare(
     googletest
     GIT_REPOSITORY https://github.com/google/googletest
-    GIT_TAG release-1.10.0
+    # GIT_TAG release-1.10.0
 )
 
 FetchContent_Populate(googletest)
@@ -11,6 +14,8 @@ add_subdirectory(
     ${googletest_SOURCE_DIR}
     ${googletest_BINARY_DIR}
 )
+
+set(CMAKE_CXX_FLAGS ${OLD_CMAKE_CXX_FLAGS})
 
 add_executable(
     tests

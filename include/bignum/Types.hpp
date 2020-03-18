@@ -19,7 +19,7 @@ enum class Sign
     Plus
 };
 
-inline std::string_view string(Comparison comparison)
+inline constexpr std::string_view string(Comparison comparison)
 {
     switch (comparison)
     {
@@ -30,12 +30,22 @@ inline std::string_view string(Comparison comparison)
     throw std::invalid_argument("Invalid comparison value.");
 }
 
-inline std::string_view string(Sign sign)
+inline constexpr std::string_view string(Sign sign)
 {
     switch (sign)
     {
     case Sign::Minus: return "Sign::Minus";
     case Sign::Plus:  return "Sign::Plus";
+    }
+    throw std::invalid_argument("Invalid sign value.");
+}
+
+inline constexpr Sign negate(Sign sign)
+{
+    switch (sign)
+    {
+        case Sign::Minus: return Sign::Plus;
+        case Sign::Plus:  return Sign::Minus;
     }
     throw std::invalid_argument("Invalid sign value.");
 }

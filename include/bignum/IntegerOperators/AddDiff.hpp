@@ -5,40 +5,41 @@
 namespace bignum
 {
 
-namespace details_
-{
-
-template<bool RhsSignInverted, typename DigitType>
-Integer<DigitType> foo(const Integer<DigitType>& lhs, const Integer<DigitType>& rhs)
-{
-    using cmp = std::conditional_t<RhsSignInverted, std::equal_to<>, std::not_equal_to<>>;
-
-    if (cmp{}(lhs.sign(), rhs.sign()))
-    {
-        const auto sign = lhs.abs() < rhs.abs() ? rhs.sign() : lhs.sign();
-        return Integer(sign, lhs.abs() - rhs.abs());
-    }
-    else
-    {
-        return Integer(lhs.sign(), lhs.abs() + rhs.abs());
-    }
-}
-
-}
-
 template<typename DigitType>
 Integer<DigitType> operator+(const Integer<DigitType>& lhs, const Integer<DigitType>& rhs)
 {
-    return details_::foo<false>(lhs, rhs);
+    if (lhs.sign() == rhs.sign())
+    {
+        return Integer(lhs.sign(), lhs.abs() + rhs.abs());
+    }
+    else
+    {
+        const auto sign = [&]() {
+            switch (compare(lhs.abs(), rhs.abs()))
+            {
+                case Comparison::LT: return rhs.sign();
+                case Comparison::EQ: return Sign::Plus;
+                case Comparison::GT: return lhs.sign();
+            }
+            throw std::invalid_argument("This should never happen.");   
+        }();
+        return Integer(sign, lhs.abs() - rhs.abs());
+    }
 }
 
 template<typename DigitType>
 Integer<DigitType> operator-(const Integer<DigitType>& lhs, const Integer<DigitType>& rhs)
 {
-    // FIXME: Either true or false, don't brake any test. 
-    // Problem may be in tests or in implementation.
-    return details_::foo<true>(lhs, rhs);
+    const auto sign = [&]() {
+        switch (compare(lhs.abs(), rhs.abs()))
+        {
+            case Comparison::LT: return lhs.sign();
+            case Comparison::EQ: return Sign::Plus;
+            case Comparison::GT: return negate(rhs.sign());
+        }
+        throw std::invalid_argument("This should never happen.");   
+    }();
+    return Integer(sign, lhs.abs() - rhs.abs());
 }
-
 
 }
