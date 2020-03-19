@@ -28,15 +28,15 @@ Unsigned<DigitType> operator&(const Unsigned<DigitType>& lhs, const Unsigned<Dig
     const auto& less    = lhs.magnitude() < rhs.magnitude() ? lhs : rhs;
     const auto& greater = lhs.magnitude() < rhs.magnitude() ? rhs : lhs;
 
-    auto result = less;
-    std::transform
-    (
-        begin(greater.digits_),
-        std::next(begin(greater.digits_), less.magnitude()),
-        begin(result.digits_),
-        begin(result.digits_),
-        std::bit_and<>{}
-    );
+    auto result      = less;
+    auto srcFirst1   = begin(greater.digits_);
+    auto srcLast1    = std::next(srcFirst1, std::ptrdiff_t(less.magnitude()));
+    auto srcFirst2   = begin(result.digits_);
+    auto dstFirst    = begin(result.digits_);
+    auto andOperator = std::bit_and<>{};
+
+    std::transform(srcFirst1, srcLast1, srcFirst2, dstFirst, andOperator);
+
     result.trim();
     return result;
 }

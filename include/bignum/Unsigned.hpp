@@ -44,7 +44,7 @@ struct Unsigned
             constexpr auto bitSize = sizeof(DigitType) * CHAR_BIT;
             for (auto digit = 0u; digit < magnitude(); ++digit)
             {
-                (*this)[digit] = (value >> (bitSize * digit)) & ~DigitType();
+                (*this)[digit] = (value >> (bitSize * digit)) & DigitType(~DigitType());
             }
             trim();
         }
@@ -101,11 +101,11 @@ struct Unsigned
 
         if (first != last)
         {
-            tmp.lsd() = *first++ - '0';
+            tmp.lsd() = DigitType(*first++ - '0');
             *this += tmp;
             for (; first != last; ++first)
             {
-                tmp.lsd() = *first - '0';
+                tmp.lsd() = DigitType(*first - '0');
                 *this = (*this) * ten + tmp;
             }
             trim();

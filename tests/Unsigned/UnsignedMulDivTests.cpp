@@ -72,7 +72,7 @@ TEST(UnsignedMulDivTests, testThatSingleDigitMultipliesHigherHalves)
 TEST(UnsignedMulDivTests, testThatSingleDigitMultipliesForAllDigits)
 {
     // given
-    constexpr auto values = []()
+    constexpr auto allUint8Values = []()
     {
         auto values = std::array<std::uint8_t, 256>();
         for (auto i = 0u; i < size(values); ++i)
@@ -82,9 +82,9 @@ TEST(UnsignedMulDivTests, testThatSingleDigitMultipliesForAllDigits)
         return values;
     }();
 
-    for (const auto lhs : values)
+    for (const auto lhs : allUint8Values)
     {
-        for (const auto rhs : values)
+        for (const auto rhs : allUint8Values)
         {
             const auto result = std::uint16_t(lhs * rhs);
             const auto expected = std::make_pair
@@ -178,7 +178,7 @@ TEST(UnsignedMulDivTests, testThatMultipliesRandomValues)
     // given
     constexpr auto numberOfIterations = 100000u;
     constexpr auto maxSize = 5u;
-    const auto seed = std::int64_t
+    const auto seed = std::uint64_t
     (
         std::chrono::high_resolution_clock::now()
         .time_since_epoch()
@@ -208,21 +208,21 @@ TEST(UnsignedMulDivTests, testThatMultipliesRandomValues)
 TEST(UnsignedMulDivTests, testThatDividesAllSingleDigitsValues)
 {
     // given
-    constexpr auto digits = []()
+    constexpr auto allUint8Values = []()
     {
-        auto digits = std::array<std::uint8_t, 256>();
-        for (auto digit = 0u; digit < size(digits); ++digit)
+        auto values = std::array<std::uint8_t, 256>();
+        for (auto digit = 0u; digit < size(values); ++digit)
         {
-            digits[digit] = digit;
+            values[digit] = digit;
         }
-        return digits;
+        return values;
     }();
 
-    for (const auto a : digits)
+    for (const auto a : allUint8Values)
     {
-        for (const auto b : digits)
+        for (const auto b : allUint8Values)
         {
-            for (const auto c : digits)
+            for (const auto c : allUint8Values)
             {
                 // given
                 const auto dividend = std::make_pair
@@ -350,7 +350,7 @@ TEST(UnsignedMulDivTests, testThatDividesRandomValues)
     // given
     constexpr auto numberOfIterations = 100000u;
     constexpr auto maxSize = 5u;
-    const auto seed = std::int64_t
+    const auto seed = std::uint64_t
     (
         std::chrono::high_resolution_clock::now()
         .time_since_epoch()

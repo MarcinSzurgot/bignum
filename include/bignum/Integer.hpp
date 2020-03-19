@@ -73,7 +73,7 @@ struct Integer
         const auto rest = std::string_view
         (
             string.data() + std::distance(begin(string), first),
-            std::distance(first, last)
+            std::string_view::size_type(std::distance(first, last))
         );
         unsigned_ = Unsigned<DigitType>(rest);
 

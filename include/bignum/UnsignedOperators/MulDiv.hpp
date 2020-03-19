@@ -52,8 +52,8 @@ constexpr std::pair<DigitType, DigitType> mul(DigitType lhs, DigitType rhs)
     const auto resultHigherHalf = DigitType
     (
         lhsHigherHalf * rhsHigherHalf
-        + (mixedHalves >> halfBitSize)
-        + (mixedHalvesCarry << halfBitSize)
+        + DigitType(mixedHalves >> halfBitSize)
+        + DigitType(mixedHalvesCarry << halfBitSize)
         + resultLowerHalfCarry
     );
 

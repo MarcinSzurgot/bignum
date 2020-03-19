@@ -65,7 +65,7 @@ TEST(UnsignedAddDiffTests, testThatAddsSingleDigitsWithCarryOverflow)
 TEST(UnsignedAddDiffTests, testThatAddsAllSingleDigits)
 {
     // given
-    constexpr auto values = []()
+    constexpr auto allUint8Values = []()
     {
         auto values = std::array<std::uint8_t, 256>();
         for (auto i = 0u; i < size(values); ++i)
@@ -75,9 +75,9 @@ TEST(UnsignedAddDiffTests, testThatAddsAllSingleDigits)
         return values;
     }();
 
-    for (const auto lhs : values)
+    for (const auto lhs : allUint8Values)
     {
-        for(const auto rhs : values)
+        for(const auto rhs : allUint8Values)
         {
             for (const auto carry : {false, true})
             {

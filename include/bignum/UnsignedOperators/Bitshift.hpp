@@ -20,9 +20,10 @@ Unsigned<DigitType> operator<<(const Unsigned<DigitType>& value, Integer offset)
     }
     else
     {
+        const auto uintOffset = typename Unsigned<DigitType>::size_type(offset);
         const auto bitsize = sizeof(DigitType) * CHAR_BIT;
-        const auto digitOffset = offset / bitsize;
-        const auto bitOffset = offset % bitsize;
+        const auto digitOffset = uintOffset / bitsize;
+        const auto bitOffset = uintOffset % bitsize;
         const auto newSize = value.magnitude() + digitOffset;
 
         if (!bitOffset)

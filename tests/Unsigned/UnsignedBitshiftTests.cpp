@@ -172,20 +172,20 @@ TEST(UnsignedBitshiftTests, testThatRightShiftsToZero)
 TEST(UnsignedBitshiftTests, testThatLeftShiftsAllValues)
 {
     // given
-    constexpr auto digits = []()
+    constexpr auto allUint8Values = []()
     {
-        auto digits = std::array<std::uint8_t, 256>();
-        for (auto digit = 0u; digit < size(digits); ++digit)
+        auto values = std::array<std::uint8_t, 256>();
+        for (auto digit = 0u; digit < size(values); ++digit)
         {
-            digits[digit] = digit;
+            values[digit] = digit;
         }
-        return digits;
+        return values;
     }();
     constexpr auto bitShiftLimit = 16u;
 
-    for (const auto a : digits)
+    for (const auto a : allUint8Values)
     {
-        for (const auto b : digits)
+        for (const auto b : allUint8Values)
         {
             for (auto bitShift = 0u; bitShift < bitShiftLimit; ++bitShift)
             {
@@ -221,20 +221,20 @@ TEST(UnsignedBitshiftTests, testThatLeftShiftsAllValues)
 TEST(UnsignedBitshiftTests, testThatRightShiftsAllValues)
 {
     // given
-    constexpr auto digits = []()
+    constexpr auto allUint8Values = []()
     {
-        auto digits = std::array<std::uint8_t, 256>();
-        for (auto digit = 0u; digit < size(digits); ++digit)
+        auto values = std::array<std::uint8_t, 256>();
+        for (auto digit = 0u; digit < size(values); ++digit)
         {
-            digits[digit] = digit;
+            values[digit] = digit;
         }
-        return digits;
+        return values;
     }();
     constexpr auto bitShiftLimit = 16u;
 
-    for (const auto a : digits)
+    for (const auto a : allUint8Values)
     {
-        for (const auto b : digits)
+        for (const auto b : allUint8Values)
         {
             for (auto bitShift = 0u; bitShift < bitShiftLimit; ++bitShift)
             {
