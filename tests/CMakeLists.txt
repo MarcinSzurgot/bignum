@@ -50,6 +50,7 @@ add_executable(
     TestHelpers.hpp
 
     Integer/IntegerAddDiffTests.cpp
+    Integer/IntegerAllOperatorsPresentTests.cpp
     Integer/IntegerBitwiseLogicTests.cpp
     Integer/IntegerComparisonTests.cpp
     Integer/IntegerMulDivTests.cpp
@@ -57,6 +58,7 @@ add_executable(
     Integer/IntegerTests.cpp
 
     Unsigned/UnsignedAddDiffTests.cpp
+    Unsigned/UnsignedAllOperatorsPresentTests.cpp
     Unsigned/UnsignedBitshiftTests.cpp
     Unsigned/UnsignedBitwiseLogicTests.cpp
     Unsigned/UnsignedComparisonTests.cpp
