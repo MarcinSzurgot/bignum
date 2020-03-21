@@ -10,7 +10,7 @@ namespace
 template<typename T>
 void consumeType()
 {
-    
+    // It just helps us to use decltype in a given context.
 }
 
 }
@@ -23,48 +23,40 @@ TEST(UnsignedAllOperatorsPresentTests, testThatAllOperatorsCompiles)
     auto stream       = std::stringstream();
 
     // then
-    // bignum::operator+(oneValue);
-    // bignum::operator-(anotherValue);
 
-    consumeType<decltype(bignum::operator+(oneValue, anotherValue))>();
-    consumeType<decltype(bignum::operator-(oneValue, anotherValue))>();
-    consumeType<decltype(bignum::operator*(oneValue, anotherValue))>();
-    consumeType<decltype(bignum::operator/(oneValue, anotherValue))>();
-    consumeType<decltype(bignum::operator%(oneValue, anotherValue))>();
-
+    // assignment
     consumeType<decltype(bignum::operator+=(oneValue, anotherValue))>();
     consumeType<decltype(bignum::operator-=(oneValue, anotherValue))>();
     consumeType<decltype(bignum::operator*=(oneValue, anotherValue))>();
     consumeType<decltype(bignum::operator/=(oneValue, anotherValue))>();
     consumeType<decltype(bignum::operator%=(oneValue, anotherValue))>();
-
-    // bignum::operator++(oneValue);
-    // bignum::operator--(oneValue);
-
-    // bignum::operator++(oneValue, 1);
-    // bignum::operator--(oneValue, 1);
-
-    consumeType<decltype(bignum::operator<<(oneValue, anotherValue))>();
-    consumeType<decltype(bignum::operator>>(oneValue, anotherValue))>();
-
+    consumeType<decltype(bignum::operator|=(oneValue, anotherValue))>();
+    consumeType<decltype(bignum::operator&=(oneValue, anotherValue))>();
+    consumeType<decltype(bignum::operator^=(oneValue, anotherValue))>();
     consumeType<decltype(bignum::operator<<=(oneValue, anotherValue))>();
     consumeType<decltype(bignum::operator>>=(oneValue, anotherValue))>();
 
-    consumeType<decltype(bignum::operator<<(stream, oneValue))>();
-    consumeType<decltype(bignum::operator>>(stream, oneValue))>();
-
+    // arithmetic
+    consumeType<decltype(bignum::operator+(oneValue))>();
+    consumeType<decltype(bignum::operator-(anotherValue))>();
+    consumeType<decltype(bignum::operator+(oneValue, anotherValue))>();
+    consumeType<decltype(bignum::operator-(oneValue, anotherValue))>();
+    consumeType<decltype(bignum::operator*(oneValue, anotherValue))>();
+    consumeType<decltype(bignum::operator/(oneValue, anotherValue))>();
+    consumeType<decltype(bignum::operator%(oneValue, anotherValue))>();
+    consumeType<decltype(bignum::operator<<(oneValue, anotherValue))>();
+    consumeType<decltype(bignum::operator>>(oneValue, anotherValue))>();
     consumeType<decltype(bignum::operator~(oneValue))>();
     consumeType<decltype(bignum::operator|(oneValue, anotherValue))>();
     consumeType<decltype(bignum::operator&(oneValue, anotherValue))>();
     consumeType<decltype(bignum::operator^(oneValue, anotherValue))>();
 
-    consumeType<decltype(bignum::operator|=(oneValue, anotherValue))>();
-    consumeType<decltype(bignum::operator&=(oneValue, anotherValue))>();
-    consumeType<decltype(bignum::operator^=(oneValue, anotherValue))>();
+    // logical
+    consumeType<decltype(bignum::operator!(oneValue))>();
+    consumeType<decltype(bignum::operator||(oneValue, anotherValue))>();
+    consumeType<decltype(bignum::operator&&(oneValue, anotherValue))>();
 
-    // bignum::operator||(oneValue, anotherValue);
-    // bignum::operator&&(oneValue, anotherValue);
-
+    // comparison
     consumeType<decltype(bignum::operator!=(oneValue, anotherValue))>();
     consumeType<decltype(bignum::operator==(oneValue, anotherValue))>();
     consumeType<decltype(bignum::operator< (oneValue, anotherValue))>();
@@ -72,6 +64,16 @@ TEST(UnsignedAllOperatorsPresentTests, testThatAllOperatorsCompiles)
     consumeType<decltype(bignum::operator<=(oneValue, anotherValue))>();
     consumeType<decltype(bignum::operator>=(oneValue, anotherValue))>();
 
+    // increment/decrement
+    consumeType<decltype(bignum::operator++(oneValue))>();
+    consumeType<decltype(bignum::operator--(oneValue))>();
+    consumeType<decltype(bignum::operator++(oneValue, 1))>();
+    consumeType<decltype(bignum::operator--(oneValue, 1))>();
+
+    // stream
+    consumeType<decltype(bignum::operator<<(stream, oneValue))>();
+    consumeType<decltype(bignum::operator>>(stream, oneValue))>();
+
+    // cast
     consumeType<decltype(static_cast<bool>(oneValue))>();
-    consumeType<decltype(!oneValue)>();
 }

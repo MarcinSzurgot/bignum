@@ -62,6 +62,8 @@ add_executable(
     Unsigned/UnsignedBitshiftTests.cpp
     Unsigned/UnsignedBitwiseLogicTests.cpp
     Unsigned/UnsignedComparisonTests.cpp
+    Unsigned/UnsignedIncrementDecrementTests.cpp
+    Unsigned/UnsignedLogicOperatorTests.cpp
     Unsigned/UnsignedMulDivTests.cpp
     Unsigned/UnsignedStreamTests.cpp
     Unsigned/UnsignedTests.cpp

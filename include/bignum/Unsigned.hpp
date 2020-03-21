@@ -137,10 +137,10 @@ struct Unsigned
         return msd();
     }
 
-    bool operator!()
-    {
-        return !static_cast<bool>(*this);
-    }
+    template<typename DigitType_> friend bool operator!(const Unsigned<DigitType_>& value);
+
+    template<typename DigitType_> friend bool operator||(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
+    template<typename DigitType_> friend bool operator&&(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
 
     template<typename DigitType_> friend Comparison compare(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
     template<typename DigitType_> friend bool operator< (const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
@@ -156,6 +156,8 @@ struct Unsigned
     template<typename DigitType_, typename Integer> friend Unsigned<DigitType_>& operator<<=(Unsigned<DigitType_>& value, Integer offset);
     template<typename DigitType_, typename Integer> friend Unsigned<DigitType_>& operator>>=(Unsigned<DigitType_>& value, Integer offset);
 
+    template<typename DigitType_> friend Unsigned<DigitType_> operator+(Unsigned<DigitType_> value);
+    template<typename DigitType_> friend Unsigned<DigitType_> operator-(Unsigned<DigitType_> value);
     template<typename DigitType_> friend Unsigned<DigitType_> operator+(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
     template<typename DigitType_> friend Unsigned<DigitType_> operator-(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
     template<typename DigitType_> friend Unsigned<DigitType_> operator*(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs);
@@ -179,6 +181,11 @@ struct Unsigned
 
     template<typename DigitType_> friend std::ostream& operator<<(std::ostream& os, const Unsigned<DigitType_>& value);
     template<typename DigitType_> friend std::istream& operator>>(std::istream& is,       Unsigned<DigitType_>& value);
+
+    template<typename DigitType_> friend Unsigned<DigitType_>& operator++(Unsigned<DigitType_>& value);
+    template<typename DigitType_> friend Unsigned<DigitType_>& operator--(Unsigned<DigitType_>& value);
+    template<typename DigitType_> friend Unsigned<DigitType_> operator++(Unsigned<DigitType_>& value, int);
+    template<typename DigitType_> friend Unsigned<DigitType_> operator--(Unsigned<DigitType_>& value, int);
 
 private:
     Unsigned(size_type size, digit_type sample)
@@ -218,6 +225,59 @@ private:
 
     std::vector<digit_type> digits_;
 };
+
+template<typename DigitType_> bool operator!(const Unsigned<DigitType_>& value)
+{
+    return !static_cast<bool>(value);
+}
+
+template<typename DigitType_> bool operator||(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs)
+{
+    return static_cast<bool>(lhs) || static_cast<bool>(rhs);
+}
+
+template<typename DigitType_> bool operator&&(const Unsigned<DigitType_>& lhs, const Unsigned<DigitType_>& rhs)
+{
+    return static_cast<bool>(lhs) && static_cast<bool>(rhs);
+}
+
+template<typename DigitType_> Unsigned<DigitType_> operator+(Unsigned<DigitType_> value)
+{
+    return value;
+}
+
+template<typename DigitType_> Unsigned<DigitType_> operator-(Unsigned<DigitType_> value)
+{
+    return value;
+}
+
+template<typename DigitType_>
+Unsigned<DigitType_>& operator++(Unsigned<DigitType_>& value)
+{
+    return value += Unsigned<DigitType_>(DigitType_(1));
+}
+
+template<typename DigitType_> 
+Unsigned<DigitType_>& operator--(Unsigned<DigitType_>& value)
+{
+    return value -= Unsigned<DigitType_>(DigitType_(1));
+}
+
+template<typename DigitType_> 
+Unsigned<DigitType_> operator++(Unsigned<DigitType_>& value, int)
+{
+    auto copy = value;
+    ++value;
+    return copy;
+}
+
+template<typename DigitType_> 
+Unsigned<DigitType_> operator--(Unsigned<DigitType_>& value, int)
+{
+    auto copy = value;
+    --value;
+    return copy;
+}
 
 }
 

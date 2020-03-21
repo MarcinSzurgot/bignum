@@ -50,6 +50,11 @@ inline constexpr Sign negate(Sign sign)
     throw std::invalid_argument("Invalid sign value.");
 }
 
+inline constexpr Sign operator~(Sign sign)
+{
+    return negate(sign);
+}
+
 inline std::ostream& operator<<(std::ostream& os, Comparison comparison)
 {
     return os << string(comparison);
