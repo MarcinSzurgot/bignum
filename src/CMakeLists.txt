@@ -2,7 +2,7 @@ project(bignum CXX)
 
 add_library(bignum INTERFACE)
 
-set(INTERFACE_PATH ${CMAKE_SOURCE_DIR}/include/bignum)
+set(INTERFACE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../include/bignum)
 
 target_sources(
     bignum
@@ -31,7 +31,7 @@ target_sources(
 target_include_directories(
     bignum
     INTERFACE
-        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
 
 # set_target_properties(
