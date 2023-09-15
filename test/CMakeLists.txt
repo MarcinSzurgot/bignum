@@ -15,6 +15,7 @@ set(TEST_SOURCES
     AdditionOperatorTests.cpp
     BinaryLeftShiftOperatorTests.cpp
     BinaryRightShiftOperatorTests.cpp
+    LessThanOperatorTests.cpp
     MultiplicationOperatorTests.cpp
     SubtractionOperatorTests.cpp    
     Utils.hpp
