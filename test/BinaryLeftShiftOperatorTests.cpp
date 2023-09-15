@@ -1,68 +1,33 @@
 #include <gtest/gtest.h>
 #include "bignum/BigUnsigned.hpp"
 
-TEST(BigUnsignedTests, LeftShiftByZero) {
-    BigUnsigned num = {0x12345678};
-    num <<= 0;
-    ASSERT_EQ(num, BigUnsigned({0x12345678}));
+#include "Utils.hpp"
+
+class BigUnsignedLeftShiftTest : public ::testing::TestWithParam<std::tuple<BigUnsigned, std::size_t, BigUnsigned>> {};
+
+TEST_P(BigUnsignedLeftShiftTest, LeftShiftOperation) {
+    auto num = std::get<0>(GetParam());
+    const auto shift = std::get<1>(GetParam());
+    const auto expected = std::get<2>(GetParam());
+
+    num <<= shift;
+    ASSERT_EQ(num, expected);
 }
 
-TEST(BigUnsignedTests, SingleDigitLeftShift) {
-    BigUnsigned num = {0x12345678};
-    num <<= 4;
-    ASSERT_EQ(num, BigUnsigned({0x23456780, 0x1}));
-}
-
-TEST(BigUnsignedTests, SingleDigitBoundaryShift) {
-    BigUnsigned num = {0xF2345678};
-    num <<= 4;
-    ASSERT_EQ(num, BigUnsigned({0x23456780, 0xF}));
-}
-
-TEST(BigUnsignedTests, MultipleDigitLeftShift) {
-    BigUnsigned num = {0xF2345678, 0x9ABCDEF0};
-    num <<= 4;
-    ASSERT_EQ(num, BigUnsigned({0x23456780, 0xABCDEF0F, 0x9}));
-}
-
-TEST(BigUnsignedTests, WholeDigitsShift) {
-    BigUnsigned num = {0x12345678};
-    num <<= 32;
-    ASSERT_EQ(num, BigUnsigned({0x0, 0x12345678}));
-}
-
-TEST(BigUnsignedTests, MultipleWholeDigitsShift) {
-    BigUnsigned num = {0x12345678};
-    num <<= 64;
-    ASSERT_EQ(num, BigUnsigned({0x0, 0x0, 0x12345678}));
-}
-
-TEST(BigUnsignedTests, CombinedWholeAndPartialDigitsShift) {
-    BigUnsigned num = {0xF2345678, 0x9ABCDEF0};
-    num <<= 36;
-    ASSERT_EQ(num, BigUnsigned({0x0, 0x23456780, 0xABCDEF0F, 0x9}));
-}
-
-TEST(BigUnsignedTests, MaxBitShift) {
-    BigUnsigned num = {0xF2345678, 0x9ABCDEF0};
-    num <<= 31;
-    ASSERT_EQ(num, BigUnsigned({0x0, 0x791A2B3C, 0x4D5E6F78}));
-}
-
-TEST(BigUnsignedTests, ShiftZero) {
-    BigUnsigned num = {0x0};
-    num <<= 4;
-    ASSERT_EQ(num, BigUnsigned({0x0}));
-}
-
-TEST(BigUnsignedTests, ShiftZeroByWholeDigits) {
-    BigUnsigned num = {0x0};
-    num <<= 32;
-    ASSERT_EQ(num, BigUnsigned({0x0}));
-}
-
-TEST(BigUnsignedTests, LargeShift) {
-    BigUnsigned num = {0x1};
-    num <<= 128;
-    ASSERT_EQ(num, BigUnsigned({0x0, 0x0, 0x0, 0x0, 0x1}));
-}
+INSTANTIATE_TEST_SUITE_P(
+    BigUnsignedTests,
+    BigUnsignedLeftShiftTest,
+    ::testing::Values(
+        std::make_tuple(BigUnsigned({0x12345678}), 0, BigUnsigned({0x12345678})),
+        std::make_tuple(BigUnsigned({0x12345678}), 4, BigUnsigned({0x23456780, 0x1})),
+        std::make_tuple(BigUnsigned({0xF2345678}), 4, BigUnsigned({0x23456780, 0xF})),
+        std::make_tuple(BigUnsigned({0xF2345678, 0x9ABCDEF0}), 4, BigUnsigned({0x23456780, 0xABCDEF0F, 0x9})),
+        std::make_tuple(BigUnsigned({0x12345678}), 32, BigUnsigned({0x0, 0x12345678})),
+        std::make_tuple(BigUnsigned({0x12345678}), 64, BigUnsigned({0x0, 0x0, 0x12345678})),
+        std::make_tuple(BigUnsigned({0xF2345678, 0x9ABCDEF0}), 36, BigUnsigned({0x0, 0x23456780, 0xABCDEF0F, 0x9})),
+        std::make_tuple(BigUnsigned({0xF2345678, 0x9ABCDEF0}), 31, BigUnsigned({0x0, 0x791A2B3C, 0x4D5E6F78})),
+        std::make_tuple(BigUnsigned({0x0}), 4, BigUnsigned({0x0})),
+        std::make_tuple(BigUnsigned({0x0}), 32, BigUnsigned({0x0})),
+        std::make_tuple(BigUnsigned({0x1}), 128, BigUnsigned({0x0, 0x0, 0x0, 0x0, 0x1}))
+    )
+);

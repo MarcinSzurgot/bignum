@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "bignum/BigUnsigned.hpp"
 
+#include "Utils.hpp"
+
 class BigUnsignedRightShiftTest : public ::testing::TestWithParam<std::tuple<BigUnsigned, std::size_t, BigUnsigned>> {};
 
 TEST_P(BigUnsignedRightShiftTest, RightShiftOperation) {

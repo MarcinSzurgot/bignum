@@ -17,6 +17,7 @@ set(TEST_SOURCES
     BinaryRightShiftOperatorTests.cpp
     MultiplicationOperatorTests.cpp
     SubtractionOperatorTests.cpp    
+    Utils.hpp
 )
 
 add_executable(tests ${TEST_SOURCES})

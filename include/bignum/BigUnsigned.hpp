@@ -9,7 +9,7 @@ struct BigUnsigned {
     BigUnsigned(std::initializer_list<std::uint32_t> digits);
     BigUnsigned(std::vector<std::uint32_t> digits);
 
-    operator bool() const;
+    explicit operator bool() const;
 
     int mag() const;
 
