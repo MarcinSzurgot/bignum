@@ -7,6 +7,7 @@ struct BigUnsigned {
     BigUnsigned();
     BigUnsigned(std::uint32_t digit);
     BigUnsigned(std::initializer_list<std::uint32_t> digits);
+    BigUnsigned(std::vector<std::uint32_t> digits);
 
     operator bool() const;
 
@@ -28,7 +29,12 @@ struct BigUnsigned {
     friend auto operator<<=(
         BigUnsigned& lhs,
         std::uint32_t rhs
-    ) -> BigUnsigned&;    
+    ) -> BigUnsigned&;
+
+    friend auto operator>>=(
+        BigUnsigned& lhs,
+        std::uint32_t rhs
+    ) -> BigUnsigned&;
 
     friend auto operator+=(
               BigUnsigned& lhs,

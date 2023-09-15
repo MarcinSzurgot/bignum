@@ -14,6 +14,7 @@ set(TEST_SOURCES
     test.cpp
     AdditionOperatorTests.cpp
     BinaryLeftShiftOperatorTests.cpp
+    BinaryRightShiftOperatorTests.cpp
     MultiplicationOperatorTests.cpp
     SubtractionOperatorTests.cpp    
 )
