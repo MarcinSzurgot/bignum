@@ -1,4 +1,3 @@
-# Pobieranie i budowanie GoogleTest
 include(ExternalProject)
 ExternalProject_Add(
     googletest
@@ -11,10 +10,12 @@ ExternalProject_Add(
 include_directories(${CMAKE_BINARY_DIR}/_install/include)
 link_directories(${CMAKE_BINARY_DIR}/_install/lib)
 
-# Pliki testowe
 set(TEST_SOURCES
     test.cpp
-    # ... inne pliki testowe ...
+    AdditionOperatorTests.cpp
+    BinaryLeftShiftOperatorTests.cpp
+    MultiplicationOperatorTests.cpp
+    SubtractionOperatorTests.cpp    
 )
 
 add_executable(tests ${TEST_SOURCES})
