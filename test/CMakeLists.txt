@@ -1,0 +1,22 @@
+# Pobieranie i budowanie GoogleTest
+include(ExternalProject)
+ExternalProject_Add(
+    googletest
+    PREFIX ${CMAKE_BINARY_DIR}/_deps
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG release-1.10.0
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/_install
+)
+
+include_directories(${CMAKE_BINARY_DIR}/_install/include)
+link_directories(${CMAKE_BINARY_DIR}/_install/lib)
+
+# Pliki testowe
+set(TEST_SOURCES
+    test.cpp
+    # ... inne pliki testowe ...
+)
+
+add_executable(tests ${TEST_SOURCES})
+add_dependencies(tests googletest)
+target_link_libraries(tests MyLibrary gtest gtest_main pthread)
