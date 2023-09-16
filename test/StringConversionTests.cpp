@@ -57,7 +57,7 @@ TEST(BigUnsignedStringConversionTest, OperationPerformance) {
     const auto start = high_resolution_clock::now();
 
     for (auto i = 0u; i < iterations; ++i) {
-        const auto expected = rnd(50);
+        const auto expected = rnd(100);
         const auto converted = BigUnsigned(expected);
         const auto actual = static_cast<std::string>(converted);
 

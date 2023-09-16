@@ -119,6 +119,9 @@ struct BigUnsigned {
         const BigUnsigned& rhs
     ) -> BigUnsigned;
 
+    void trim();
+
 private:
+
     std::vector<std::uint32_t> digits_;
 };

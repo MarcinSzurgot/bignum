@@ -1,5 +1,6 @@
 #include <bignum/BigUnsigned.hpp>
 
+#include <array>
 #include <iostream>
 
 namespace {
@@ -55,6 +56,62 @@ std::size_t topBit(const BigUnsigned& value) {
     return bit + (value.mag() - 1) * 32;
 }
 
+static auto powerOf10(
+    unsigned power
+) -> const BigUnsigned& {
+    const static auto powers = std::array{
+        BigUnsigned(1),
+        BigUnsigned(10),
+        BigUnsigned(100),
+        BigUnsigned(1000),
+        BigUnsigned(10000),
+        BigUnsigned(100000),
+        BigUnsigned(1000000),
+        BigUnsigned(10000000),
+        BigUnsigned(100000000),
+        BigUnsigned(1000000000),
+    };
+
+    return powers[power];
+}
+
+auto divide(
+    const BigUnsigned& lhs,
+    const BigUnsigned& rhs
+) -> std::pair<BigUnsigned, BigUnsigned> {
+
+    if (!rhs) {
+        throw std::runtime_error("Division by zero is not allowed!");
+    }
+
+    if (lhs < rhs) {
+        return {BigUnsigned(0), rhs};
+    }
+
+    auto remainder = lhs;
+    auto divider   = rhs;
+    auto quotient  = BigUnsigned();
+
+    const auto rhsTopBit = topBit(rhs);
+
+    while (remainder >= rhs) {
+        auto bitDiff = topBit(remainder) - rhsTopBit;
+
+        divider = rhs << bitDiff;
+        if (divider > remainder) {
+            divider >>= 1;
+            bitDiff--;
+        }
+
+        quotient += BigUnsigned(1) << bitDiff;
+        remainder -= divider;
+    }
+
+    quotient.trim();
+
+    return {quotient, remainder};
+}
+
 }
 
 BigUnsigned::BigUnsigned() : BigUnsigned(0) {}
@@ -66,17 +123,22 @@ BigUnsigned::BigUnsigned(
 ) : BigUnsigned(std::vector<std::uint32_t>(digits.begin(), digits.end())) {}
 
 BigUnsigned::BigUnsigned(std::vector<std::uint32_t> digits) : digits_(std::move(digits)) {
-    trim(digits_);
+    ::trim(digits_);
 }
 
 BigUnsigned::BigUnsigned(std::string string) {
-    const auto ten = BigUnsigned(10);
+    const auto maxDivisorPowerOf10 = std::size_t(9);
 
     auto result = BigUnsigned();
-    for (auto s = 0u; s < size(string); ++s) {
-        result += BigUnsigned(string[s] - '0');
-        if (s < size(string) - 1) {
-            result *= ten;
+    for (auto s = 0u; s < size(string); s += maxDivisorPowerOf10) {
+        const auto digits = std::string(
+            string.begin() + s,
+            string.begin() + std::min(s + maxDivisorPowerOf10, string.size())
+        );
+
+        result += BigUnsigned(std::atol(digits.data()));
+        if (s + size(digits) < size(string)) {
+            result *= powerOf10(std::min(maxDivisorPowerOf10, size(string) - (s + size(digits))));
         }
     }
     *this = result;
@@ -92,12 +154,20 @@ BigUnsigned::operator std::string() const {
         return "0";
     }
 
-    const auto ten = BigUnsigned(10);
+    const auto maxDivisorPowerOf10 = std::size_t(9);
+    const auto div = powerOf10(maxDivisorPowerOf10);
 
     auto result = std::string();
+    result.reserve(mag() * maxDivisorPowerOf10);
 
-    for (auto tmp = *this; (bool) tmp; tmp /= ten) {
-        result.insert(result.begin(), (tmp % ten)[0] + '0');
+    for (auto tmp = *this; (bool) tmp; tmp /= div) {
+        const auto mod = tmp % div;
+        auto string = std::to_string(mod[0]);
+        if (size(string) < maxDivisorPowerOf10 && tmp > div) {
+            const auto zeroes = std::string(maxDivisorPowerOf10 - size(string), '0');
+            string.insert(string.begin(), zeroes.begin(), zeroes.end());
+        }
+        result.insert(result.begin(), string.begin(), string.end());
     }
 
     return result;
@@ -300,46 +370,14 @@ auto operator/=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
 ) -> BigUnsigned& {
-
-    if (!rhs) {
-        throw std::runtime_error("Division by zero is not allowed!");
-    }
-
-    if (lhs < rhs) {
-        lhs.digits_.resize(1);
-        lhs[0] = 0u;
-        return lhs;
-    }
-
-    auto remainder = lhs;
-    auto divider   = rhs;
-    auto quotient  = BigUnsigned();
-
-    const auto rhsTopBit = topBit(rhs);
-
-    while (remainder >= rhs) {
-        auto bitDiff = topBit(remainder) - rhsTopBit;
-
-        divider = rhs << bitDiff;
-        if (divider > remainder) {
-            divider >>= 1;
-            bitDiff--;
-        }
-
-        quotient += BigUnsigned(1) << bitDiff;
-        remainder -= divider;
-    }
-
-    trim(quotient.digits_);
-
-    lhs = quotient;
-    return lhs;
+    return lhs = divide(lhs, rhs).first;
 }
 
 auto operator%=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
 ) -> BigUnsigned& {
+    // return lhs = divide(lhs, rhs).second;
     const auto quotient = lhs / rhs;
     lhs -= quotient * rhs;
     return lhs;
@@ -406,4 +444,8 @@ auto operator%(
     auto result = lhs;
     result %= rhs;
     return result;
+}
+
+void BigUnsigned::trim() {
+    ::trim(digits_);
 }
