@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cinttypes>
+#include <string_view>
 #include <vector>
 
 struct BigUnsigned {
@@ -8,8 +9,10 @@ struct BigUnsigned {
     BigUnsigned(std::uint32_t digit);
     BigUnsigned(std::initializer_list<std::uint32_t> digits);
     BigUnsigned(std::vector<std::uint32_t> digits);
+    BigUnsigned(std::string string);
 
     explicit operator bool() const;
+    explicit operator std::string() const;
 
     int mag() const;
 
@@ -21,10 +24,30 @@ struct BigUnsigned {
         const BigUnsigned& rhs
     ) -> bool;
 
+    friend auto operator!=(
+        const BigUnsigned& lhs,
+        const BigUnsigned& rhs
+    ) -> bool { return !(lhs == rhs); }
+
     friend auto operator<(
         const BigUnsigned& lhs,
         const BigUnsigned& rhs
     ) -> bool;
+
+    friend auto operator>=(
+        const BigUnsigned& lhs,
+        const BigUnsigned& rhs
+    ) -> bool { return !(lhs < rhs); }
+
+    friend auto operator>(
+        const BigUnsigned& lhs,
+        const BigUnsigned& rhs
+    ) -> bool { return rhs < lhs; }
+
+    friend auto operator<=(
+        const BigUnsigned& lhs,
+        const BigUnsigned& rhs
+    ) -> bool { return !(lhs > rhs); }
 
     friend auto operator<<=(
         BigUnsigned& lhs,
@@ -51,6 +74,26 @@ struct BigUnsigned {
         const BigUnsigned& rhs
     ) -> BigUnsigned&;
 
+    friend auto operator/=(
+              BigUnsigned& lhs,
+        const BigUnsigned& rhs
+    ) -> BigUnsigned&;
+
+    friend auto operator%=(
+              BigUnsigned& lhs,
+        const BigUnsigned& rhs
+    ) -> BigUnsigned&;
+
+    friend auto operator<<(
+        const BigUnsigned& lhs,
+        std::uint32_t rhs
+    ) -> BigUnsigned;
+
+    friend auto operator>>(
+        const BigUnsigned& lhs,
+        std::uint32_t rhs
+    ) -> BigUnsigned;
+
     friend auto operator+(
         const BigUnsigned& lhs,
         const BigUnsigned& rhs
@@ -62,6 +105,16 @@ struct BigUnsigned {
     ) -> BigUnsigned;
 
     friend auto operator*(
+        const BigUnsigned& lhs,
+        const BigUnsigned& rhs
+    ) -> BigUnsigned;
+
+    friend auto operator/(
+        const BigUnsigned& lhs,
+        const BigUnsigned& rhs
+    ) -> BigUnsigned;
+
+    friend auto operator%(
         const BigUnsigned& lhs,
         const BigUnsigned& rhs
     ) -> BigUnsigned;
