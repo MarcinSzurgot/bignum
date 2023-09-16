@@ -6,6 +6,8 @@
 #include <random>
 #include <string>
 
+#include "Utils.hpp"
+
 using namespace std::string_literals;
 
 class BigUnsignedStringConversionTest : public ::testing::TestWithParam<std::tuple<std::string, BigUnsigned>> { };
@@ -68,6 +70,8 @@ TEST(BigUnsignedStringConversionTest, OperationPerformance) {
     const auto elapsed = duration_cast<milliseconds>(end - start).count();
 
     EXPECT_LT(elapsed, 50);
+
+    std::cout << (BigUnsigned(1) << 1000) << std::endl;
 }
 
 INSTANTIATE_TEST_SUITE_P(

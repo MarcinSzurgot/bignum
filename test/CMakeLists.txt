@@ -20,6 +20,7 @@ set(TEST_SOURCES
     BinaryRightShiftOperatorTests.cpp
     DivisionOperatorTests.cpp
     LessThanOperatorTests.cpp
+    ModuloOperatorTests.cpp
     MultiplicationOperatorTests.cpp
     StringConversionTests.cpp
     SubtractionOperatorTests.cpp    
