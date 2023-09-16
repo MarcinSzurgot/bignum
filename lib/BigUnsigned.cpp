@@ -90,12 +90,15 @@ auto divide(
 
     auto remainder = lhs;
     auto divider   = rhs;
-    auto quotient  = BigUnsigned();
+    auto quotient  = std::vector<std::uint32_t>();
 
     const auto rhsTopBit = topBit(rhs);
 
     while (remainder >= rhs) {
         auto bitDiff = topBit(remainder) - rhsTopBit;
+        if (bitDiff / 32 + 1 > size(quotient)) {
+            quotient.resize(bitDiff / 32 + 1);
+        }
 
         divider = rhs << bitDiff;
         if (divider > remainder) {
@@ -103,13 +106,13 @@ auto divide(
             bitDiff--;
         }
 
-        quotient += BigUnsigned(1) << bitDiff;
+        quotient[bitDiff / 32] |= 1 << (bitDiff % 32);
         remainder -= divider;
     }
 
-    quotient.trim();
+    remainder.trim();
 
-    return {quotient, remainder};
+    return {BigUnsigned(std::move(quotient)), remainder};
 }
 
 }
