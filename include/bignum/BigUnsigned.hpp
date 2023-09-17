@@ -7,11 +7,11 @@
 #include <vector>
 
 struct BigUnsigned {
-    BigUnsigned();
-    BigUnsigned(std::uint32_t digit);
-    BigUnsigned(std::initializer_list<std::uint32_t> digits);
-    BigUnsigned(std::vector<std::uint32_t> digits);
-    BigUnsigned(std::string string);
+             BigUnsigned();
+    explicit BigUnsigned(std::uint32_t digit);
+    explicit BigUnsigned(std::initializer_list<std::uint32_t> digits);
+    explicit BigUnsigned(std::vector<std::uint32_t> digits);
+    explicit BigUnsigned(std::string string);
 
     explicit operator bool() const;
     explicit operator std::string() const;
@@ -121,9 +121,7 @@ struct BigUnsigned {
         const BigUnsigned& rhs
     ) -> BigUnsigned;
 
-    void trim();
-
-private:
+// private:
 
     std::vector<std::uint32_t> digits_;
 };

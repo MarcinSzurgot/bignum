@@ -72,3 +72,36 @@ inline auto operator<=(
 // ) -> std::vector<std::uint32_t>& {
 
 // }
+
+inline auto operator-=(
+    std::span<      std::uint32_t> bigger,
+    std::span<const std::uint32_t> smaller
+) -> std::span<std::uint32_t> {
+    auto carry = false;
+    for (auto d = 0u; d < size(smaller); ++d) {
+        const auto old = bigger[d];
+        bigger[d] -= smaller[d];
+        bigger[d] -= carry;
+
+        if (carry) {
+            carry = bigger[d] >= old;
+        } else {
+            carry = bigger[d] >  old;
+        }
+    }
+
+    for (auto d = size(smaller); d < size(bigger) && carry; ++d) {
+        bigger[d] -= carry;
+        carry = !(bigger[d] + 1);
+    }
+
+    return bigger;
+}
+
+inline auto rightCyclicBitShift(
+    std::span<std::uint32_t> digits,
+    std::uint32_t bitShift
+) -> void {
+    bitShift %= 32;
+
+}

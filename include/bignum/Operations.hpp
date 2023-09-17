@@ -13,9 +13,9 @@ auto sizeWithoutLeadingZeroes(
 //     std::span<const std::uint32_t> smaller
 // );
 
-// auto topBit(
-//     std::span<const std::uint32_t> digits
-// ) -> std::size_t;
+auto topBit(
+    std::span<const std::uint32_t> digits
+) -> std::size_t;
 
 // auto divide(
 //     std::span<const std::uint32_t> lhs,

@@ -33,20 +33,20 @@ void subtract(
     bigger.resize(sizeWithoutLeadingZeroes(bigger));
 }
 
-std::size_t topBit(const BigUnsigned& value) {
-    if (!value) { 
-        return 0u;
-    }
+// std::size_t topBit(const BigUnsigned& value) {
+//     if (!value) { 
+//         return 0u;
+//     }
 
-    const auto topDigit = value[value.mag() - 1];
+//     const auto topDigit = value[value.mag() - 1];
 
-    auto bit = 31u;
-    for (; bit > 0u && !((1 << bit) & topDigit); --bit) {
+//     auto bit = 31u;
+//     for (; bit > 0u && !((1 << bit) & topDigit); --bit) {
 
-    }
+//     }
 
-    return bit + (value.mag() - 1) * 32;
-}
+//     return bit + (value.mag() - 1) * 32;
+// }
 
 static auto powerOf10(
     unsigned power
@@ -80,31 +80,35 @@ auto divide(
         return {BigUnsigned(0), rhs};
     }
 
-    auto remainder = lhs;
+    auto remainder = lhs.digits_;
     auto divider   = rhs;
     auto quotient  = std::vector<std::uint32_t>();
 
-    const auto rhsTopBit = topBit(rhs);
+    const auto rhsTopBit = topBit(rhs.digits_);
 
-    while (remainder >= rhs) {
+    while (remainder >= std::span(rhs.digits_)) {
         auto bitDiff = topBit(remainder) - rhsTopBit;
         if (bitDiff / 32 + 1 > size(quotient)) {
             quotient.resize(bitDiff / 32 + 1);
         }
 
         divider = rhs << bitDiff;
-        if (divider > remainder) {
+        if (std::span(divider.digits_) > remainder) {
             divider >>= 1;
             bitDiff--;
         }
 
         quotient[bitDiff / 32] |= 1 << (bitDiff % 32);
-        remainder -= divider;
+        remainder -= divider.digits_;
+        remainder.resize(sizeWithoutLeadingZeroes(remainder));
     }
 
-    remainder.trim();
+    remainder.resize(sizeWithoutLeadingZeroes(remainder));
 
-    return {BigUnsigned(std::move(quotient)), remainder};
+    return {
+        BigUnsigned(std::move(quotient)), 
+        BigUnsigned(std::move(remainder))
+    };
 }
 
 }
@@ -405,8 +409,4 @@ auto operator%(
     auto result = lhs;
     result %= rhs;
     return result;
-}
-
-void BigUnsigned::trim() {
-    digits_.resize(sizeWithoutLeadingZeroes(digits_));
 }
