@@ -1,20 +1,12 @@
 #include <bignum/BigUnsigned.hpp>
 
+#include <bignum/Digits.hpp>
+#include <bignum/Operations.hpp>
+
 #include <array>
 #include <iostream>
 
 namespace {
-
-void trim(std::vector<std::uint32_t>& digits) {
-    for (auto d = size(digits); d > 0u; --d) {
-        if (digits[d - 1]) {
-            digits.resize(d);
-            return;
-        }
-    }
-
-    digits.resize(1);
-}
 
 void subtract(
           std::vector<std::uint32_t>& bigger,
@@ -38,7 +30,7 @@ void subtract(
         carry = !(bigger[d] + 1);
     }
 
-    trim(bigger);
+    bigger.resize(sizeWithoutLeadingZeroes(bigger));
 }
 
 std::size_t topBit(const BigUnsigned& value) {
@@ -126,7 +118,7 @@ BigUnsigned::BigUnsigned(
 ) : BigUnsigned(std::vector<std::uint32_t>(digits.begin(), digits.end())) {}
 
 BigUnsigned::BigUnsigned(std::vector<std::uint32_t> digits) : digits_(std::move(digits)) {
-    ::trim(digits_);
+    digits_.resize(sizeWithoutLeadingZeroes(digits_));
 }
 
 BigUnsigned::BigUnsigned(std::string string) {
@@ -183,40 +175,6 @@ int BigUnsigned::mag() const {
 std::uint32_t  BigUnsigned::operator[](std::size_t index) const { return digits_[index]; }
 std::uint32_t& BigUnsigned::operator[](std::size_t index)       { return digits_[index]; }
 
-auto operator==(
-    const BigUnsigned& lhs,
-    const BigUnsigned& rhs
-) -> bool {
-    if (lhs.mag() != rhs.mag()) {
-        return false;
-    }
-
-    for (auto d = 0u; d < lhs.mag(); ++d) {
-        if (lhs[d] != rhs[d]) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-auto operator<(
-    const BigUnsigned& lhs,
-    const BigUnsigned& rhs
-) -> bool {
-    if (lhs.mag() != rhs.mag()) {
-        return lhs.mag() < rhs.mag();
-    }
-
-    for (auto d = lhs.mag(); d > 0u; --d) {
-        if (lhs[d - 1] != rhs[d - 1]) {
-            return lhs[d - 1] < rhs[d - 1];
-        }
-    }
-
-    return false;
-}
-
 auto operator<<=(
     BigUnsigned& lhs,
     std::uint32_t rhs
@@ -271,7 +229,7 @@ auto operator>>=(
         carry = newCarry;
     }
 
-    trim(lhs.digits_);
+    lhs.digits_.resize(sizeWithoutLeadingZeroes(lhs.digits_));
 
     return lhs;
 }
@@ -363,7 +321,7 @@ auto operator*=(
         }
     }
 
-    trim(result);
+    result.resize(sizeWithoutLeadingZeroes(result));
 
     std::swap(lhs.digits_, result);
     return lhs;
@@ -450,5 +408,5 @@ auto operator%(
 }
 
 void BigUnsigned::trim() {
-    ::trim(digits_);
+    digits_.resize(sizeWithoutLeadingZeroes(digits_));
 }

@@ -3,6 +3,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SOURCES
     BigUnsigned.cpp
+    Operations.cpp
 )
 
 add_library(MyLibrary ${SOURCES})

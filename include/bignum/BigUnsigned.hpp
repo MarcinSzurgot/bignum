@@ -1,5 +1,7 @@
 #pragma once
 
+#include <bignum/Digits.hpp>
+
 #include <cinttypes>
 #include <string_view>
 #include <vector>
@@ -22,7 +24,7 @@ struct BigUnsigned {
     friend auto operator==(
         const BigUnsigned& lhs,
         const BigUnsigned& rhs
-    ) -> bool;
+    ) -> bool { return std::span(lhs.digits_) == std::span(rhs.digits_); }
 
     friend auto operator!=(
         const BigUnsigned& lhs,
@@ -32,7 +34,7 @@ struct BigUnsigned {
     friend auto operator<(
         const BigUnsigned& lhs,
         const BigUnsigned& rhs
-    ) -> bool;
+    ) -> bool {  return std::span(lhs.digits_) < std::span(rhs.digits_); }
 
     friend auto operator>=(
         const BigUnsigned& lhs,
