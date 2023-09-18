@@ -33,21 +33,6 @@ void subtract(
     bigger.resize(sizeWithoutLeadingZeroes(bigger));
 }
 
-// std::size_t topBit(const BigUnsigned& value) {
-//     if (!value) { 
-//         return 0u;
-//     }
-
-//     const auto topDigit = value[value.mag() - 1];
-
-//     auto bit = 31u;
-//     for (; bit > 0u && !((1 << bit) & topDigit); --bit) {
-
-//     }
-
-//     return bit + (value.mag() - 1) * 32;
-// }
-
 static auto powerOf10(
     unsigned power
 ) -> const BigUnsigned& {
@@ -80,19 +65,20 @@ auto divide(
         return {BigUnsigned(0), rhs};
     }
 
-    auto remainder = lhs.digits_;
-    auto divider   = rhs;
-    auto quotient  = std::vector<std::uint32_t>();
-
     const auto rhsTopBit = topBit(rhs.digits_);
+    const auto lhsTopBit = topBit(lhs.digits_);
+
+    auto bitDiff = lhsTopBit - rhsTopBit;
+    auto divider = rhs << bitDiff;
+    auto quotient  = std::vector<std::uint32_t>(bitDiff / 32 + 1);
+    auto remainder = lhs.digits_;
 
     while (remainder >= std::span(rhs.digits_)) {
-        auto bitDiff = topBit(remainder) - rhsTopBit;
-        if (bitDiff / 32 + 1 > size(quotient)) {
-            quotient.resize(bitDiff / 32 + 1);
-        }
+        const auto newBitDiff = topBit(remainder) - rhsTopBit;
 
-        divider = rhs << bitDiff;
+        divider >>= bitDiff - newBitDiff;
+        bitDiff = newBitDiff;
+
         if (std::span(divider.digits_) > remainder) {
             divider >>= 1;
             bitDiff--;
@@ -103,7 +89,7 @@ auto divide(
         remainder.resize(sizeWithoutLeadingZeroes(remainder));
     }
 
-    remainder.resize(sizeWithoutLeadingZeroes(remainder));
+    quotient.resize(sizeWithoutLeadingZeroes(quotient));
 
     return {
         BigUnsigned(std::move(quotient)), 
@@ -216,24 +202,35 @@ auto operator>>=(
     BigUnsigned& lhs,
     std::uint32_t rhs
 ) -> BigUnsigned& {
+    if (!lhs || !rhs) {
+        return lhs;
+    }
+
     const auto wholeDigitShift = rhs / 32;
     const auto bitShift = rhs % 32;
 
     if (wholeDigitShift >= lhs.mag()) {
-        lhs.digits_ = {0};
+        lhs.digits_.resize(1);
+        lhs.digits_[0] = 0;
         return lhs;
     }
 
-    lhs.digits_.erase(lhs.digits_.begin(), lhs.digits_.begin() + wholeDigitShift);
-
-    auto carry = std::uint32_t();
-    for (auto d = lhs.digits_.size(); d > 0u; --d) {
-        const auto newCarry = lhs[d - 1] << (32 - bitShift);
-        lhs[d - 1] = carry | (lhs[d - 1] >> bitShift);
-        carry = newCarry;
+    if (bitShift) {
+        lhs[0] = lhs[wholeDigitShift] >> bitShift;
+        for (auto d = wholeDigitShift + 1; d < lhs.digits_.size(); ++d) {
+            lhs[d - wholeDigitShift - 1] |= lhs[d] << (32 - bitShift);
+            lhs[d - wholeDigitShift    ]  = lhs[d] >>       bitShift;
+        }
+    } else {
+        for (auto d = wholeDigitShift; d < lhs.digits_.size(); ++d) {
+            lhs[d - wholeDigitShift] = lhs[d];
+        }
     }
 
-    lhs.digits_.resize(sizeWithoutLeadingZeroes(lhs.digits_));
+    lhs.digits_.resize(lhs.digits_.size() - wholeDigitShift);
+    if (lhs.digits_.back() == 0u) {
+        lhs.digits_.pop_back();
+    }
 
     return lhs;
 }

@@ -14,6 +14,20 @@ TEST_P(BigUnsignedRightShiftTest, RightShiftOperation) {
     ASSERT_EQ(num, expected_result);
 }
 
+TEST(BigUnsignedRightShiftTest, RightShiftOperationSymmetricity) {
+    const auto num = BigUnsigned(1) << 128;
+    const auto shift1 = 147;
+    const auto shift2 = 85;
+
+    const auto shifted = num << shift1;
+
+    const auto expected = num << shift2;
+    auto actual = shifted;
+    actual >>= shift1 - shift2;
+
+    ASSERT_EQ(expected, actual);
+}
+
 INSTANTIATE_TEST_SUITE_P(
     BigUnsignedTests,
     BigUnsignedRightShiftTest,
@@ -22,6 +36,9 @@ INSTANTIATE_TEST_SUITE_P(
         std::make_tuple(BigUnsigned({0x12345678}), 4, BigUnsigned({0x01234567})),
         std::make_tuple(BigUnsigned({0x81234567, 0xFEDCBA98}), 4, BigUnsigned({0x88123456, 0x0FEDCBA9})),
         std::make_tuple(BigUnsigned({0x81234567, 0xFEDCBA98}), 36, BigUnsigned({0x0FEDCBA9})),
-        std::make_tuple(BigUnsigned({0x81234567, 0xFEDCBA98}), 64, BigUnsigned({0x0}))
+        std::make_tuple(BigUnsigned({0x81234567, 0xFEDCBA98}), 64, BigUnsigned({0x0})),
+        std::make_tuple(BigUnsigned("1092498765764287562983764"), 0, BigUnsigned("1092498765764287562983764")),
+        std::make_tuple(BigUnsigned(1) << 1024, 0, BigUnsigned(1) << 1024),
+        std::make_tuple(BigUnsigned({0x0, 0x0, 0x1}), 32, BigUnsigned({0x0, 0x1}))
     )
 );

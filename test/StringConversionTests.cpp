@@ -70,8 +70,6 @@ TEST(BigUnsignedStringConversionTest, OperationPerformance) {
     const auto elapsed = duration_cast<milliseconds>(end - start).count();
 
     EXPECT_LT(elapsed, 50);
-
-    std::cout << (BigUnsigned(1) << 1000) << std::endl;
 }
 
 INSTANTIATE_TEST_SUITE_P(

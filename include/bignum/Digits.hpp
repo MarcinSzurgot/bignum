@@ -97,11 +97,3 @@ inline auto operator-=(
 
     return bigger;
 }
-
-inline auto rightCyclicBitShift(
-    std::span<std::uint32_t> digits,
-    std::uint32_t bitShift
-) -> void {
-    bitShift %= 32;
-
-}
