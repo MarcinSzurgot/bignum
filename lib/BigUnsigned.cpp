@@ -5,6 +5,7 @@
 
 #include <array>
 #include <iostream>
+#include <tuple>
 
 namespace {
 
@@ -52,6 +53,16 @@ static auto powerOf10(
     return powers[power];
 }
 
+void printDigits(
+    std::span<const std::uint32_t> value
+) {
+    std::cout << "{0x" << value.front();
+    for (auto d = 1u; d < size(value); ++d) {
+        std::cout << ", 0x" << value[d];
+    }
+    std::cout << "}\n";
+}
+
 auto divide(
     const BigUnsigned& lhs,
     const BigUnsigned& rhs
@@ -62,7 +73,7 @@ auto divide(
     }
 
     if (lhs < rhs) {
-        return {BigUnsigned(0), rhs};
+        return {BigUnsigned(0), lhs};
     }
 
     const auto rhsTopBit = topBit(rhs.digits_);
@@ -70,7 +81,7 @@ auto divide(
 
     auto bitDiff = lhsTopBit - rhsTopBit;
     auto divider = rhs << bitDiff;
-    auto quotient  = std::vector<std::uint32_t>(bitDiff / 32 + 1);
+    auto quotient  = std::vector<std::uint32_t>(bitDiff / 32 + 1); 
     auto remainder = lhs.digits_;
 
     while (remainder >= std::span(rhs.digits_)) {
@@ -111,22 +122,23 @@ BigUnsigned::BigUnsigned(std::vector<std::uint32_t> digits) : digits_(std::move(
     digits_.resize(sizeWithoutLeadingZeroes(digits_));
 }
 
-BigUnsigned::BigUnsigned(std::string string) {
+BigUnsigned::BigUnsigned(std::string string) : BigUnsigned(0) {
     const auto maxDivisorPowerOf10 = std::size_t(9);
-
-    auto result = BigUnsigned();
+    
+    auto digit = BigUnsigned();
     for (auto s = 0u; s < size(string); s += maxDivisorPowerOf10) {
-        const auto digits = std::string(
+        const auto stringDigit = std::string(
             string.begin() + s,
             string.begin() + std::min(s + maxDivisorPowerOf10, string.size())
         );
 
-        result += BigUnsigned(std::atol(digits.data()));
-        if (s + size(digits) < size(string)) {
-            result *= powerOf10(std::min(maxDivisorPowerOf10, size(string) - (s + size(digits))));
+        digit[0] = std::atol(stringDigit.data());
+
+        *this += digit;
+        if (s + size(stringDigit) < size(string)) {
+            *this *= powerOf10(std::min(maxDivisorPowerOf10, size(string) - (s + size(stringDigit))));
         }
     }
-    *this = result;
 }
 
 BigUnsigned::operator bool() const {
@@ -145,16 +157,18 @@ BigUnsigned::operator std::string() const {
     auto result = std::string();
     result.reserve(mag() * maxDivisorPowerOf10);
 
-    for (auto tmp = *this; (bool) tmp; tmp /= div) {
-        const auto mod = tmp % div;
+    for (auto quot = *this, mod = BigUnsigned(); (bool) quot;) {
+        const auto notLastDivision = quot > div;
+
+        std::tie(quot, mod) = divide(quot, div);
         auto string = std::to_string(mod[0]);
-        if (size(string) < maxDivisorPowerOf10 && tmp > div) {
+        if (size(string) < maxDivisorPowerOf10 && notLastDivision) {
             const auto zeroes = std::string(maxDivisorPowerOf10 - size(string), '0');
             string.insert(string.begin(), zeroes.begin(), zeroes.end());
         }
         result.insert(result.begin(), string.begin(), string.end());
     }
-
+    
     return result;
 }
 
@@ -339,10 +353,7 @@ auto operator%=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
 ) -> BigUnsigned& {
-    // return lhs = divide(lhs, rhs).second;
-    const auto quotient = lhs / rhs;
-    lhs -= quotient * rhs;
-    return lhs;
+    return lhs = divide(lhs, rhs).second;
 }
 
 auto operator<<(

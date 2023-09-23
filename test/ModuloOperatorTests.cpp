@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "bignum/BigUnsigned.hpp"
 
+#include <iostream>
+
 class BigUnsignedModuloTests : public ::testing::TestWithParam<std::tuple<BigUnsigned, BigUnsigned, BigUnsigned>> {};
 
 TEST_P(BigUnsignedModuloTests, ModuloAssignmentOperator) {
