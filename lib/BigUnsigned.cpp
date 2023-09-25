@@ -9,9 +9,11 @@
 
 namespace {
 
+constexpr auto digitBitSize = sizeof(BigUnsigned::digit_type) * 8;
+
 void subtract(
-          std::vector<std::uint32_t>& bigger,
-    const std::vector<std::uint32_t>& smaller
+          std::vector<BigUnsigned::digit_type>& bigger,
+    const std::vector<BigUnsigned::digit_type>& smaller
 ) {
     auto carry = false;
     for (auto d = 0u; d < size(smaller); ++d) {
@@ -54,7 +56,7 @@ static auto powerOf10(
 }
 
 void printDigits(
-    std::span<const std::uint32_t> value
+    std::span<const BigUnsigned::digit_type> value
 ) {
     std::cout << "{0x" << value.front();
     for (auto d = 1u; d < size(value); ++d) {
@@ -81,7 +83,7 @@ auto divide(
 
     auto bitDiff = lhsTopBit - rhsTopBit;
     auto divider = rhs << bitDiff;
-    auto quotient  = std::vector<std::uint32_t>(bitDiff / 32 + 1); 
+    auto quotient  = std::vector<BigUnsigned::digit_type>(bitDiff / digitBitSize + 1); 
     auto remainder = lhs.digits_;
 
     while (remainder >= std::span(rhs.digits_)) {
@@ -95,7 +97,7 @@ auto divide(
             bitDiff--;
         }
 
-        quotient[bitDiff / 32] |= 1 << (bitDiff % 32);
+        quotient[bitDiff / digitBitSize] |= 1 << (bitDiff % digitBitSize);
         remainder -= divider.digits_;
         remainder.resize(sizeWithoutLeadingZeroes(remainder));
     }
@@ -112,13 +114,13 @@ auto divide(
 
 BigUnsigned::BigUnsigned() : BigUnsigned(0) {}
 
-BigUnsigned::BigUnsigned(std::uint32_t digit) : BigUnsigned { digit } { }
+BigUnsigned::BigUnsigned(BigUnsigned::digit_type digit) : BigUnsigned { digit } { }
 
 BigUnsigned::BigUnsigned(
-    std::initializer_list<std::uint32_t> digits
-) : BigUnsigned(std::vector<std::uint32_t>(digits.begin(), digits.end())) {}
+    std::initializer_list<BigUnsigned::digit_type> digits
+) : BigUnsigned(std::vector<BigUnsigned::digit_type>(digits.begin(), digits.end())) {}
 
-BigUnsigned::BigUnsigned(std::vector<std::uint32_t> digits) : digits_(std::move(digits)) {
+BigUnsigned::BigUnsigned(std::vector<BigUnsigned::digit_type> digits) : digits_(std::move(digits)) {
     digits_.resize(sizeWithoutLeadingZeroes(digits_));
 }
 
@@ -176,19 +178,19 @@ int BigUnsigned::mag() const {
     return size(digits_);
 }
 
-std::uint32_t  BigUnsigned::operator[](std::size_t index) const { return digits_[index]; }
-std::uint32_t& BigUnsigned::operator[](std::size_t index)       { return digits_[index]; }
+BigUnsigned::digit_type  BigUnsigned::operator[](std::size_t index) const { return digits_[index]; }
+BigUnsigned::digit_type& BigUnsigned::operator[](std::size_t index)       { return digits_[index]; }
 
 auto operator<<=(
     BigUnsigned& lhs,
-    std::uint32_t rhs
+    BigUnsigned::digit_type rhs
 ) -> BigUnsigned& {
     if (!lhs) {
         return lhs;
     }
 
-    const auto wholeDigitsShift = rhs / 32;
-    const auto bitShift = rhs % 32;
+    const auto wholeDigitsShift = rhs / digitBitSize;
+    const auto bitShift = rhs % digitBitSize;
 
     lhs.digits_.insert(lhs.digits_.begin(), wholeDigitsShift, 0);
 
@@ -196,10 +198,10 @@ auto operator<<=(
         return lhs;
     }
 
-    auto carry = std::uint32_t();
+    auto carry = BigUnsigned::digit_type();
 
     for (auto& digit : lhs.digits_) {
-        const auto newCarry = digit >> (32 - bitShift);
+        const auto newCarry = digit >> (digitBitSize - bitShift);
         digit <<= bitShift;
         digit |= carry;
         carry = newCarry;
@@ -214,14 +216,14 @@ auto operator<<=(
 
 auto operator>>=(
     BigUnsigned& lhs,
-    std::uint32_t rhs
+    BigUnsigned::digit_type rhs
 ) -> BigUnsigned& {
     if (!lhs || !rhs) {
         return lhs;
     }
 
-    const auto wholeDigitShift = rhs / 32;
-    const auto bitShift = rhs % 32;
+    const auto wholeDigitShift = rhs / digitBitSize;
+    const auto bitShift = rhs % digitBitSize;
 
     if (wholeDigitShift >= lhs.mag()) {
         lhs.digits_.resize(1);
@@ -232,8 +234,8 @@ auto operator>>=(
     if (bitShift) {
         lhs[0] = lhs[wholeDigitShift] >> bitShift;
         for (auto d = wholeDigitShift + 1; d < lhs.digits_.size(); ++d) {
-            lhs[d - wholeDigitShift - 1] |= lhs[d] << (32 - bitShift);
-            lhs[d - wholeDigitShift    ]  = lhs[d] >>       bitShift;
+            lhs[d - wholeDigitShift - 1] |= lhs[d] << (digitBitSize - bitShift);
+            lhs[d - wholeDigitShift    ]  = lhs[d] >>                 bitShift;
         }
     } else {
         for (auto d = wholeDigitShift; d < lhs.digits_.size(); ++d) {
@@ -305,13 +307,15 @@ auto operator*=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
 ) -> BigUnsigned& {
-    auto result = std::vector<std::uint32_t>(lhs.mag() + rhs.mag());
+    auto result = std::vector<BigUnsigned::digit_type>(lhs.mag() + rhs.mag());
 
     for (auto l = 0u; l < lhs.mag(); ++l) {
         for (auto r = 0u; r < rhs.mag(); ++r) {
             const auto mul = (std::uint64_t) lhs[l] * rhs[r];
-            const auto lower = std::uint32_t(mul & 0xFFFFFFFF);
-            const auto higher = std::uint32_t(mul >> 32);
+            const auto lower = BigUnsigned::digit_type(mul & ~BigUnsigned::digit_type());
+            const auto higher = BigUnsigned::digit_type(mul >> digitBitSize);
+
+            // const auto [lower, higher] = mul(lhs[l], rhs[r]);
 
             result[l + r] += lower;
 
@@ -358,7 +362,7 @@ auto operator%=(
 
 auto operator<<(
     const BigUnsigned& lhs,
-    std::uint32_t rhs
+    BigUnsigned::digit_type rhs
 ) -> BigUnsigned {
     auto tmp = lhs;
     tmp <<= rhs;
@@ -367,7 +371,7 @@ auto operator<<(
 
 auto operator>>(
     const BigUnsigned& lhs,
-    std::uint32_t rhs
+    BigUnsigned::digit_type rhs
 ) -> BigUnsigned {
     auto tmp = lhs;
     tmp >>= rhs;

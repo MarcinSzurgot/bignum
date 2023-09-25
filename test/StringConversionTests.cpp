@@ -69,6 +69,7 @@ TEST(BigUnsignedStringConversionTest, OperationPerformance) {
     const auto end = high_resolution_clock::now();
     const auto elapsed = duration_cast<milliseconds>(end - start).count();
 
+    std::cout << "BigUnsignedStringConversionTest, OperationPerformance, elapsed time: " << elapsed << std::endl;
     EXPECT_LT(elapsed, 50);
 }
 
