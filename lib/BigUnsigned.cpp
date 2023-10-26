@@ -2,6 +2,7 @@
 
 #include <bignum/Digits.hpp>
 #include <bignum/Operations.hpp>
+#include <bignum/ArrayArithmetics/ArraySubAdd.hpp>
 
 #include <array>
 #include <iostream>
@@ -10,31 +11,6 @@
 namespace {
 
 constexpr auto digitBitSize = sizeof(BigUnsigned::digit_type) * 8;
-
-void subtract(
-          std::vector<BigUnsigned::digit_type>& bigger,
-    const std::vector<BigUnsigned::digit_type>& smaller
-) {
-    auto carry = false;
-    for (auto d = 0u; d < size(smaller); ++d) {
-        const auto old = bigger[d];
-        bigger[d] -= smaller[d];
-        bigger[d] -= carry;
-
-        if (carry) {
-            carry = bigger[d] >= old;
-        } else {
-            carry = bigger[d] >  old;
-        }
-    }
-
-    for (auto d = size(smaller); d < size(bigger) && carry; ++d) {
-        bigger[d] -= carry;
-        carry = !(bigger[d] + 1);
-    }
-
-    bigger.resize(sizeWithoutLeadingZeroes(bigger));
-}
 
 static auto powerOf10(
     unsigned power
@@ -258,29 +234,19 @@ auto operator+=(
 
     if (lhs.mag() < rhs.mag()) {
         lhs.digits_.resize(rhs.mag());
-    }
+    } else if (lhs.mag() == rhs.mag()) {
+        const auto lhsTop = lhs[lhs.mag() - 1];
+        const auto rhsTop = rhs[rhs.mag() - 1];
 
-    const auto common = std::min(lhs.mag(), rhs.mag());
-
-    auto carry = false;
-    for (auto d = 0u; d < common; ++d) {
-        const auto old = lhs[d];
-        lhs[d] += rhs[d];
-        lhs[d] += carry;
-
-        if (carry) {
-            carry = lhs[d] <= old;
-        } else {
-            carry = lhs[d] <  old;
+        if (lhsTop + rhsTop + 1 < lhsTop) {
+            lhs.digits_.reserve(lhs.mag() + 1);
         }
     }
 
-    for (auto d = common; d < lhs.mag() && carry; ++d) {
-        lhs[d] += carry;
-        carry = !lhs[d];
-    }
-
-    if (carry) {
+    if (bignum::add(
+        std::span(lhs.digits_),
+        std::span(rhs.digits_)
+    )) {
         lhs.digits_.push_back(1);
     }
 
@@ -294,11 +260,19 @@ auto operator-=(
 
     if (lhs < rhs) {
         auto tmp = rhs;
-        subtract(tmp.digits_, lhs.digits_);
+        bignum::subtract(
+            std::span(tmp.digits_),
+            std::span<const BigUnsigned::digit_type>(lhs.digits_)
+        );
         std::swap(lhs.digits_, tmp.digits_);
     } else {
-        subtract(lhs.digits_, rhs.digits_);
+        bignum::subtract(
+            std::span(lhs.digits_),
+            std::span(rhs.digits_)
+        );
     }
+
+    lhs.digits_.resize(sizeWithoutLeadingZeroes(lhs.digits_));
 
     return lhs;
 }
