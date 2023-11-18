@@ -3,6 +3,8 @@
 #include <bignum/Digits.hpp>
 #include <bignum/Operations.hpp>
 #include <bignum/ArrayArithmetics/ArraySubAdd.hpp>
+#include <bignum/ArrayArithmetics/ArrayMul.hpp>
+#include <bignum/ArrayArithmetics/ArrayShift.hpp>
 
 #include <array>
 #include <iostream>
@@ -161,31 +163,24 @@ auto operator<<=(
     BigUnsigned& lhs,
     BigUnsigned::digit_type rhs
 ) -> BigUnsigned& {
-    if (!lhs) {
-        return lhs;
-    }
 
     const auto wholeDigitsShift = rhs / digitBitSize;
-    const auto bitShift = rhs % digitBitSize;
+    auto shifted = std::vector<BigUnsigned::digit_type>(size(lhs.digits_) + wholeDigitsShift + 1);
+    const auto& lhsConst = lhs.digits_;
 
-    lhs.digits_.insert(lhs.digits_.begin(), wholeDigitsShift, 0);
+    const auto carry = bignum::leftShift(
+        std::span(lhsConst),
+        rhs,
+        std::span(shifted)
+    );
 
-    if (!bitShift) {
-        return lhs;
-    }
-
-    auto carry = BigUnsigned::digit_type();
-
-    for (auto& digit : lhs.digits_) {
-        const auto newCarry = digit >> (digitBitSize - bitShift);
-        digit <<= bitShift;
-        digit |= carry;
-        carry = newCarry;
-    }
+    lhs.digits_ = shifted;
 
     if (carry) {
-        lhs.digits_.push_back(carry);
+        lhs.digits_.back() = carry;
     }
+
+    lhs.digits_.resize(sizeWithoutLeadingZeroes(lhs.digits_));
 
     return lhs;
 }
@@ -194,33 +189,13 @@ auto operator>>=(
     BigUnsigned& lhs,
     BigUnsigned::digit_type rhs
 ) -> BigUnsigned& {
-    if (!lhs || !rhs) {
-        return lhs;
-    }
+    const auto size = bignum::rightShift(
+        std::span(lhs.digits_), 
+        rhs
+    );
 
-    const auto wholeDigitShift = rhs / digitBitSize;
-    const auto bitShift = rhs % digitBitSize;
-
-    if (wholeDigitShift >= lhs.mag()) {
-        lhs.digits_.resize(1);
-        lhs.digits_[0] = 0;
-        return lhs;
-    }
-
-    if (bitShift) {
-        lhs[0] = lhs[wholeDigitShift] >> bitShift;
-        for (auto d = wholeDigitShift + 1; d < lhs.digits_.size(); ++d) {
-            lhs[d - wholeDigitShift - 1] |= lhs[d] << (digitBitSize - bitShift);
-            lhs[d - wholeDigitShift    ]  = lhs[d] >>                 bitShift;
-        }
-    } else {
-        for (auto d = wholeDigitShift; d < lhs.digits_.size(); ++d) {
-            lhs[d - wholeDigitShift] = lhs[d];
-        }
-    }
-
-    lhs.digits_.resize(lhs.digits_.size() - wholeDigitShift);
-    if (lhs.digits_.back() == 0u) {
+    lhs.digits_.resize(lhs.digits_.size() - size);
+    if (lhs.digits_.size() > 1u && lhs.digits_.back() == 0u) {
         lhs.digits_.pop_back();
     }
 
@@ -260,9 +235,10 @@ auto operator-=(
 
     if (lhs < rhs) {
         auto tmp = rhs;
+        const auto& constLhs = lhs;
         bignum::subtract(
             std::span(tmp.digits_),
-            std::span<const BigUnsigned::digit_type>(lhs.digits_)
+            std::span(constLhs.digits_)
         );
         std::swap(lhs.digits_, tmp.digits_);
     } else {
@@ -283,36 +259,13 @@ auto operator*=(
 ) -> BigUnsigned& {
     auto result = std::vector<BigUnsigned::digit_type>(lhs.mag() + rhs.mag());
 
-    for (auto l = 0u; l < lhs.mag(); ++l) {
-        for (auto r = 0u; r < rhs.mag(); ++r) {
-            const auto mul = (std::uint64_t) lhs[l] * rhs[r];
-            const auto lower = BigUnsigned::digit_type(mul & ~BigUnsigned::digit_type());
-            const auto higher = BigUnsigned::digit_type(mul >> digitBitSize);
+    const auto& constLhs = lhs;
 
-            // const auto [lower, higher] = mul(lhs[l], rhs[r]);
-
-            result[l + r] += lower;
-
-            auto carry = result[l + r] < lower;
-            result[l + r + 1] += carry;
-            result[l + r + 1] += higher;
-            
-            if (carry) { 
-                carry = result[l + r + 1] <= higher;
-            } else {
-                carry = result[l + r + 1] <  higher;
-            }
-
-            for (auto c = l + r + 2; c < result.size() && carry; ++c) {
-                result[c] += carry;
-                carry = !result[c];
-            }
-
-            if (carry) {
-                result.push_back(1);
-            }
-        }
-    }
+    bignum::mul(
+        std::span(constLhs.digits_),
+        std::span(rhs.digits_),
+        std::span(result)
+    );
 
     result.resize(sizeWithoutLeadingZeroes(result));
 

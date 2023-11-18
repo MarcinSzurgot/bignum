@@ -6,6 +6,13 @@
 namespace bignum {
 
 template<std::equality_comparable T>
+auto isZero(
+    std::span<T> array
+) -> bool {
+    return size(array) == 1ull && array[0] == T();
+}
+
+template<std::equality_comparable T>
 auto operator==(
     std::span<const T> lhs,
     std::span<const T> rhs
