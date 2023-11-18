@@ -165,19 +165,32 @@ auto operator<<=(
 ) -> BigUnsigned& {
 
     const auto wholeDigitsShift = rhs / digitBitSize;
-    auto shifted = std::vector<BigUnsigned::digit_type>(size(lhs.digits_) + wholeDigitsShift + 1);
-    const auto& lhsConst = lhs.digits_;
+    const auto bitShift = rhs % digitBitSize;
+    const auto carry = (bool) (lhs.digits_.back() >> (digitBitSize - bitShift));
 
-    const auto carry = bignum::leftShift(
-        std::span(lhsConst),
-        rhs,
-        std::span(shifted)
-    );
+    if (wholeDigitsShift + carry + lhs.digits_.size() > lhs.digits_.capacity()) {
+        auto shifted = std::vector<BigUnsigned::digit_type>(size(lhs.digits_) + wholeDigitsShift + carry);
 
-    lhs.digits_ = shifted;
+        const auto& lhsConst = lhs.digits_;
+        bignum::leftShift(
+            std::span(lhsConst),
+            rhs,
+            std::span(shifted).subspan(wholeDigitsShift)
+        );
 
-    if (carry) {
-        lhs.digits_.back() = carry;
+        lhs.digits_ = std::move(shifted);
+
+    } else {
+        lhs.digits_.resize(size(lhs.digits_) + wholeDigitsShift + carry);
+
+        std::fill(begin(lhs.digits_), begin(lhs.digits_) + wholeDigitsShift, 0);
+
+        const auto& lhsConst = lhs.digits_;
+        bignum::leftShift(
+            std::span(lhsConst),
+            rhs,
+            std::span(lhs.digits_).subspan(wholeDigitsShift)
+        );
     }
 
     lhs.digits_.resize(sizeWithoutLeadingZeroes(lhs.digits_));

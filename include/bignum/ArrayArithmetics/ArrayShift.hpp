@@ -40,38 +40,33 @@ auto rightShift(
 template<std::unsigned_integral U>
 auto leftShift(
     std::span<const U> source,
-    std::size_t shift,
+    std::size_t bitShift,
     std::span<      U> result
-) -> U {
+) -> void {
     constexpr auto digitBitSize = sizeof(U) * 8;
 
     if (isZero(source)) {
-        return U();
+        return;
     }
 
-    const auto wholeDigitsShift = shift / digitBitSize;
-    const auto bitShift = shift % digitBitSize;
-
-    std::copy(
-        begin(source),
-        end(source),
-        begin(result) + wholeDigitsShift
-    );
+    bitShift %= digitBitSize;
 
     if (!bitShift) {
-        return U();
+        for (auto d = size(source); d > 0u; --d) {
+            result[d - 1] = source[d - 1];
+        }
+
+        return;
     }
 
-    auto carry = U();
+    for (auto d = size(source); d > 0u; --d) {
+        const auto carry = source[d - 1] >> (digitBitSize - bitShift);
+        if (carry) {
+            result[d] |= carry;
+        }
 
-    for (auto& digit : result) {
-        const auto newCarry = digit >> (digitBitSize - bitShift);
-        digit <<= bitShift;
-        digit |= carry;
-        carry = newCarry;
+        result[d - 1] = source[d - 1] << bitShift;
     }
-
-    return carry;
 }
 
 }
