@@ -25,6 +25,9 @@ set(TEST_SOURCES
     StringConversionTests.cpp
     SubtractionOperatorTests.cpp    
     Utils.hpp
+
+    ArrayArithmeticsTests/ArrayAddTests.cpp
+    ArrayArithmeticsTests/ArraySubtractionTests.cpp
 )
 
 add_executable(tests ${TEST_SOURCES})
