@@ -28,6 +28,7 @@ set(TEST_SOURCES
 
     ArrayArithmeticsTests/ArrayAddTests.cpp
     ArrayArithmeticsTests/ArraySubtractionTests.cpp
+    ArrayLogicsTests/ArrayLessThanOperatorTests.cpp
 )
 
 add_executable(tests ${TEST_SOURCES})

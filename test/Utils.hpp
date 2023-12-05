@@ -35,8 +35,25 @@ inline std::ostream& operator<<(std::ostream& os, std::span<const U> num) {
     return os << "}";
 }
 
+template<
+    typename LHS, 
+    typename RHS, 
+    typename Expected
+>
 struct BinaryOpParams {
-    std::vector<std::uint32_t> lhs;
-    std::vector<std::uint32_t> rhs;
-    std::vector<std::uint32_t> expected;
+    LHS lhs;
+    RHS rhs;
+    Expected expected;
 };
+
+using ArithmeticBinaryOp = BinaryOpParams<
+    std::vector<std::uint32_t>,
+    std::vector<std::uint32_t>,
+    std::vector<std::uint32_t>
+>;
+
+using LogicBinaryOp = BinaryOpParams<
+    std::vector<std::uint32_t>,
+    std::vector<std::uint32_t>,
+    bool
+>;
