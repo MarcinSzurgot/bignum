@@ -27,6 +27,8 @@ set(TEST_SOURCES
     Utils.hpp
 
     ArrayArithmeticsTests/ArrayAddTests.cpp
+    ArrayArithmeticsTests/ArrayLeftShiftOperatorTests.cpp
+    ArrayArithmeticsTests/ArrayRightShiftOperatorTests.cpp
     ArrayArithmeticsTests/ArraySubtractionTests.cpp
     ArrayLogicsTests/ArrayLessThanOperatorTests.cpp
 )

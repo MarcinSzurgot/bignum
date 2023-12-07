@@ -57,3 +57,9 @@ using LogicBinaryOp = BinaryOpParams<
     std::vector<std::uint32_t>,
     bool
 >;
+
+using ShiftOp = BinaryOpParams<
+    std::vector<std::uint32_t>,
+    std::size_t,
+    std::vector<std::uint32_t>
+>;
