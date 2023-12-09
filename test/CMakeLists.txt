@@ -15,19 +15,16 @@ link_directories(${CMAKE_BINARY_DIR}/_install/lib)
 
 set(TEST_SOURCES
     test.cpp
-    AdditionOperatorTests.cpp
-    BinaryLeftShiftOperatorTests.cpp
-    BinaryRightShiftOperatorTests.cpp
     DivisionOperatorTests.cpp
-    LessThanOperatorTests.cpp
     ModuloOperatorTests.cpp
     MultiplicationOperatorTests.cpp
     StringConversionTests.cpp
-    SubtractionOperatorTests.cpp    
     Utils.hpp
 
     ArrayArithmeticsTests/ArrayAddTests.cpp
+    ArrayArithmeticsTests/ArrayDivisionOperatorTests.cpp
     ArrayArithmeticsTests/ArrayLeftShiftOperatorTests.cpp
+    ArrayArithmeticsTests/ArrayMultiplicationOperatorTests.cpp
     ArrayArithmeticsTests/ArrayRightShiftOperatorTests.cpp
     ArrayArithmeticsTests/ArraySubtractionTests.cpp
     ArrayLogicsTests/ArrayLessThanOperatorTests.cpp

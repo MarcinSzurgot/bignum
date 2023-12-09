@@ -129,30 +129,30 @@ struct BigUnsigned {
     std::vector<digit_type> digits_;
 };
 
-template<typename T>
-auto mul(T lhs, T rhs) -> std::pair<T, T> {
-    constexpr auto halfBitSize = sizeof(T) * 8 / 2;
+template<std::unsigned_integral U>
+auto mul(U lhs, U rhs) -> std::pair<U, U> {
+    constexpr auto halfBitSize = sizeof(U) * 8 / 2;
     constexpr auto halfMask = (1 << halfBitSize) - 1;
 
-    const T lowerLeft  =  lhs                 & halfMask;
-    const T lowerRight =  rhs                 & halfMask;
-    const T upperLeft  = (lhs >> halfBitSize) & halfMask;
-    const T upperRight = (rhs >> halfBitSize) & halfMask;
+    const U lowerLeft  =  lhs                 & halfMask;
+    const U lowerRight =  rhs                 & halfMask;
+    const U upperLeft  = (lhs >> halfBitSize) & halfMask;
+    const U upperRight = (rhs >> halfBitSize) & halfMask;
 
-    const T lowerResult      = lowerLeft * lowerRight;
-    const T middleResultPart = lowerLeft * upperRight;
-    const T middleResult     = middleResultPart + lowerRight * upperLeft;
-    const T upperResult      = upperLeft * upperRight + (
+    const U lowerResult      = lowerLeft * lowerRight;
+    const U middleResultPart = lowerLeft * upperRight;
+    const U middleResult     = middleResultPart + lowerRight * upperLeft;
+    const U upperResult      = upperLeft * upperRight + (
         middleResult < middleResultPart 
-        ? (T(1) << halfBitSize)
-        :  T(0)
+        ? (U(1) << halfBitSize)
+        :  U(0)
     );
 
-    const T finalLowerResult = lowerResult + (middleResult << halfBitSize);
-    const T finalUpperResult = upperResult + (middleResult >> halfBitSize) + (
+    const U finalLowerResult = lowerResult + (middleResult << halfBitSize);
+    const U finalUpperResult = upperResult + (middleResult >> halfBitSize) + (
         finalLowerResult < lowerResult 
-        ? T(1)
-        : T(0)
+        ? U(1)
+        : U(0)
     );
 
     return {finalLowerResult, finalUpperResult};

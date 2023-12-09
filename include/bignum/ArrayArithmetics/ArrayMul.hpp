@@ -16,8 +16,8 @@ auto mul(
     for (auto l = 0u; l < size(lhs); ++l) {
         for (auto r = 0u; r < size(rhs); ++r) {
             const auto mul = (std::uint64_t) lhs[l] * rhs[r];
-            const auto lower = BigUnsigned::digit_type(mul & ~BigUnsigned::digit_type());
-            const auto higher = BigUnsigned::digit_type(mul >> digitBitSize);
+            const auto lower = std::uint32_t(mul & ~std::uint32_t());
+            const auto higher = std::uint32_t(mul >> digitBitSize);
 
             result[l + r] += lower;
 

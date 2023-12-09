@@ -1,47 +1,21 @@
+#include <concepts>
+
 #include <gtest/gtest.h>
 #include "bignum/BigUnsigned.hpp"
 
 #include "Utils.hpp"
 
-class BigUnsignedMultiplicationTest : public ::testing::TestWithParam<std::tuple<BigUnsigned, BigUnsigned, BigUnsigned>> {};
+template<std::unsigned_integral U> 
+struct ModularMulArgs {
+    U lhs;
+    U rhs;
+    std::pair<U, U> result;
+};
 
-TEST_P(BigUnsignedMultiplicationTest, MultiplicationOperation) {
-    auto num1 = std::get<0>(GetParam());
-    const auto num2 = std::get<1>(GetParam());
-    const auto expected = std::get<2>(GetParam());
-
-    num1 *= num2;
-    ASSERT_EQ(num1, expected);
-}
-
-INSTANTIATE_TEST_SUITE_P(
-    BigUnsignedTests,
-    BigUnsignedMultiplicationTest,
-    ::testing::Values(
-        std::make_tuple(BigUnsigned({0x5}), BigUnsigned({0x3}), BigUnsigned({0xF})),
-        std::make_tuple(BigUnsigned({0x5}), BigUnsigned({0x0}), BigUnsigned({0x0})),
-        std::make_tuple(BigUnsigned({0x5}), BigUnsigned({0x5}), BigUnsigned({0x19})),
-        std::make_tuple(BigUnsigned({0x5}), BigUnsigned({0x1}), BigUnsigned({0x5})),
-        std::make_tuple(BigUnsigned({0xFFFFFFFF}), BigUnsigned({0x2}), BigUnsigned({0xFFFFFFFE, 0x1})),
-        std::make_tuple(BigUnsigned({0xFFFFFFFF, 0x1}), BigUnsigned({0xFFFFFFFF, 0x1}), BigUnsigned({0x1, 0xFFFFFFFC, 0x3})),
-        std::make_tuple(BigUnsigned({0xFFFFFFFE}), BigUnsigned({0xFFFFFFFE}), BigUnsigned({0x4, 0xFFFFFFFC})),
-        std::make_tuple(BigUnsigned({0x0, 0x1}), BigUnsigned({0x0, 0x2}), BigUnsigned({0x0, 0x0, 0x2})), // 7
-        std::make_tuple(BigUnsigned({0x1, 0x0}), BigUnsigned({0x2, 0x0}), BigUnsigned({0x2, 0x0, 0x0})),
-        std::make_tuple(BigUnsigned({0xFFFFFFFF}), BigUnsigned({0xFFFFFFFF}), BigUnsigned({0x1, 0xFFFFFFFE})),
-        std::make_tuple(BigUnsigned({0xFFFFFFF0, 0x0, 0x0, 0x1}), BigUnsigned({0xF}), BigUnsigned({0xFFFFFF10, 0xE, 0x0, 0xF})),
-        std::make_tuple(BigUnsigned({0xFFFFFFFE, 0xFFFFFFFE}), BigUnsigned({0xFFFFFFFD, 0xFFFFFFFD}), BigUnsigned({0x6, 0x7, 0xFFFFFFFD, 0xFFFFFFFC})),
-        std::make_tuple(BigUnsigned({0x7}), BigUnsigned({0xFFFFFFFD}), BigUnsigned({0xFFFFFFEB, 0x6})),
-        std::make_tuple(BigUnsigned({0xFFFFFFFC, 0x3}), BigUnsigned({0x4, 0x4}), BigUnsigned({0xFFFFFFF0, 0xFFFFFFFF, 0xF})),
-        std::make_tuple(BigUnsigned({0xFFFFFFFE}), BigUnsigned({0xFFFFFFFE}), BigUnsigned({0x4, 0xFFFFFFFC}))
-    )
-);
-
-class BigUnsignedModularMultiplicationTest : public ::testing::TestWithParam<std::tuple<std::uint32_t, std::uint32_t, std::pair<std::uint32_t, std::uint32_t>>> {};
+class BigUnsignedModularMultiplicationTest : public ::testing::TestWithParam<ModularMulArgs<std::uint32_t>> {};
 
 TEST_P(BigUnsignedModularMultiplicationTest, ModularMultiplication) {
-    const auto lhs      = std::get<0>(GetParam());
-    const auto rhs      = std::get<1>(GetParam());
-    const auto expected = std::get<2>(GetParam());
+    const auto [lhs, rhs, expected] = GetParam();
 
     const auto [lower, upper] = mul(lhs, rhs);
 
@@ -53,25 +27,23 @@ INSTANTIATE_TEST_SUITE_P(
     BigUnsignedTests,
     BigUnsignedModularMultiplicationTest,
     ::testing::Values(
-        std::make_tuple(0x0, 0x0, std::make_pair(0x0, 0x0)),
-        std::make_tuple(0x1, 0x1, std::make_pair(0x1, 0x0)),
-        std::make_tuple(0x0, 0x1, std::make_pair(0x0, 0x0)),
-        std::make_tuple(0x1, 0x0, std::make_pair(0x0, 0x0)),
-        std::make_tuple(0x1, 0x2, std::make_pair(0x2, 0x0)),
-        std::make_tuple(0x80000000, 0x2, std::make_pair(0x0, 0x1)),
-        std::make_tuple(0x80000000, 0xFFFFFFFF, std::make_pair(0x80000000, 0x7FFFFFFF)),
-        std::make_tuple(0xFFFFFFFF, 0xFFFFFFFF, std::make_pair(0x1, 0xFFFFFFFE)),
-        std::make_tuple(0xFFFF0000, 0x80000000, std::make_pair(0x0, 0x7FFF8000)),
-        std::make_tuple(0x0000FFFF, 0x0000FFFF, std::make_pair(0xFFFE0001, 0x0)),
-        std::make_tuple(0xFFFF0000, 0xFFFF0000, std::make_pair(0x0, 0xFFFE0001)),
-        std::make_tuple(0xFFFF0000, 0x0000FFFF, std::make_pair(0x00010000, 0x0000FFFE)),
-        std::make_tuple(0x0000FFFF, 0xFFFF0000, std::make_pair(0x00010000, 0x0000FFFE)),
-        std::make_tuple(0x0000FFFF, 0xFFFFFFFF, std::make_pair(0xFFFF0001, 0x0000FFFE)),
-        std::make_tuple(0xFFFF0000, 0xFFFFFFFF, std::make_pair(0x00010000, 0xFFFEFFFF)),
-        std::make_tuple(0xFFFFFFFF, 0xFFFF0000, std::make_pair(0x00010000, 0xFFFEFFFF)),
-        std::make_tuple(0xFFFFFFFF, 0xFFFFFFF0, std::make_pair(0x00000010, 0xFFFFFFEF))
-        // std::make_tuple()
-        // BigUnsigned({0x0, 0x1}), BigUnsigned({0x0, 0x2}), BigUnsigned({0x0, 0x0, 0x2})
+        ModularMulArgs(0x0u, 0x0u, {0x0u, 0x0u}),
+        ModularMulArgs(0x1u, 0x1u, {0x1u, 0x0u}),
+        ModularMulArgs(0x0u, 0x1u, {0x0u, 0x0u}),
+        ModularMulArgs(0x1u, 0x0u, {0x0u, 0x0u}),
+        ModularMulArgs(0x1u, 0x2u, {0x2u, 0x0u}),
+        ModularMulArgs(0x80000000u, 0x2u, {0x0u, 0x1u}),
+        ModularMulArgs(0x80000000u, 0xFFFFFFFFu, {0x80000000u, 0x7FFFFFFFu}),
+        ModularMulArgs(0xFFFFFFFFu, 0xFFFFFFFFu, {0x1u, 0xFFFFFFFEu}),
+        ModularMulArgs(0xFFFF0000u, 0x80000000u, {0x0u, 0x7FFF8000u}),
+        ModularMulArgs(0x0000FFFFu, 0x0000FFFFu, {0xFFFE0001u, 0x0u}),
+        ModularMulArgs(0xFFFF0000u, 0xFFFF0000u, {0x0u, 0xFFFE0001u}),
+        ModularMulArgs(0xFFFF0000u, 0x0000FFFFu, {0x00010000u, 0x0000FFFEu}),
+        ModularMulArgs(0x0000FFFFu, 0xFFFF0000u, {0x00010000u, 0x0000FFFEu}),
+        ModularMulArgs(0x0000FFFFu, 0xFFFFFFFFu, {0xFFFF0001u, 0x0000FFFEu}),
+        ModularMulArgs(0xFFFF0000u, 0xFFFFFFFFu, {0x00010000u, 0xFFFEFFFFu}),
+        ModularMulArgs(0xFFFFFFFFu, 0xFFFF0000u, {0x00010000u, 0xFFFEFFFFu}),
+        ModularMulArgs(0xFFFFFFFFu, 0xFFFFFFF0u, {0x00000010u, 0xFFFFFFEFu})
     )
 );
 
