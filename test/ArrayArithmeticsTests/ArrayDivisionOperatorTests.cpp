@@ -30,19 +30,19 @@ TEST_P(ArrayDivisionOperatorTests, ArryDivisionTest) {
         std::span(remainder)
     );
 
-    EXPECT_EQ(std::span(quotient),  std::span(expected.first));
-    EXPECT_EQ(std::span(remainder), std::span(expected.second));
+    EXPECT_EQ(quotient,  expected.first);
+    EXPECT_EQ(remainder, expected.second);
 }
 
 INSTANTIATE_TEST_SUITE_P(
     ArryDivisionTestParams,
     ArrayDivisionOperatorTests,
     ::testing::Values(
-        DivOpParams({0x0}, {0x1}, {{0x0}, {0x1}})
-        // DivOpParams({0x8}, {0x4}, {{0x2}),
-        // DivOpParams({0x10, 0x0}), BigUnsigned({0x1}), BigUnsigned({0x10, 0x0})),
-        // DivOpParams({0x10, 0x0}), BigUnsigned({0x2}), BigUnsigned({0x8, 0x0})),
-        // DivOpParams({0xFFFFFFFF, 0xFFFFFFFF}), BigUnsigned({0xFFFFFFFF}), BigUnsigned({0x1, 0x1})),
+        DivOpParams({0x0}, {0x1}, {{0x0}, {0x0}}),
+        DivOpParams({0x8}, {0x4}, {{0x2}, {0x0}}),
+        DivOpParams({0x10}, {0x1}, {{0x10}, {0x0}}),
+        DivOpParams({0x10}, {0x2}, {{0x8}, {0x0}}),
+        DivOpParams({0xFFFFFFFF, 0xFFFFFFFF}, {0xFFFFFFFF}, {{0x1, 0x1}, {0x0}})
         // DivOpParams({0xFFFFFFFF, 0xFFFFFFFF}), BigUnsigned({0x1}), BigUnsigned({0xFFFFFFFF, 0xFFFFFFFF})),
         // DivOpParams({0xFFFFFFFF, 0x0}), BigUnsigned({0xFFFFFFFF}), BigUnsigned({0x1})),
         // DivOpParams({0xFFFFFFFF, 0x0, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x7FFFFFFF, 0x80000000})),
