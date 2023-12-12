@@ -2,6 +2,7 @@
 
 #include <bignum/Digits.hpp>
 #include <bignum/Operations.hpp>
+#include <bignum/ArrayArithmetics/ArrayDiv.hpp>
 #include <bignum/ArrayArithmetics/ArraySubAdd.hpp>
 #include <bignum/ArrayArithmetics/ArrayMul.hpp>
 #include <bignum/ArrayArithmetics/ArrayShift.hpp>

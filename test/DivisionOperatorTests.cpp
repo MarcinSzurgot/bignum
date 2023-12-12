@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "bignum/BigUnsigned.hpp"
 
+#include "Utils.hpp"
+
 class BigUnsignedDivisionTests : public ::testing::TestWithParam<std::tuple<BigUnsigned, BigUnsigned, BigUnsigned>> {};
 
 TEST_P(BigUnsignedDivisionTests, DivisionAssignmentOperator) {

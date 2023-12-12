@@ -1,3 +1,5 @@
+#pragma once
+
 #include <concepts>
 #include <cstdint>
 #include <span>
@@ -23,7 +25,7 @@ inline std::ostream& operator<<(std::ostream& os, std::span<U> num) {
     return os << "}";
 }
 
-auto divide(
+inline auto divide(
     std::span<const std::uint32_t> lhs,
     std::span<const std::uint32_t> rhs,
     std::span<      std::uint32_t> quotient,
@@ -48,32 +50,18 @@ auto divide(
     auto bitDiff = lhsTopBit - rhsTopBit;
     auto divider = std::vector<std::uint32_t>(size(lhs));
     bignum::leftShift(rhs, bitDiff, std::span(divider).subspan(bitDiff / digitBitSize));
-    // remainder = remainder.subspan(0, sizeWithoutLeadingZeroes(remainder));
-    // auto divider = rhs << bitDiff;
-
-    std::cout << "==============================" << std::endl;
-    std::cout << "lhs: " << std::span<const std::uint32_t>(lhs) << std::endl;
-    std::cout << "rhs: " << std::span<const std::uint32_t>(rhs) << std::endl;
-    std::cout << "lhsTopBit: " << lhsTopBit << std::endl;
-    std::cout << "rhsTopBit: " << lhsTopBit << std::endl;
 
     while (std::span<const std::uint32_t>(remainder) >= rhs) {
         const auto newBitDiff = topBit(remainder) - rhsTopBit;
-
-        std::cout << "before divider: " << std::span<const std::uint32_t>(divider) << std::endl;
 
         divider.resize(size(divider) - bignum::rightShift(
             std::span(divider), 
             bitDiff - newBitDiff
         ));
 
-        std::cout << bitDiff << " - " << newBitDiff << " = " << (bitDiff - newBitDiff) << std::endl;
+        divider.resize(sizeWithoutLeadingZeroes(std::span(divider)));
 
-        // divider >>= bitDiff - newBitDiff;
         bitDiff = newBitDiff;
-
-        std::cout << "after divider: " << std::span<const std::uint32_t>(divider) << std::endl;
-        std::cout << "before remainder: " << std::span<const std::uint32_t>(remainder) << std::endl;
 
         if (std::span<const std::uint32_t>(divider) > std::span<const std::uint32_t>(remainder)) {
             bignum::rightShift(
@@ -90,7 +78,6 @@ auto divide(
             std::span<const std::uint32_t>(divider)
         );
 
-        std::cout << "after remainder: " << std::span<const std::uint32_t>(remainder) << std::endl;
         remainder = remainder.subspan(0, sizeWithoutLeadingZeroes(remainder));
     }
 

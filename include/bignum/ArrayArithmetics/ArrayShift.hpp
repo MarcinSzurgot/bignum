@@ -27,7 +27,6 @@ auto rightShift(
         for (auto d = wholeDigitShift + 1; d < size(result); ++d) {
             result[d - wholeDigitShift - 1] |= result[d] << (digitBitSize - bitShift);
             result[d - wholeDigitShift    ]  = result[d] >>                 bitShift;
-            std::cout << "result: " << result[d - wholeDigitShift    ] << std::endl;
         }
     } else {
         for (auto d = wholeDigitShift; d < size(result); ++d) {
