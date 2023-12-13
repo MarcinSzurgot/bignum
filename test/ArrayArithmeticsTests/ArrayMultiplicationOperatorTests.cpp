@@ -20,7 +20,7 @@ TEST_P(ArrayMultiplicationOperatorTests, MultiplicationOperation) {
         std::span(result)
     );
 
-    result.resize(sizeWithoutLeadingZeroes(result));
+    result.resize(sizeWithoutLeadingZeroes(std::span(result)));
 
     ASSERT_EQ(result, expected);
 }

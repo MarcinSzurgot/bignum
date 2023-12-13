@@ -4,23 +4,48 @@
 #include <span>
 #include <vector>
 
+namespace {
+
+template<typename I>
+requires std::integral<std::remove_const_t<I>>
+auto leadingZeroes(
+    std::span<I> digits
+) -> std::span<I>::size_type {
+    return std::find_if(
+        rbegin(digits),
+        rend(digits),
+        [](auto digit) { return digit > 0; }
+    ) - rbegin(digits);
+}
+
+}
+
+template<typename I>
+requires std::integral<std::remove_const_t<I>>
 auto sizeWithoutLeadingZeroes(
-    std::span<const std::uint32_t> digits
-) -> std::size_t;
+    std::span<I> digits
+) -> std::span<I>::size_type {
+    return std::max(
+        size(digits) - leadingZeroes(digits), 
+        typename std::span<I>::size_type(1)
+    );
+}
 
-// void subtract(
-//     std::span<      std::uint32_t> bigger,
-//     std::span<const std::uint32_t> smaller
-// );
-
+template<typename I>
+requires std::integral<std::remove_const_t<I>>
 auto topBit(
-    std::span<const std::uint32_t> digits
-) -> std::size_t;
+    std::span<I> digits
+) -> std::span<I>::size_type {
+    if (empty(digits) || (size(digits) == 1u && digits.front() == 0u)) { 
+        return 0u;
+    }
 
-// auto divide(
-//     std::span<const std::uint32_t> lhs,
-//     std::span<const std::uint32_t> rhs
-// ) -> std::pair<
-//     std::vector<std::uint32_t>,
-//     std::vector<std::uint32_t>
-// >;
+    const auto topDigit = digits.back();
+
+    auto bit = 31u;
+    for (; bit > 0u && !((1 << bit) & topDigit); --bit) {
+
+    }
+
+    return bit + (size(digits) - 1) * 32;
+}

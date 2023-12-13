@@ -57,8 +57,8 @@ auto divide(
         return {BigUnsigned(0), lhs};
     }
 
-    const auto rhsTopBit = topBit(rhs.digits_);
-    const auto lhsTopBit = topBit(lhs.digits_);
+    const auto rhsTopBit = topBit(std::span(rhs.digits_));
+    const auto lhsTopBit = topBit(std::span(lhs.digits_));
 
     auto bitDiff = lhsTopBit - rhsTopBit;
     auto divider = rhs << bitDiff;
@@ -66,7 +66,7 @@ auto divide(
     auto remainder = lhs.digits_;
 
     while (remainder >= std::span(rhs.digits_)) {
-        const auto newBitDiff = topBit(remainder) - rhsTopBit;
+        const auto newBitDiff = topBit(std::span(remainder)) - rhsTopBit;
 
         divider >>= bitDiff - newBitDiff;
         bitDiff = newBitDiff;
@@ -78,10 +78,10 @@ auto divide(
 
         quotient[bitDiff / digitBitSize] |= 1 << (bitDiff % digitBitSize);
         remainder -= divider.digits_;
-        remainder.resize(sizeWithoutLeadingZeroes(remainder));
+        remainder.resize(sizeWithoutLeadingZeroes(std::span(remainder)));
     }
 
-    quotient.resize(sizeWithoutLeadingZeroes(quotient));
+    quotient.resize(sizeWithoutLeadingZeroes(std::span(quotient)));
 
     return {
         BigUnsigned(std::move(quotient)), 
@@ -100,7 +100,7 @@ BigUnsigned::BigUnsigned(
 ) : BigUnsigned(std::vector<BigUnsigned::digit_type>(digits.begin(), digits.end())) {}
 
 BigUnsigned::BigUnsigned(std::vector<BigUnsigned::digit_type> digits) : digits_(std::move(digits)) {
-    digits_.resize(sizeWithoutLeadingZeroes(digits_));
+    digits_.resize(sizeWithoutLeadingZeroes(std::span(digits_)));
 }
 
 BigUnsigned::BigUnsigned(std::string string) : BigUnsigned(0) {
@@ -194,7 +194,7 @@ auto operator<<=(
         );
     }
 
-    lhs.digits_.resize(sizeWithoutLeadingZeroes(lhs.digits_));
+    lhs.digits_.resize(sizeWithoutLeadingZeroes(std::span(lhs.digits_)));
 
     return lhs;
 }
@@ -262,7 +262,7 @@ auto operator-=(
         );
     }
 
-    lhs.digits_.resize(sizeWithoutLeadingZeroes(lhs.digits_));
+    lhs.digits_.resize(sizeWithoutLeadingZeroes(std::span(lhs.digits_)));
 
     return lhs;
 }
@@ -281,7 +281,7 @@ auto operator*=(
         std::span(result)
     );
 
-    result.resize(sizeWithoutLeadingZeroes(result));
+    result.resize(sizeWithoutLeadingZeroes(std::span(result)));
 
     std::swap(lhs.digits_, result);
     return lhs;
