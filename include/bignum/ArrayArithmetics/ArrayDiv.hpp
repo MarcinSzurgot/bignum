@@ -3,6 +3,7 @@
 #include <concepts>
 #include <cstdint>
 #include <span>
+#include <iostream>
 #include <vector>
 
 #include <bignum/ArrayArithmetics/ArrayShift.hpp>
@@ -25,13 +26,29 @@ inline std::ostream& operator<<(std::ostream& os, std::span<U> num) {
     return os << "}";
 }
 
-inline auto divide(
-    std::span<const std::uint32_t> lhs,
-    std::span<const std::uint32_t> rhs,
-    std::span<      std::uint32_t> quotient,
-    std::span<      std::uint32_t> remainder
-) -> std::pair<std::size_t, std::size_t> {
-    constexpr auto digitBitSize = sizeof(std::uint32_t) * 8;
+template<
+    typename U1, 
+    typename U2, 
+    typename U3, 
+    typename U4
+> requires 
+    std::unsigned_integral<std::remove_const_t<U1>>
+    && std::unsigned_integral<std::remove_const_t<U2>>
+    && std::unsigned_integral<U3>
+    && std::unsigned_integral<U4>
+    && std::same_as<std::remove_const_t<U1>, std::remove_const_t<U2>>
+    && std::same_as<std::remove_const_t<U2>, U3>
+    && std::same_as<U3, U4>
+auto divide(
+    std::span<U1> lhs,
+    std::span<U2> rhs,
+    std::span<U3> quotient,
+    std::span<U4> remainder
+) -> std::pair<
+    typename std::span<U3>::size_type, 
+    typename std::span<U4>::size_type
+> {
+    constexpr auto digitBitSize = sizeof(U3) * 8;
 
     if (isZero(rhs)) {
         throw std::runtime_error("Division by zero is not allowed!");
@@ -48,7 +65,7 @@ inline auto divide(
     const auto lhsTopBit = topBit(lhs);
 
     auto bitDiff = lhsTopBit - rhsTopBit;
-    auto divider = std::vector<std::uint32_t>(size(lhs));
+    auto divider = std::vector<U3>(size(lhs));
     bignum::leftShift(rhs, bitDiff, std::span(divider).subspan(bitDiff / digitBitSize));
 
     while (std::span(remainder) >= rhs) {

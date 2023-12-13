@@ -9,6 +9,8 @@
 class ArrayComparisonTest : public ::testing::TestWithParam<LogicBinaryOp> {};
 
 TEST_P(ArrayComparisonTest, LessThanOperation) {
+    using namespace bignum;
+
     const auto& [lhs, rhs, expected] = GetParam();
 
     auto lhsSpan = std::span(lhs);

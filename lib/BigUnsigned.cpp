@@ -1,11 +1,11 @@
 #include <bignum/BigUnsigned.hpp>
 
-#include <bignum/Digits.hpp>
 #include <bignum/Operations.hpp>
 #include <bignum/ArrayArithmetics/ArrayDiv.hpp>
 #include <bignum/ArrayArithmetics/ArraySubAdd.hpp>
 #include <bignum/ArrayArithmetics/ArrayMul.hpp>
 #include <bignum/ArrayArithmetics/ArrayShift.hpp>
+#include <bignum/ArrayLogic/ArrayLogic.hpp>
 
 #include <array>
 #include <iostream>
@@ -49,6 +49,8 @@ auto divide(
     const BigUnsigned& rhs
 ) -> std::pair<BigUnsigned, BigUnsigned> {
 
+    using namespace bignum;
+
     if (!rhs) {
         throw std::runtime_error("Division by zero is not allowed!");
     }
@@ -57,27 +59,30 @@ auto divide(
         return {BigUnsigned(0), lhs};
     }
 
-    const auto rhsTopBit = topBit(std::span(rhs.digits_));
-    const auto lhsTopBit = topBit(std::span(lhs.digits_));
+    const auto rhsTopBit = topBit(rhs.digits<std::uint32_t>());
+    const auto lhsTopBit = topBit(lhs.digits<std::uint32_t>());
 
     auto bitDiff = lhsTopBit - rhsTopBit;
     auto divider = rhs << bitDiff;
     auto quotient  = std::vector<BigUnsigned::digit_type>(bitDiff / digitBitSize + 1); 
-    auto remainder = lhs.digits_;
+    auto remainder = std::vector(begin(lhs.digits<std::uint32_t>()), end(lhs.digits<std::uint32_t>()));
 
-    while (remainder >= std::span(rhs.digits_)) {
+    while (std::span(remainder) >= rhs.digits<std::uint32_t>()) {
         const auto newBitDiff = topBit(std::span(remainder)) - rhsTopBit;
 
         divider >>= bitDiff - newBitDiff;
         bitDiff = newBitDiff;
 
-        if (std::span(divider.digits_) > remainder) {
+        if (divider.digits<std::uint32_t>() > std::span(remainder)) {
             divider >>= 1;
             bitDiff--;
         }
 
         quotient[bitDiff / digitBitSize] |= 1 << (bitDiff % digitBitSize);
-        remainder -= divider.digits_;
+        bignum::subtract(
+            std::span(remainder),
+            divider.digits<std::uint32_t>()
+        );
         remainder.resize(sizeWithoutLeadingZeroes(std::span(remainder)));
     }
 
@@ -113,7 +118,7 @@ BigUnsigned::BigUnsigned(std::string string) : BigUnsigned(0) {
             string.begin() + std::min(s + maxDivisorPowerOf10, string.size())
         );
 
-        digit[0] = std::atol(stringDigit.data());
+        digit.digits<std::uint32_t>()[0] = std::atol(stringDigit.data());
 
         *this += digit;
         if (s + size(stringDigit) < size(string)) {
@@ -136,13 +141,13 @@ BigUnsigned::operator std::string() const {
     const auto div = powerOf10(maxDivisorPowerOf10);
 
     auto result = std::string();
-    result.reserve(mag() * maxDivisorPowerOf10);
+    result.reserve(size(digits_) * maxDivisorPowerOf10);
 
     for (auto quot = *this, mod = BigUnsigned(); (bool) quot;) {
         const auto notLastDivision = quot > div;
 
         std::tie(quot, mod) = divide(quot, div);
-        auto string = std::to_string(mod[0]);
+        auto string = std::to_string(mod.digits<std::uint32_t>()[0]);
         if (size(string) < maxDivisorPowerOf10 && notLastDivision) {
             const auto zeroes = std::string(maxDivisorPowerOf10 - size(string), '0');
             string.insert(string.begin(), zeroes.begin(), zeroes.end());
@@ -152,13 +157,6 @@ BigUnsigned::operator std::string() const {
     
     return result;
 }
-
-int BigUnsigned::mag() const {
-    return size(digits_);
-}
-
-BigUnsigned::digit_type  BigUnsigned::operator[](std::size_t index) const { return digits_[index]; }
-BigUnsigned::digit_type& BigUnsigned::operator[](std::size_t index)       { return digits_[index]; }
 
 auto operator<<=(
     BigUnsigned& lhs,
@@ -224,8 +222,8 @@ auto operator+=(
     if (lhs.mag() < rhs.mag()) {
         lhs.digits_.resize(rhs.mag());
     } else if (lhs.mag() == rhs.mag()) {
-        const auto lhsTop = lhs[lhs.mag() - 1];
-        const auto rhsTop = rhs[rhs.mag() - 1];
+        const auto lhsTop = lhs.digits<std::uint32_t>()[lhs.mag() - 1];
+        const auto rhsTop = rhs.digits<std::uint32_t>()[rhs.mag() - 1];
 
         if (lhsTop + rhsTop + 1 < lhsTop) {
             lhs.digits_.reserve(lhs.mag() + 1);

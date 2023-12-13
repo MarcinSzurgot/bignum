@@ -5,13 +5,11 @@
 #include <span>
 #include <vector>
 
-// inline std::ostream& operator<<(std::ostream& os, const BigUnsigned& num) {
-//     return os << static_cast<std::string>(num);
-// }
-
-inline std::ostream& operator<<(std::ostream& os, const BigUnsigned& num) {
+template<typename U>
+requires std::unsigned_integral<std::remove_const_t<U>>
+inline std::ostream& operator<<(std::ostream& os, std::span<const U> num) {
     os << std::hex << "{0x" << num[0];
-    for (auto d = 1u; d < num.mag(); ++d) {
+    for (auto d = 1u; d < size(num); ++d) {
         os << ", 0x" << num[d];
     }
     return os << "}";
@@ -19,20 +17,11 @@ inline std::ostream& operator<<(std::ostream& os, const BigUnsigned& num) {
 
 template<std::unsigned_integral U>
 inline std::ostream& operator<<(std::ostream& os, const std::vector<U>& num) {
-    os << std::hex << "{0x" << num[0];
-    for (auto d = 1u; d < size(num); ++d) {
-        os << ", 0x" << num[d];
-    }
-    return os << "}";
+    return os << std::span(num);
 }
 
-template<std::unsigned_integral U>
-inline std::ostream& operator<<(std::ostream& os, std::span<const U> num) {
-    os << std::hex << "{0x" << num[0];
-    for (auto d = 1u; d < size(num); ++d) {
-        os << ", 0x" << num[d];
-    }
-    return os << "}";
+inline std::ostream& operator<<(std::ostream& os, const BigUnsigned& num) {
+    return os << num.digits<BigUnsigned::digit_type>();
 }
 
 template<

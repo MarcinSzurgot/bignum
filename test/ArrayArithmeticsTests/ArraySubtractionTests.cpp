@@ -10,6 +10,8 @@
 class ArraySubtractionTest : public ::testing::TestWithParam<ArithmeticBinaryOp> {};
 
 TEST_P(ArraySubtractionTest, SubtractionOperation) {
+    using namespace bignum;
+
     auto [num1, num2, expected] = GetParam();
 
     const auto isNum1LessThanNum2 = std::span(num1) < std::span(num2);

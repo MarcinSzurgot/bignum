@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bignum/Digits.hpp>
+#include <bignum/ArrayLogic/ArrayLogic.hpp>
 
 #include <cinttypes>
 #include <concepts>
@@ -19,15 +19,29 @@ struct BigUnsigned {
     explicit operator bool() const;
     explicit operator std::string() const;
 
-    int mag() const;
+    template<std::unsigned_integral U>
+    std::span<U> digits() { 
+        auto first = reinterpret_cast<U*>(digits_.begin().base());
+        auto last  = reinterpret_cast<U*>(digits_.end().base());
+        return {first, last};
+    }
 
-    digit_type  operator[](std::size_t index) const;
-    digit_type& operator[](std::size_t index);
+    template<std::unsigned_integral U>
+    std::span<const U> digits() const { 
+        auto first = reinterpret_cast<const U*>(digits_.begin().base());
+        auto last  = reinterpret_cast<const U*>(digits_.end().base());
+        return {first, last};
+    }
+
+    int mag() const { return size(digits_); }
 
     friend auto operator==(
         const BigUnsigned& lhs,
         const BigUnsigned& rhs
-    ) -> bool { return std::span(lhs.digits_) == std::span(rhs.digits_); }
+    ) -> bool { 
+        using namespace bignum;
+        return std::span(lhs.digits_) == std::span(rhs.digits_); 
+    }
 
     friend auto operator!=(
         const BigUnsigned& lhs,
@@ -37,7 +51,10 @@ struct BigUnsigned {
     friend auto operator<(
         const BigUnsigned& lhs,
         const BigUnsigned& rhs
-    ) -> bool {  return std::span(lhs.digits_) < std::span(rhs.digits_); }
+    ) -> bool {  
+        using namespace bignum;
+        return std::span(lhs.digits_) < std::span(rhs.digits_); 
+    }
 
     friend auto operator>=(
         const BigUnsigned& lhs,
@@ -124,7 +141,6 @@ struct BigUnsigned {
         const BigUnsigned& rhs
     ) -> BigUnsigned;
 
-// private:
-
+private:
     std::vector<digit_type> digits_;
 };
