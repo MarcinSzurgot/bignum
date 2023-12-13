@@ -5,19 +5,31 @@
 
 namespace bignum {
 
-template<std::unsigned_integral U>
+template<
+    typename MultiplicationResultType,
+    typename T, 
+    typename U, 
+    typename K
+> requires
+    std::unsigned_integral<MultiplicationResultType>
+    && std::unsigned_integral<std::remove_const_t<T>>
+    && std::unsigned_integral<std::remove_const_t<U>>
+    && std::unsigned_integral<K>
+    && std::same_as<std::remove_const_t<T>, std::remove_const_t<U>>
+    && std::same_as<std::remove_const_t<U>, K>
+    && (sizeof(MultiplicationResultType) == 2 * sizeof(K))
 auto mul(
-    std::span<const U> lhs,
-    std::span<const U> rhs,
-    std::span<      U> result
+    std::span<T> lhs,
+    std::span<U> rhs,
+    std::span<K> result
 ) -> void {
     constexpr auto digitBitSize = sizeof(U) * 8;
 
     for (auto l = 0u; l < size(lhs); ++l) {
         for (auto r = 0u; r < size(rhs); ++r) {
-            const auto mul = (std::uint64_t) lhs[l] * rhs[r];
-            const auto lower = std::uint32_t(mul & ~std::uint32_t());
-            const auto higher = std::uint32_t(mul >> digitBitSize);
+            const auto mul = (MultiplicationResultType) lhs[l] * rhs[r];
+            const auto lower = K(mul & ~K());
+            const auto higher = K(mul >> digitBitSize);
 
             result[l + r] += lower;
 

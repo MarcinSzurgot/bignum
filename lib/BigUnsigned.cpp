@@ -275,7 +275,7 @@ auto operator*=(
 
     const auto& constLhs = lhs;
 
-    bignum::mul(
+    bignum::mul<std::uint64_t>(
         std::span(constLhs.digits_),
         std::span(rhs.digits_),
         std::span(result)
