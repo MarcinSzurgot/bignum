@@ -51,7 +51,7 @@ inline auto divide(
     auto divider = std::vector<std::uint32_t>(size(lhs));
     bignum::leftShift(rhs, bitDiff, std::span(divider).subspan(bitDiff / digitBitSize));
 
-    while (std::span<const std::uint32_t>(remainder) >= rhs) {
+    while (std::span(remainder) >= rhs) {
         const auto newBitDiff = topBit(remainder) - rhsTopBit;
 
         divider.resize(size(divider) - bignum::rightShift(
@@ -63,7 +63,7 @@ inline auto divide(
 
         bitDiff = newBitDiff;
 
-        if (std::span<const std::uint32_t>(divider) > std::span<const std::uint32_t>(remainder)) {
+        if (std::span(divider) > std::span(remainder)) {
             bignum::rightShift(
                 std::span(divider), 
                 1
@@ -75,7 +75,7 @@ inline auto divide(
 
         bignum::subtract(
             remainder,
-            std::span<const std::uint32_t>(divider)
+            std::span(divider)
         );
 
         remainder = remainder.subspan(0, sizeWithoutLeadingZeroes(remainder));

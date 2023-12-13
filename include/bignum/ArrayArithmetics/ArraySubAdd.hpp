@@ -5,10 +5,16 @@
 
 namespace bignum {
 
-template<std::unsigned_integral U>
+template<typename T, typename U>
+requires std::equality_comparable<                    T >
+      && std::equality_comparable<std::remove_const_t<U>> 
+      && std::same_as<
+                                T, 
+            std::remove_const_t<U>
+        >
 auto subtract(
-    std::span<      U> bigger,
-    std::span<const U> smaller
+    std::span<T> bigger,
+    std::span<U> smaller
 ) -> bool {
     auto carry = false;
     for (auto d = 0u; d < size(smaller); ++d) {
@@ -31,10 +37,16 @@ auto subtract(
     return carry;
 }
 
-template<std::unsigned_integral U>
+template<typename T, typename U>
+requires std::equality_comparable<                    T >
+      && std::equality_comparable<std::remove_const_t<U>> 
+      && std::same_as<
+                                T, 
+            std::remove_const_t<U>
+        >
 auto add(
-    std::span<      U> lhs,
-    std::span<const U> rhs
+    std::span<T> lhs,
+    std::span<U> rhs
 ) -> bool {
     const auto common = std::min(size(lhs), size(rhs));
 
