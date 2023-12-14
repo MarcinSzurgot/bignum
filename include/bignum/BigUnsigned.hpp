@@ -37,42 +37,6 @@ struct BigUnsigned {
 
     int mag() const { return size(digits_); }
 
-    friend auto operator==(
-        const BigUnsigned& lhs,
-        const BigUnsigned& rhs
-    ) -> bool { 
-        using namespace bignum;
-        return std::span(lhs.digits_) == std::span(rhs.digits_); 
-    }
-
-    friend auto operator!=(
-        const BigUnsigned& lhs,
-        const BigUnsigned& rhs
-    ) -> bool { return !(lhs == rhs); }
-
-    friend auto operator<(
-        const BigUnsigned& lhs,
-        const BigUnsigned& rhs
-    ) -> bool {  
-        using namespace bignum;
-        return std::span(lhs.digits_) < std::span(rhs.digits_); 
-    }
-
-    friend auto operator>=(
-        const BigUnsigned& lhs,
-        const BigUnsigned& rhs
-    ) -> bool { return !(lhs < rhs); }
-
-    friend auto operator>(
-        const BigUnsigned& lhs,
-        const BigUnsigned& rhs
-    ) -> bool { return rhs < lhs; }
-
-    friend auto operator<=(
-        const BigUnsigned& lhs,
-        const BigUnsigned& rhs
-    ) -> bool { return !(lhs > rhs); }
-
     friend auto operator<<=(
         BigUnsigned& lhs,
         std::uint32_t rhs

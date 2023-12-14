@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <bignum/BigUnsigned.hpp>
+#include <bignum/LogicOperators.hpp>
 
 #include <chrono>
 #include <random>
@@ -9,7 +10,6 @@
 #include "Utils.hpp"
 
 using namespace std::string_literals;
-using namespace bignum;
 
 class BigUnsignedStringConversionTest : public ::testing::TestWithParam<std::tuple<std::string, BigUnsigned>> { };
 

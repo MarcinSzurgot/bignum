@@ -6,6 +6,7 @@
 #include <bignum/ArrayArithmetics/ArrayMul.hpp>
 #include <bignum/ArrayArithmetics/ArrayShift.hpp>
 #include <bignum/ArrayLogic/ArrayLogic.hpp>
+#include <bignum/LogicOperators.hpp>
 
 #include <array>
 #include <iostream>
