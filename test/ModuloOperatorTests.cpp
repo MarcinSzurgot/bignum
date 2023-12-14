@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+using namespace bignum;
+
 class BigUnsignedModuloTests : public ::testing::TestWithParam<std::tuple<BigUnsigned, BigUnsigned, BigUnsigned>> {};
 
 TEST_P(BigUnsignedModuloTests, ModuloAssignmentOperator) {

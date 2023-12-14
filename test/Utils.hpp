@@ -5,6 +5,8 @@
 #include <span>
 #include <vector>
 
+using namespace bignum;
+
 template<typename U>
 requires std::unsigned_integral<std::remove_const_t<U>>
 inline std::ostream& operator<<(std::ostream& os, std::span<const U> num) {

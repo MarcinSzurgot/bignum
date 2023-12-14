@@ -3,6 +3,8 @@
 
 #include "Utils.hpp"
 
+using namespace bignum;
+
 class BigUnsignedDivisionTests : public ::testing::TestWithParam<std::tuple<BigUnsigned, BigUnsigned, BigUnsigned>> {};
 
 TEST_P(BigUnsignedDivisionTests, DivisionAssignmentOperator) {

@@ -9,6 +9,7 @@
 #include "Utils.hpp"
 
 using namespace std::string_literals;
+using namespace bignum;
 
 class BigUnsignedStringConversionTest : public ::testing::TestWithParam<std::tuple<std::string, BigUnsigned>> { };
 

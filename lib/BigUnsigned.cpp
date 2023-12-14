@@ -13,29 +13,29 @@
 
 namespace {
 
-constexpr auto digitBitSize = sizeof(BigUnsigned::digit_type) * 8;
+constexpr auto digitBitSize = sizeof(bignum::BigUnsigned::digit_type) * 8;
 
 static auto powerOf10(
     unsigned power
-) -> const BigUnsigned& {
+) -> const bignum::BigUnsigned& {
     const static auto powers = std::array{
-        BigUnsigned(1),
-        BigUnsigned(10),
-        BigUnsigned(100),
-        BigUnsigned(1000),
-        BigUnsigned(10000),
-        BigUnsigned(100000),
-        BigUnsigned(1000000),
-        BigUnsigned(10000000),
-        BigUnsigned(100000000),
-        BigUnsigned(1000000000),
+        bignum::BigUnsigned(1),
+        bignum::BigUnsigned(10),
+        bignum::BigUnsigned(100),
+        bignum::BigUnsigned(1000),
+        bignum::BigUnsigned(10000),
+        bignum::BigUnsigned(100000),
+        bignum::BigUnsigned(1000000),
+        bignum::BigUnsigned(10000000),
+        bignum::BigUnsigned(100000000),
+        bignum::BigUnsigned(1000000000),
     };
 
     return powers[power];
 }
 
 void printDigits(
-    std::span<const BigUnsigned::digit_type> value
+    std::span<const bignum::BigUnsigned::digit_type> value
 ) {
     std::cout << "{0x" << value.front();
     for (auto d = 1u; d < size(value); ++d) {
@@ -45,9 +45,9 @@ void printDigits(
 }
 
 auto divide(
-    const BigUnsigned& lhs,
-    const BigUnsigned& rhs
-) -> std::pair<BigUnsigned, BigUnsigned> {
+    const bignum::BigUnsigned& lhs,
+    const bignum::BigUnsigned& rhs
+) -> std::pair<bignum::BigUnsigned, bignum::BigUnsigned> {
 
     using namespace bignum;
 
@@ -56,7 +56,7 @@ auto divide(
     }
 
     if (lhs < rhs) {
-        return {BigUnsigned(0), lhs};
+        return {bignum::BigUnsigned(0), lhs};
     }
 
     const auto rhsTopBit = topBit(rhs.digits<std::uint32_t>());
@@ -89,12 +89,14 @@ auto divide(
     quotient.resize(sizeWithoutLeadingZeroes(std::span(quotient)));
 
     return {
-        BigUnsigned(std::move(quotient)), 
-        BigUnsigned(std::move(remainder))
+        bignum::BigUnsigned(std::move(quotient)), 
+        bignum::BigUnsigned(std::move(remainder))
     };
 }
 
 }
+
+namespace bignum {
 
 BigUnsigned::BigUnsigned() : BigUnsigned(0) {}
 
@@ -146,7 +148,7 @@ BigUnsigned::operator std::string() const {
     for (auto quot = *this, mod = BigUnsigned(); (bool) quot;) {
         const auto notLastDivision = quot > div;
 
-        std::tie(quot, mod) = divide(quot, div);
+        std::tie(quot, mod) = ::divide(quot, div);
         auto string = std::to_string(mod.digits<std::uint32_t>()[0]);
         if (size(string) < maxDivisorPowerOf10 && notLastDivision) {
             const auto zeroes = std::string(maxDivisorPowerOf10 - size(string), '0');
@@ -289,14 +291,14 @@ auto operator/=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
 ) -> BigUnsigned& {
-    return lhs = divide(lhs, rhs).first;
+    return lhs = ::divide(lhs, rhs).first;
 }
 
 auto operator%=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
 ) -> BigUnsigned& {
-    return lhs = divide(lhs, rhs).second;
+    return lhs = ::divide(lhs, rhs).second;
 }
 
 auto operator<<(
@@ -360,4 +362,6 @@ auto operator%(
     auto result = lhs;
     result %= rhs;
     return result;
+}
+
 }

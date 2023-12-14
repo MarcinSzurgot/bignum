@@ -7,6 +7,8 @@
 #include <string_view>
 #include <vector>
 
+namespace bignum {
+
 struct BigUnsigned {
     using digit_type = std::uint32_t;
 
@@ -144,3 +146,5 @@ struct BigUnsigned {
 private:
     std::vector<digit_type> digits_;
 };
+
+}
