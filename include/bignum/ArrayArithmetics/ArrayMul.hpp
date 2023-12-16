@@ -6,18 +6,18 @@
 namespace bignum {
 
 template<
-    typename MultiplicationResultType,
+    typename MultiplicationContainingType,
     typename T, 
     typename U, 
     typename K
 > requires
-    std::unsigned_integral<MultiplicationResultType>
+    std::unsigned_integral<MultiplicationContainingType>
     && std::unsigned_integral<std::remove_const_t<T>>
     && std::unsigned_integral<std::remove_const_t<U>>
     && std::unsigned_integral<K>
     && std::same_as<std::remove_const_t<T>, std::remove_const_t<U>>
     && std::same_as<std::remove_const_t<U>, K>
-    && (sizeof(MultiplicationResultType) == 2 * sizeof(K))
+    && (sizeof(MultiplicationContainingType) == 2 * sizeof(K))
 auto mul(
     std::span<T> lhs,
     std::span<U> rhs,
@@ -27,7 +27,7 @@ auto mul(
 
     for (auto l = 0u; l < size(lhs); ++l) {
         for (auto r = 0u; r < size(rhs); ++r) {
-            const auto mul = (MultiplicationResultType) lhs[l] * rhs[r];
+            const auto mul = (MultiplicationContainingType) lhs[l] * rhs[r];
             const auto lower = K(mul & ~K());
             const auto higher = K(mul >> digitBitSize);
 

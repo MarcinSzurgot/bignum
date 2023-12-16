@@ -30,12 +30,12 @@ INSTANTIATE_TEST_SUITE_P(
         std::make_tuple(BigUnsigned({0xFFFFFFFF, 0xFFFFFFFF}), BigUnsigned({0xFFFFFFFF}), BigUnsigned({0x1, 0x1})),
         std::make_tuple(BigUnsigned({0xFFFFFFFF, 0xFFFFFFFF}), BigUnsigned({0x1}), BigUnsigned({0xFFFFFFFF, 0xFFFFFFFF})),
         std::make_tuple(BigUnsigned({0xFFFFFFFF, 0x0}), BigUnsigned({0xFFFFFFFF}), BigUnsigned({0x1})),
-        std::make_tuple(BigUnsigned({0xFFFFFFFF, 0x0, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x7FFFFFFF, 0x80000000})),
+        std::make_tuple(BigUnsigned({0xFFFFFFFF, 0x0, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x7FFFFFFF, 0x8000000000000000})),
         std::make_tuple(BigUnsigned({0x1, 0x0, 0x0}), BigUnsigned({0x1, 0x0}), BigUnsigned({0x1})),
-        std::make_tuple(BigUnsigned({0x1, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x80000000})),
-        std::make_tuple(BigUnsigned({0x0, 0x1, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x80000000, 0x80000000})),
-        std::make_tuple(BigUnsigned({0x0, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x80000000})),
-        std::make_tuple(BigUnsigned({0x0, 0x1, 0x1, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x80000000, 0x80000000, 0x80000000})),
-        std::make_tuple(BigUnsigned({0x0, 0x1, 0x1, 0x0, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x80000000, 0x80000000, 0x0, 0x80000000}))
+        std::make_tuple(BigUnsigned({0x1, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x8000000000000000})),
+        std::make_tuple(BigUnsigned({0x0, 0x1, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x8000000000000000, 0x8000000000000000})),
+        std::make_tuple(BigUnsigned({0x0, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x8000000000000000})),
+        std::make_tuple(BigUnsigned({0x0, 0x1, 0x1, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x8000000000000000, 0x8000000000000000, 0x8000000000000000})),
+        std::make_tuple(BigUnsigned({0x0, 0x1, 0x1, 0x0, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x8000000000000000, 0x8000000000000000, 0x0, 0x8000000000000000}))
     )
 );

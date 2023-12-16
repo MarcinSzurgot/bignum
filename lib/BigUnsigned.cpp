@@ -30,19 +30,19 @@ static auto powerOf10(
         bignum::BigUnsigned(10000000),
         bignum::BigUnsigned(100000000),
         bignum::BigUnsigned(1000000000),
+        bignum::BigUnsigned(10000000000),
+        bignum::BigUnsigned(100000000000),
+        bignum::BigUnsigned(1000000000000),
+        bignum::BigUnsigned(10000000000000),
+        bignum::BigUnsigned(100000000000000),
+        bignum::BigUnsigned(1000000000000000),
+        bignum::BigUnsigned(10000000000000000),
+        bignum::BigUnsigned(100000000000000000),
+        bignum::BigUnsigned(1000000000000000000),
+        bignum::BigUnsigned(10000000000000000000)
     };
 
     return powers[power];
-}
-
-void printDigits(
-    std::span<const bignum::BigUnsigned::digit_type> value
-) {
-    std::cout << "{0x" << value.front();
-    for (auto d = 1u; d < size(value); ++d) {
-        std::cout << ", 0x" << value[d];
-    }
-    std::cout << "}\n";
 }
 
 auto divide(
@@ -60,29 +60,29 @@ auto divide(
         return {bignum::BigUnsigned(0), lhs};
     }
 
-    const auto rhsTopBit = topBit(rhs.digits<std::uint32_t>());
-    const auto lhsTopBit = topBit(lhs.digits<std::uint32_t>());
+    const auto rhsTopBit = topBit(rhs.digits());
+    const auto lhsTopBit = topBit(lhs.digits());
 
     auto bitDiff = lhsTopBit - rhsTopBit;
     auto divider = rhs << bitDiff;
     auto quotient  = std::vector<BigUnsigned::digit_type>(bitDiff / digitBitSize + 1); 
-    auto remainder = std::vector(begin(lhs.digits<std::uint32_t>()), end(lhs.digits<std::uint32_t>()));
+    auto remainder = std::vector(begin(lhs.digits()), end(lhs.digits()));
 
-    while (std::span(remainder) >= rhs.digits<std::uint32_t>()) {
+    while (std::span(remainder) >= rhs.digits()) {
         const auto newBitDiff = topBit(std::span(remainder)) - rhsTopBit;
 
         divider >>= bitDiff - newBitDiff;
         bitDiff = newBitDiff;
 
-        if (divider.digits<std::uint32_t>() > std::span(remainder)) {
+        if (divider.digits() > std::span(remainder)) {
             divider >>= 1;
             bitDiff--;
         }
 
-        quotient[bitDiff / digitBitSize] |= 1 << (bitDiff % digitBitSize);
+        quotient[bitDiff / digitBitSize] |= 1ull << (bitDiff % digitBitSize);
         bignum::subtract(
             std::span(remainder),
-            divider.digits<std::uint32_t>()
+            divider.digits()
         );
         remainder.resize(sizeWithoutLeadingZeroes(std::span(remainder)));
     }
@@ -112,7 +112,7 @@ BigUnsigned::BigUnsigned(std::vector<BigUnsigned::digit_type> digits) : digits_(
 }
 
 BigUnsigned::BigUnsigned(std::string string) : BigUnsigned(0) {
-    const auto maxDivisorPowerOf10 = std::size_t(9);
+    const auto maxDivisorPowerOf10 = std::size_t(18);
     
     auto digit = BigUnsigned();
     for (auto s = 0u; s < size(string); s += maxDivisorPowerOf10) {
@@ -121,7 +121,7 @@ BigUnsigned::BigUnsigned(std::string string) : BigUnsigned(0) {
             string.begin() + std::min(s + maxDivisorPowerOf10, string.size())
         );
 
-        digit.digits<std::uint32_t>()[0] = std::atol(stringDigit.data());
+        digit.digits()[0] = std::atol(stringDigit.data());
 
         *this += digit;
         if (s + size(stringDigit) < size(string)) {
@@ -140,7 +140,7 @@ BigUnsigned::operator std::string() const {
         return "0";
     }
 
-    const auto maxDivisorPowerOf10 = std::size_t(9);
+    const auto maxDivisorPowerOf10 = std::size_t(19);
     const auto div = powerOf10(maxDivisorPowerOf10);
 
     auto result = std::string();
@@ -150,7 +150,7 @@ BigUnsigned::operator std::string() const {
         const auto notLastDivision = quot > div;
 
         std::tie(quot, mod) = ::divide(quot, div);
-        auto string = std::to_string(mod.digits<std::uint32_t>()[0]);
+        auto string = std::to_string(mod.digits()[0]);
         if (size(string) < maxDivisorPowerOf10 && notLastDivision) {
             const auto zeroes = std::string(maxDivisorPowerOf10 - size(string), '0');
             string.insert(string.begin(), zeroes.begin(), zeroes.end());
@@ -168,9 +168,9 @@ auto operator<<=(
 
     const auto wholeDigitsShift = rhs / digitBitSize;
     const auto bitShift = rhs % digitBitSize;
-    const auto carry = (bool) (lhs.digits_.back() >> (digitBitSize - bitShift));
+    const auto carry = (bool) (lhs.digits().back() >> (digitBitSize - bitShift));
 
-    if (wholeDigitsShift + carry + lhs.digits_.size() > lhs.digits_.capacity()) {
+    if (wholeDigitsShift + carry + size(lhs.digits()) > lhs.digits_.capacity()) {
         auto shifted = std::vector<BigUnsigned::digit_type>(size(lhs.digits_) + wholeDigitsShift + carry);
 
         const auto& lhsConst = lhs.digits_;
@@ -205,11 +205,11 @@ auto operator>>=(
     BigUnsigned::digit_type rhs
 ) -> BigUnsigned& {
     const auto size = bignum::rightShift(
-        std::span(lhs.digits_), 
+        lhs.digits(), 
         rhs
     );
 
-    lhs.digits_.resize(lhs.digits_.size() - size);
+    lhs.digits_.resize(lhs.digits().size() - size);
     if (lhs.digits_.size() > 1u && lhs.digits_.back() == 0u) {
         lhs.digits_.pop_back();
     }
@@ -272,14 +272,24 @@ auto operator*=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
 ) -> BigUnsigned& {
+    using MultiplicationType = std::uint32_t;
+    using MultiplicationContainingType = std::uint64_t;
+
+    static_assert(sizeof(MultiplicationType) <= sizeof(BigUnsigned::digit_type));
+    static_assert(sizeof(MultiplicationContainingType) == sizeof(MultiplicationType) * 2);
+
     auto result = std::vector<BigUnsigned::digit_type>(lhs.mag() + rhs.mag());
+    auto resultSpan = std::span(
+        reinterpret_cast<std::uint32_t*>(result.begin().base()),
+        reinterpret_cast<std::uint32_t*>(result.end().base())
+    );
 
     const auto& constLhs = lhs;
 
     bignum::mul<std::uint64_t>(
-        std::span(constLhs.digits_),
-        std::span(rhs.digits_),
-        std::span(result)
+        constLhs.digits<std::uint32_t>(),
+        rhs.digits<std::uint32_t>(),
+        resultSpan
     );
 
     result.resize(sizeWithoutLeadingZeroes(std::span(result)));
