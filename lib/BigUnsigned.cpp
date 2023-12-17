@@ -12,6 +12,8 @@
 #include <iostream>
 #include <tuple>
 
+namespace bignum {
+
 namespace {
 
 constexpr auto digitBitSize = sizeof(bignum::BigUnsigned::digit_type) * 8;
@@ -46,18 +48,11 @@ static auto powerOf10(
 }
 
 auto divide(
-    const bignum::BigUnsigned& lhs,
-    const bignum::BigUnsigned& rhs
-) -> std::pair<bignum::BigUnsigned, bignum::BigUnsigned> {
-
-    using namespace bignum;
-
-    if (!rhs) {
-        throw std::runtime_error("Division by zero is not allowed!");
-    }
-
+    const BigUnsigned& lhs,
+    const BigUnsigned& rhs
+) -> std::pair<BigUnsigned, BigUnsigned> {
     if (lhs < rhs) {
-        return {bignum::BigUnsigned(0), lhs};
+        return {BigUnsigned(0), lhs};
     }
 
     const auto rhsTopBit = topBit(rhs.digits());
@@ -66,38 +61,25 @@ auto divide(
     auto bitDiff = lhsTopBit - rhsTopBit;
     auto divider = rhs << bitDiff;
     auto quotient  = std::vector<BigUnsigned::digit_type>(bitDiff / digitBitSize + 1); 
-    auto remainder = std::vector(begin(lhs.digits()), end(lhs.digits()));
+    auto remainder = std::vector<BigUnsigned::digit_type>(size(lhs.digits()));
 
-    while (std::span(remainder) >= rhs.digits()) {
-        const auto newBitDiff = topBit(std::span(remainder)) - rhsTopBit;
+    const auto [quotSize, remSize] = bignum::divide(
+        lhs.digits(),
+        rhs.digits(),
+        std::span(quotient),
+        std::span(remainder)
+    );
 
-        divider >>= bitDiff - newBitDiff;
-        bitDiff = newBitDiff;
-
-        if (divider.digits() > std::span(remainder)) {
-            divider >>= 1;
-            bitDiff--;
-        }
-
-        quotient[bitDiff / digitBitSize] |= 1ull << (bitDiff % digitBitSize);
-        bignum::subtract(
-            std::span(remainder),
-            divider.digits()
-        );
-        remainder.resize(sizeWithoutLeadingZeroes(std::span(remainder)));
-    }
-
-    quotient.resize(sizeWithoutLeadingZeroes(std::span(quotient)));
+    quotient.resize(quotSize);
+    remainder.resize(remSize);
 
     return {
-        bignum::BigUnsigned(std::move(quotient)), 
-        bignum::BigUnsigned(std::move(remainder))
+        BigUnsigned(std::move(quotient)), 
+        BigUnsigned(std::move(remainder))
     };
 }
 
 }
-
-namespace bignum {
 
 BigUnsigned::BigUnsigned() : BigUnsigned(0) {}
 
@@ -140,7 +122,7 @@ BigUnsigned::operator std::string() const {
         return "0";
     }
 
-    const auto maxDivisorPowerOf10 = std::size_t(19);
+    const auto maxDivisorPowerOf10 = std::size_t(18);
     const auto div = powerOf10(maxDivisorPowerOf10);
 
     auto result = std::string();
@@ -149,7 +131,7 @@ BigUnsigned::operator std::string() const {
     for (auto quot = *this, mod = BigUnsigned(); (bool) quot;) {
         const auto notLastDivision = quot > div;
 
-        std::tie(quot, mod) = ::divide(quot, div);
+        std::tie(quot, mod) = divide(quot, div);
         auto string = std::to_string(mod.digits()[0]);
         if (size(string) < maxDivisorPowerOf10 && notLastDivision) {
             const auto zeroes = std::string(maxDivisorPowerOf10 - size(string), '0');
@@ -302,14 +284,14 @@ auto operator/=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
 ) -> BigUnsigned& {
-    return lhs = ::divide(lhs, rhs).first;
+    return lhs = divide(lhs, rhs).first;
 }
 
 auto operator%=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
 ) -> BigUnsigned& {
-    return lhs = ::divide(lhs, rhs).second;
+    return lhs = divide(lhs, rhs).second;
 }
 
 auto operator<<(

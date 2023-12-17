@@ -13,8 +13,9 @@
 
 namespace bignum {
 
-template<std::unsigned_integral U>
-inline std::ostream& operator<<(std::ostream& os, std::span<U> num) {
+template<typename U>
+requires std::unsigned_integral<std::remove_const_t<U>>
+std::ostream& operator<<(std::ostream& os, std::span<U> num) {
     if (not empty(num)) {
         os << std::hex << "{0x" << num[size(num) - 1];
         for (auto d = size(num) - 1; d > 0u; --d) {
@@ -24,6 +25,12 @@ inline std::ostream& operator<<(std::ostream& os, std::span<U> num) {
         os << "{";
     }
     return os << "}";
+}
+
+template<typename U>
+requires std::unsigned_integral<std::remove_const_t<U>>
+std::ostream& operator<<(std::ostream& os, const std::vector<U>& num) {
+    return os << std::span(num);
 }
 
 template<
@@ -48,7 +55,7 @@ auto divide(
     typename std::span<U3>::size_type, 
     typename std::span<U4>::size_type
 > {
-    constexpr auto digitBitSize = sizeof(U3) * 8;
+    constexpr auto digitBitSize = sizeof(U1) * 8;
 
     if (isZero(rhs)) {
         throw std::runtime_error("Division by zero is not allowed!");
@@ -88,7 +95,7 @@ auto divide(
             bitDiff--;
         }
 
-        quotient[bitDiff / digitBitSize] |= 1 << (bitDiff % digitBitSize);
+        quotient[bitDiff / digitBitSize] |= U3(1) << (bitDiff % digitBitSize);
 
         bignum::subtract(
             remainder,

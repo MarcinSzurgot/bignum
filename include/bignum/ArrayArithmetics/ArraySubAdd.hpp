@@ -31,7 +31,7 @@ auto subtract(
 
     for (auto d = size(smaller); d < size(bigger) && carry; ++d) {
         bigger[d] -= carry;
-        carry = !(bigger[d] + 1);
+        carry = !(bigger[d] + T(1));
     }
 
     return carry;
