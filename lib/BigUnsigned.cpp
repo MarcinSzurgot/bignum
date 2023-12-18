@@ -212,15 +212,17 @@ auto operator+=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
 ) -> BigUnsigned& {
+    const auto lhsSize = size(lhs.digits());
+    const auto rhsSize = size(rhs.digits());
 
-    if (lhs.mag() < rhs.mag()) {
-        lhs.digits_.resize(rhs.mag());
-    } else if (lhs.mag() == rhs.mag()) {
-        const auto lhsTop = lhs.digits<std::uint32_t>()[lhs.mag() - 1];
-        const auto rhsTop = rhs.digits<std::uint32_t>()[rhs.mag() - 1];
+    if (lhsSize < rhsSize) {
+        lhs.digits_.resize(rhsSize);
+    } else if (lhsSize == rhsSize) {
+        const auto lhsTop = lhs.digits()[lhsSize - 1];
+        const auto rhsTop = rhs.digits()[rhsSize - 1];
 
         if (lhsTop + rhsTop + 1 < lhsTop) {
-            lhs.digits_.reserve(lhs.mag() + 1);
+            lhs.digits_.reserve(lhsSize + 1);
         }
     }
 
@@ -269,7 +271,7 @@ auto operator*=(
     static_assert(sizeof(MultiplicationType) <= sizeof(BigUnsigned::digit_type));
     static_assert(sizeof(MultiplicationContainingType) == sizeof(MultiplicationType) * 2);
 
-    auto result = std::vector<BigUnsigned::digit_type>(lhs.mag() + rhs.mag());
+    auto result = std::vector<BigUnsigned::digit_type>(size(lhs.digits()) + size(rhs.digits()));
     auto resultSpan = std::span(
         reinterpret_cast<std::uint32_t*>(result.begin().base()),
         reinterpret_cast<std::uint32_t*>(result.end().base())

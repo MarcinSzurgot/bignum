@@ -78,8 +78,6 @@ struct BigUnsigned {
         return {first, last};
     }
 
-    int mag() const { return size(digits_); }
-
     friend auto operator<<=(
         BigUnsigned& lhs,
         digit_type rhs
