@@ -25,7 +25,7 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::Values(
         std::make_tuple(BigUnsigned("1000000000000000000000000000000000876"), BigUnsigned("1000"), BigUnsigned("876")),
         std::make_tuple(BigUnsigned("6666666666666"), BigUnsigned("20000000000000000000"), BigUnsigned("6666666666666")),
-        std::make_tuple(BigUnsigned(1) << 1024, BigUnsigned(1) << 256, BigUnsigned()),
-        std::make_tuple((BigUnsigned(1) << 4096) + BigUnsigned(1), BigUnsigned(2), BigUnsigned(1))
+        std::make_tuple(BigUnsigned(1u) << 1024, BigUnsigned(1u) << 256, BigUnsigned()),
+        std::make_tuple((BigUnsigned(1u) << 4096) + BigUnsigned(1u), BigUnsigned(2u), BigUnsigned(1u))
     )
 );

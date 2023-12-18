@@ -79,9 +79,9 @@ INSTANTIATE_TEST_SUITE_P(
     BigUnsignedStringConversionTest,
     ::testing::Values(
         std::make_tuple("0"s, BigUnsigned()),
-        std::make_tuple("1"s, BigUnsigned(1)),
-        std::make_tuple("123"s, BigUnsigned(123)),
-        std::make_tuple("18446744073709551616"s, BigUnsigned(1) << 64),
-        std::make_tuple("340282366920938463463374607431768211456"s, BigUnsigned(1) << 128)
+        std::make_tuple("1"s, BigUnsigned(1ul)),
+        std::make_tuple("123"s, BigUnsigned(123ul)),
+        std::make_tuple("18446744073709551616"s, BigUnsigned(1ul) << 64),
+        std::make_tuple("340282366920938463463374607431768211456"s, BigUnsigned(1ul) << 128)
     )
 );

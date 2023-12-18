@@ -14,6 +14,12 @@
 
 namespace bignum {
 
+template<>
+BigUnsigned::BigUnsigned<BigUnsigned::digit_type>(
+    digit_type digit
+) : BigUnsigned { digit } { 
+}
+
 namespace {
 
 constexpr auto digitBitSize = sizeof(bignum::BigUnsigned::digit_type) * 8;
@@ -22,26 +28,26 @@ static auto powerOf10(
     unsigned power
 ) -> const bignum::BigUnsigned& {
     const static auto powers = std::array{
-        bignum::BigUnsigned(1),
-        bignum::BigUnsigned(10),
-        bignum::BigUnsigned(100),
-        bignum::BigUnsigned(1000),
-        bignum::BigUnsigned(10000),
-        bignum::BigUnsigned(100000),
-        bignum::BigUnsigned(1000000),
-        bignum::BigUnsigned(10000000),
-        bignum::BigUnsigned(100000000),
-        bignum::BigUnsigned(1000000000),
-        bignum::BigUnsigned(10000000000),
-        bignum::BigUnsigned(100000000000),
-        bignum::BigUnsigned(1000000000000),
-        bignum::BigUnsigned(10000000000000),
-        bignum::BigUnsigned(100000000000000),
-        bignum::BigUnsigned(1000000000000000),
-        bignum::BigUnsigned(10000000000000000),
-        bignum::BigUnsigned(100000000000000000),
-        bignum::BigUnsigned(1000000000000000000),
-        bignum::BigUnsigned(10000000000000000000)
+        bignum::BigUnsigned(1u),
+        bignum::BigUnsigned(10u),
+        bignum::BigUnsigned(100u),
+        bignum::BigUnsigned(1000u),
+        bignum::BigUnsigned(10000u),
+        bignum::BigUnsigned(100000u),
+        bignum::BigUnsigned(1000000u),
+        bignum::BigUnsigned(10000000u),
+        bignum::BigUnsigned(100000000u),
+        bignum::BigUnsigned(1000000000u),
+        bignum::BigUnsigned(10000000000u),
+        bignum::BigUnsigned(100000000000u),
+        bignum::BigUnsigned(1000000000000u),
+        bignum::BigUnsigned(10000000000000u),
+        bignum::BigUnsigned(100000000000000u),
+        bignum::BigUnsigned(1000000000000000u),
+        bignum::BigUnsigned(10000000000000000u),
+        bignum::BigUnsigned(100000000000000000u),
+        bignum::BigUnsigned(1000000000000000000u),
+        bignum::BigUnsigned(10000000000000000000u)
     };
 
     return powers[power];
@@ -52,7 +58,7 @@ auto divide(
     const BigUnsigned& rhs
 ) -> std::pair<BigUnsigned, BigUnsigned> {
     if (lhs < rhs) {
-        return {BigUnsigned(0), lhs};
+        return {BigUnsigned(), lhs};
     }
 
     const auto rhsTopBit = topBit(rhs.digits());
@@ -81,19 +87,22 @@ auto divide(
 
 }
 
-BigUnsigned::BigUnsigned() : BigUnsigned(0) {}
-
-BigUnsigned::BigUnsigned(BigUnsigned::digit_type digit) : BigUnsigned { digit } { }
+BigUnsigned::BigUnsigned() : BigUnsigned(digit_type()) {}
 
 BigUnsigned::BigUnsigned(
     std::initializer_list<BigUnsigned::digit_type> digits
-) : BigUnsigned(std::vector<BigUnsigned::digit_type>(digits.begin(), digits.end())) {}
+) : BigUnsigned(std::vector(digits.begin(), digits.end())) {}
 
-BigUnsigned::BigUnsigned(std::vector<BigUnsigned::digit_type> digits) : digits_(std::move(digits)) {
+BigUnsigned::BigUnsigned(
+    const std::vector<digit_type>& digits
+) : BigUnsigned(std::vector(digits)) {
+}
+
+BigUnsigned::BigUnsigned(std::vector<digit_type>&& digits) : digits_(std::move(digits)) {
     digits_.resize(sizeWithoutLeadingZeroes(std::span(digits_)));
 }
 
-BigUnsigned::BigUnsigned(std::string string) : BigUnsigned(0) {
+BigUnsigned::BigUnsigned(std::string string) : BigUnsigned(digit_type()) {
     const auto maxDivisorPowerOf10 = std::size_t(18);
     
     auto digit = BigUnsigned();
