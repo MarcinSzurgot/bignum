@@ -8,7 +8,7 @@ namespace bignum {
 template<std::unsigned_integral U>
 auto mul(U lhs, U rhs) -> std::pair<U, U> {
     constexpr auto halfBitSize = sizeof(U) * 8 / 2;
-    constexpr auto halfMask = (1 << halfBitSize) - 1;
+    constexpr auto halfMask = (U(1) << halfBitSize) - 1;
 
     const U lowerLeft  =  lhs                 & halfMask;
     const U lowerRight =  rhs                 & halfMask;

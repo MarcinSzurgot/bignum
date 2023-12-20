@@ -4,6 +4,8 @@
 
 #include "../Utils.hpp"
 
+using namespace bignum;
+
 template<std::unsigned_integral U>
 using DivOpParams = BinaryOpParams<
     std::vector<U>,

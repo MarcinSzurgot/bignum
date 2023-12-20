@@ -3,6 +3,8 @@
 #include <concepts>
 #include <span>
 
+#include <bignum/ModularMultiplication.hpp>
+
 namespace bignum {
 
 template<
@@ -17,7 +19,7 @@ template<
     && std::unsigned_integral<K>
     && std::same_as<std::remove_const_t<T>, std::remove_const_t<U>>
     && std::same_as<std::remove_const_t<U>, K>
-    && (sizeof(MultiplicationContainingType) == 2 * sizeof(K))
+    && (sizeof(MultiplicationContainingType) >= sizeof(K))
 auto mul(
     std::span<T> lhs,
     std::span<U> rhs,
@@ -27,9 +29,16 @@ auto mul(
 
     for (auto l = 0u; l < size(lhs); ++l) {
         for (auto r = 0u; r < size(rhs); ++r) {
-            const auto mul = (MultiplicationContainingType) lhs[l] * rhs[r];
-            const auto lower = K(mul & ~K());
-            const auto higher = K(mul >> digitBitSize);
+            auto lower = K();
+            auto higher = K();
+
+            if constexpr (std::same_as<MultiplicationContainingType, K>) {
+                std::tie(lower, higher) = bignum::mul(lhs[l], rhs[r]);
+            } else {
+                const auto mul = (MultiplicationContainingType) lhs[l] * rhs[r];
+                lower = K(mul & ~K());
+                higher = K(mul >> digitBitSize);
+            }
 
             result[l + r] += lower;
 

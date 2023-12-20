@@ -1,11 +1,14 @@
+#include <vector>
+
 #include <gtest/gtest.h>
 
 #include <bignum/ArrayArithmetics/ArraySubAdd.hpp>
+#include <bignum/ArrayLogic/ArrayLogic.hpp>
 #include <bignum/Utils.hpp>
 
-#include <vector>
-
 #include "../Utils.hpp"
+
+using namespace bignum;
 
 class ArraySubtractionTest : public ::testing::TestWithParam<ArithmeticBinaryOp> {};
 

@@ -113,13 +113,13 @@ auto operator*=(
     );
 
     auto resultSpan = std::span(
-        reinterpret_cast<MultiplicationType*>(begin(result).base()),
-        reinterpret_cast<MultiplicationType*>(end(result).base())
+        reinterpret_cast<MultiplicationContainingType*>(begin(result).base()),
+        reinterpret_cast<MultiplicationContainingType*>(end(result).base())
     );
 
     bignum::mul<MultiplicationContainingType>(
-        lhs.digits<const MultiplicationType>(),
-        rhs.digits<const MultiplicationType>(),
+        lhs.digits<const MultiplicationContainingType>(),
+        rhs.digits<const MultiplicationContainingType>(),
         resultSpan
     );
 

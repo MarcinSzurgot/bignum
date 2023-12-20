@@ -5,6 +5,8 @@
 
 #include "../Utils.hpp"
 
+using namespace bignum;
+
 class ArrayRightShiftTest : public ::testing::TestWithParam<ShiftOp> {};
 
 TEST_P(ArrayRightShiftTest, RightShiftOperation) {

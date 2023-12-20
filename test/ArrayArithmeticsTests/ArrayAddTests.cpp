@@ -6,6 +6,8 @@
 
 #include "../Utils.hpp"
 
+using namespace bignum;
+
 class ArrayAdditionTest : public ::testing::TestWithParam<ArithmeticBinaryOp> {};
 
 TEST_P(ArrayAdditionTest, AdditionOperation) {

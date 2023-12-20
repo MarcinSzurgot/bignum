@@ -1,8 +1,16 @@
 #pragma once
 
+#include <concepts>
 #include <cstdint>
 #include <span>
 #include <vector>
+
+namespace bignum {
+
+template<typename Functor, typename U>
+concept CallableWithVectorIntRef = requires(Functor t, std::vector<U>& v) {
+    { t(v) };
+} && std::unsigned_integral<std::remove_const_t<U>>;
 
 namespace {
 
@@ -50,4 +58,6 @@ auto topBit(
     }
 
     return bit + (size(digits) - 1) * digitBitSize;
+}
+
 }

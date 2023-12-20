@@ -4,7 +4,7 @@
 
 #include "../Utils.hpp"
 
-// struct 
+using namespace bignum;
 
 class ArrayComparisonTest : public ::testing::TestWithParam<LogicBinaryOp> {};
 

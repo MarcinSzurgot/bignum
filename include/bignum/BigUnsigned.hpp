@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bignum/ArrayLogic/ArrayLogic.hpp>
+#include <bignum/Utils.hpp>
 
 #include <cinttypes>
 #include <concepts>
@@ -86,6 +86,7 @@ struct BigUnsigned {
     void swap(std::vector<NativeDigit>& digits);
 
     template<typename Functor>
+    requires CallableWithVectorIntRef<Functor, NativeDigit>
     void operate(Functor&& functor) {
         functor(digits_);
         trim();

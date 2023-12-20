@@ -27,7 +27,7 @@ auto operator<<=(
     BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned& {
 
-    lhs.operate([&](std::vector<BigUnsigned::NativeDigit>& digits){ 
+    lhs.operate([&rhs](std::vector<BigUnsigned::NativeDigit>& digits){ 
 
         const auto wholeDigitsShift = rhs / BigUnsigned::NativeDigitBitSize;
         const auto bitShift = rhs % BigUnsigned::NativeDigitBitSize;
@@ -68,14 +68,7 @@ auto operator>>=(
 
     lhs.operate([newSize](auto& digits) {
         digits.resize(size(digits) - newSize);
-        if (size(digits) > 1u && !digits.back()) {
-            digits.pop_back();
-        }
     });
-
-    // if (lhs.digits_.size() > 1u && lhs.digits_.back() == 0u) {
-    //     lhs.digits_.pop_back();
-    // }
 
     return lhs;
 }

@@ -3,6 +3,8 @@
 
 #include "../Utils.hpp"
 
+using namespace bignum;
+
 class ArrayLeftShiftOperatorTests : public ::testing::TestWithParam<ShiftOp> {};
 
 TEST_P(ArrayLeftShiftOperatorTests, LeftShiftOperation) {
