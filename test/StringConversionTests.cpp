@@ -1,11 +1,11 @@
-#include <gtest/gtest.h>
-
-#include <bignum/BigUnsigned.hpp>
-#include <bignum/LogicOperators.hpp>
-
 #include <chrono>
 #include <random>
 #include <string>
+
+#include <gtest/gtest.h>
+
+#include <bignum/bignum.hpp>
+#include <bignum/ModularMultiplication.hpp>
 
 #include "Utils.hpp"
 

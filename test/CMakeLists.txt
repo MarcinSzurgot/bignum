@@ -15,6 +15,8 @@ link_directories(${CMAKE_BINARY_DIR}/_install/lib)
 
 set(TEST_SOURCES
     test.cpp
+    
+    ConstructorsTests.cpp
     DivisionOperatorTests.cpp
     ModuloOperatorTests.cpp
     MultiplicationOperatorTests.cpp

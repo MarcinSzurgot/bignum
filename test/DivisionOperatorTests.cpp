@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <bignum/BigUnsigned.hpp>
-#include <bignum/LogicOperators.hpp>
+#include <bignum/bignum.hpp>
 
 #include "Utils.hpp"
 

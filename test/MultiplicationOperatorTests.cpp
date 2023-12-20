@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include <bignum/BigUnsigned.hpp>
+#include <bignum/ArrayArithmetics/ArrayMul.hpp>
 #include <bignum/ModularMultiplication.hpp>
 
 #include "Utils.hpp"

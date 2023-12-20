@@ -37,11 +37,12 @@ auto rightShift(
     return wholeDigitShift;
 }
 
-template<std::unsigned_integral U>
+template<typename U, std::unsigned_integral K>
+requires std::unsigned_integral<std::remove_const_t<U>>
 auto leftShift(
-    std::span<const U> source,
+    std::span<U> source,
     std::size_t bitShift,
-    std::span<      U> result
+    std::span<K> result
 ) -> void {
     constexpr auto digitBitSize = sizeof(U) * 8;
 

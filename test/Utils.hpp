@@ -23,7 +23,7 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<U>& num) {
 }
 
 inline std::ostream& operator<<(std::ostream& os, const BigUnsigned& num) {
-    return os << num.digits<BigUnsigned::digit_type>();
+    return os << num.digits<BigUnsigned::NativeDigit>();
 }
 
 template<
