@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <bignum/ArrayArithmetics/ArrayMul.hpp>
-#include <bignum/Operations.hpp>
+#include <bignum/Utils.hpp>
 
 #include "../Utils.hpp"
 

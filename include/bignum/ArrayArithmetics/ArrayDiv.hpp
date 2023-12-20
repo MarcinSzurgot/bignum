@@ -9,7 +9,7 @@
 #include <bignum/ArrayArithmetics/ArrayShift.hpp>
 #include <bignum/ArrayArithmetics/ArraySubAdd.hpp>
 #include <bignum/ArrayLogic/ArrayLogic.hpp>
-#include <bignum/Operations.hpp>
+#include <bignum/Utils.hpp>
 
 namespace bignum {
 
