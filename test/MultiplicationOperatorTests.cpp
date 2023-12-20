@@ -7,6 +7,8 @@
 
 #include "Utils.hpp"
 
+using namespace bignum;
+
 template<std::unsigned_integral U> 
 struct ModularMulArgs {
     U lhs;

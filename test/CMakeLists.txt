@@ -18,6 +18,7 @@ set(TEST_SOURCES
     
     ConstructorsTests.cpp
     DivisionOperatorTests.cpp
+    MassiveCalculationTests.cpp
     ModuloOperatorTests.cpp
     MultiplicationOperatorTests.cpp
     StringConversionTests.cpp
