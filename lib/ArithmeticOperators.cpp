@@ -72,6 +72,37 @@ auto operator+=(
     return lhs;
 }
 
+auto operator+=(
+    BigUnsigned& lhs,
+    BigUnsigned::NativeDigit rhs
+) -> BigUnsigned& {
+    auto lhsAccess = lhs.access();
+    auto digits = lhsAccess.digits();
+
+    auto carry = false;
+
+    const auto old = digits[0];
+    digits[0] += rhs;
+    digits[0] += carry;
+
+    if (carry) {
+        carry = digits[0] <= old;
+    } else {
+        carry = digits[0] <  old;
+    }
+
+    for (auto d = 0u; d < carry && size(digits); ++d) {
+        digits[d] += carry;
+        carry = !digits[d];
+    }
+
+    if (carry) {
+        lhsAccess.push_back(1);
+    }
+
+    return lhs;
+}
+
 auto operator-=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
@@ -90,6 +121,33 @@ auto operator-=(
             lhs.access().digits(),
             rhs.digits()
         );
+    }
+
+    return lhs;
+}
+
+auto operator-=(
+    BigUnsigned& lhs,
+    BigUnsigned::NativeDigit rhs
+) -> BigUnsigned& {
+
+    auto lhsAccess = lhs.access();
+    auto digits = lhsAccess.digits();
+
+    auto carry = false;
+    const auto old = digits[0];
+    digits[0] -= rhs;
+    digits[0] -= carry;
+
+    if (carry) {
+        carry = digits[0] >= old;
+    } else {
+        carry = digits[0] >  old;
+    }
+
+    for (auto d = 0u; d < carry && size(digits); ++d) {
+        digits[d] -= carry;
+        carry = !(digits[d] + BigUnsigned::NativeDigit(1));
     }
 
     return lhs;
@@ -121,6 +179,36 @@ auto operator*=(
     );
 
     lhs.access().swap(result);
+    return lhs;
+}
+
+auto operator*=(
+    BigUnsigned& lhs,
+    BigUnsigned::NativeDigit rhs
+) -> BigUnsigned& {
+    auto access = lhs.access();
+    auto digits = access.digits();
+
+    auto carry  = BigUnsigned::NativeDigit();
+    auto lower  = BigUnsigned::NativeDigit();
+    auto higher = BigUnsigned::NativeDigit();
+
+    for (auto d = 0u; d < size(digits); ++d) {
+        const auto previousHigher = higher;
+
+        std::tie(lower, higher) = bignum::mul(digits[d], rhs);
+
+        digits[d] = lower + previousHigher + carry;
+        
+        if (carry) { 
+            carry = digits[d] <= lower;
+        } else {
+            carry = digits[d] <  lower;
+        }
+    }
+
+    access.push_back(higher);
+
     return lhs;
 }
 

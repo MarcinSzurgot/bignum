@@ -8,11 +8,11 @@ using namespace bignum;
 
 TEST(MassiveCalculationTests, MassiveMultiplicationTests) {
     const auto minSize = 1;
-    const auto maxSize = 10;
+    const auto maxSize = 3;
 
     auto rnd = RandomGenerator();
 
-    for (auto i = 0u; i < 10000u; ++i) {
+    for (auto i = 0u; i < 100000u; ++i) {
 
         const auto a = BigUnsigned(rnd.random<BigUnsigned::NativeDigit>(rnd.random(minSize, maxSize)));
         const auto b = BigUnsigned(rnd.random<BigUnsigned::NativeDigit>(rnd.random(minSize, maxSize)));
