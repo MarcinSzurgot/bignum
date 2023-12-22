@@ -10,6 +10,10 @@
 namespace bignum {
 
 struct BigUnsigned {
+
+           struct Access;
+    friend struct Access;
+
     using NativeDigit = std::uint64_t;
 
     static constexpr auto NativeDigitBitSize = sizeof(NativeDigit) * 8;
@@ -66,14 +70,10 @@ struct BigUnsigned {
     explicit operator bool() const;
     explicit operator std::string() const;
 
-    template<std::unsigned_integral U = NativeDigit>
-    std::span<U> digits() { 
-        auto first = reinterpret_cast<U*>(begin(digits_).base());
-        auto last  = reinterpret_cast<U*>(end(digits_).base());
-        return {first, last};
-    }
+    Access access();
 
     template<std::unsigned_integral U = NativeDigit>
+    requires (sizeof(U) <= sizeof(NativeDigit))
     std::span<const U> digits() const {
         auto first = reinterpret_cast<const U*>(begin(digits_).base());
         auto last  = reinterpret_cast<const U*>(end(digits_).base());
@@ -81,16 +81,8 @@ struct BigUnsigned {
     }
 
     template<std::unsigned_integral U = NativeDigit>
+    requires (sizeof(U) <= sizeof(NativeDigit))
     std::span<const U> cdigits() const { return digits(); }
-
-    void swap(std::vector<NativeDigit>& digits);
-
-    template<typename Functor>
-    requires CallableWithVectorIntRef<Functor, NativeDigit>
-    void operate(Functor&& functor) {
-        functor(digits_);
-        trim();
-    }
 
 private:
 

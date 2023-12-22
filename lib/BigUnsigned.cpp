@@ -6,6 +6,7 @@
 #include <bignum/ArrayArithmetics/ArrayMul.hpp>
 #include <bignum/ArrayArithmetics/ArrayShift.hpp>
 #include <bignum/ArrayLogic/ArrayLogic.hpp>
+#include <bignum/Access.hpp>
 #include <bignum/LogicOperators.hpp>
 #include <bignum/ShiftOperators.hpp>
 #include <bignum/ArithmeticOperators.hpp>
@@ -84,7 +85,7 @@ BigUnsigned::BigUnsigned(std::string string) : BigUnsigned(NativeDigit()) {
             string.begin() + std::min(s + maxDivisorPowerOf10, string.size())
         );
 
-        digit.digits()[0] = std::atol(stringDigit.data());
+        digit.digits_[0] = std::atol(stringDigit.data());
 
         *this += digit;
         if (s + size(stringDigit) < size(string)) {
@@ -124,10 +125,7 @@ BigUnsigned::operator std::string() const {
     return result;
 }
 
-void BigUnsigned::swap(std::vector<NativeDigit>& digits) {
-    std::swap(digits_, digits);
-    trim();
-}
+BigUnsigned::Access BigUnsigned::access() { return {*this}; }
 
 void BigUnsigned::trim() {
     digits_.resize(sizeWithoutLeadingZeroes(std::span(digits_)));

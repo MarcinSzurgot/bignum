@@ -1,6 +1,8 @@
 #include <bignum/ShiftOperators.hpp>
 
+#include <bignum/Access.hpp>
 #include <bignum/ArrayArithmetics/ArrayShift.hpp>
+#include <bignum/Access.hpp>
 
 namespace bignum {
 
@@ -26,36 +28,38 @@ auto operator<<=(
     BigUnsigned& lhs,
     BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned& {
+          auto lhsAccess = lhs.access();
+    const auto wholeDigitsShift = rhs / BigUnsigned::NativeDigitBitSize;
+    const auto bitShift = rhs % BigUnsigned::NativeDigitBitSize;
+    const auto carry = (bool) (lhsAccess.digits().back() >> (BigUnsigned::NativeDigitBitSize - bitShift));
 
-    lhs.operate([&rhs](std::vector<BigUnsigned::NativeDigit>& digits){ 
+    if (wholeDigitsShift + carry + lhsAccess.size() > lhsAccess.capacity()) {
+        auto shifted = std::vector<BigUnsigned::NativeDigit>(lhsAccess.size() + wholeDigitsShift + carry);
 
-        const auto wholeDigitsShift = rhs / BigUnsigned::NativeDigitBitSize;
-        const auto bitShift = rhs % BigUnsigned::NativeDigitBitSize;
-        const auto carry = (bool) (digits.back() >> (BigUnsigned::NativeDigitBitSize - bitShift));
+        bignum::leftShift(
+            lhsAccess.digits(),
+            rhs,
+            std::span(shifted).subspan(wholeDigitsShift)
+        );
 
-        if (wholeDigitsShift + carry + size(digits) > digits.capacity()) {
-            auto shifted = std::vector<BigUnsigned::NativeDigit>(size(digits) + wholeDigitsShift + carry);
+        lhsAccess.swap(shifted);
 
-            bignum::leftShift(
-                std::span(digits),
-                rhs,
-                std::span(shifted).subspan(wholeDigitsShift)
-            );
+    } else {
+        lhsAccess.resize(lhsAccess.size() + wholeDigitsShift + carry);
 
-            std::swap(digits, shifted);
+        auto digits = lhsAccess.digits();
 
-        } else {
-            digits.resize(size(digits) + wholeDigitsShift + carry);
+        std::fill(
+            begin(digits), 
+            begin(digits) + wholeDigitsShift, 0
+        );
 
-            std::fill(begin(digits), begin(digits) + wholeDigitsShift, 0);
-
-            bignum::leftShift(
-                std::span(digits),
-                rhs,
-                std::span(digits).subspan(wholeDigitsShift)
-            );
-        }
-    });
+        bignum::leftShift(
+            digits,
+            rhs,
+            digits.subspan(wholeDigitsShift)
+        );
+    }
 
     return lhs;
 }
@@ -64,12 +68,7 @@ auto operator>>=(
     BigUnsigned& lhs,
     BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned& {
-    const auto newSize = bignum::rightShift(lhs.digits(), rhs);
-
-    lhs.operate([newSize](auto& digits) {
-        digits.resize(size(digits) - newSize);
-    });
-
+    bignum::rightShift(lhs.access().digits(), rhs);
     return lhs;
 }
 

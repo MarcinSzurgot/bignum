@@ -3,7 +3,7 @@
 #include <concepts>
 #include <cstdint>
 #include <span>
-#include <iostream>
+#include <stdexcept>
 #include <vector>
 
 #include <bignum/ArrayArithmetics/ArrayShift.hpp>
@@ -12,26 +12,6 @@
 #include <bignum/Utils.hpp>
 
 namespace bignum {
-
-template<typename U>
-requires std::unsigned_integral<std::remove_const_t<U>>
-std::ostream& operator<<(std::ostream& os, std::span<U> num) {
-    if (not empty(num)) {
-        os << std::hex << "{0x" << num[size(num) - 1];
-        for (auto d = size(num) - 1; d > 0u; --d) {
-            os << ", 0x" << num[d - 1];
-        }
-    } else {
-        os << "{";
-    }
-    return os << "}";
-}
-
-template<typename U>
-requires std::unsigned_integral<std::remove_const_t<U>>
-std::ostream& operator<<(std::ostream& os, const std::vector<U>& num) {
-    return os << std::span(num);
-}
 
 template<
     typename U1, 

@@ -8,6 +8,7 @@
 namespace bignum {
 
 template<std::unsigned_integral U>
+requires (!std::is_const_v<U>)
 auto rightShift(
     std::span<U> result,
     typename std::span<U>::size_type shift

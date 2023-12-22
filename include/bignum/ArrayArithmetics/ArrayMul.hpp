@@ -32,7 +32,7 @@ auto mul(
             auto lower = K();
             auto higher = K();
 
-            if constexpr (std::same_as<MultiplicationContainingType, K>) {
+            if constexpr (sizeof(MultiplicationContainingType) == sizeof(K)) {
                 std::tie(lower, higher) = bignum::mul(lhs[l], rhs[r]);
             } else {
                 const auto mul = (MultiplicationContainingType) lhs[l] * rhs[r];

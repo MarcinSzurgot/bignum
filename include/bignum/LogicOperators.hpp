@@ -9,7 +9,7 @@ inline auto operator==(
     const BigUnsigned& lhs,
     const BigUnsigned& rhs
 ) -> bool { 
-    return lhs.digits<std::uint32_t>() == rhs.digits<std::uint32_t>(); 
+    return lhs.digits() == rhs.digits(); 
 }
 
 inline auto operator!=(
@@ -21,7 +21,7 @@ inline auto operator<(
     const BigUnsigned& lhs,
     const BigUnsigned& rhs
 ) -> bool {  
-    return lhs.digits<std::uint32_t>() < rhs.digits<std::uint32_t>(); 
+    return lhs.digits() < rhs.digits(); 
 }
 
 inline auto operator>=(

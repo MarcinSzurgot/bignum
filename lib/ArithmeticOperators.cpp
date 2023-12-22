@@ -1,5 +1,6 @@
 #include <bignum/ArithmeticOperators.hpp>
 
+#include <bignum/Access.hpp>
 #include <bignum/BigUnsigned.hpp>
 #include <bignum/LogicOperators.hpp>
 #include <bignum/ShiftOperators.hpp>
@@ -45,30 +46,28 @@ auto operator+=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
 ) -> BigUnsigned& {
+    auto lhsAccess = lhs.access();
 
-    lhs.operate([&](auto& digits) {
+    const auto lhsSize = lhsAccess.size();
+    const auto rhsSize = size(rhs.digits());
 
-        const auto lhsSize = size(    digits  );
-        const auto rhsSize = size(rhs.digits());
+    if (lhsSize < rhsSize) {
+        lhsAccess.resize(rhsSize);
+    } else if (lhsSize == rhsSize) {
+        const auto lhsTop = lhsAccess.digits().back();
+        const auto rhsTop = rhs      .digits().back();
 
-        if (lhsSize < rhsSize) {
-            digits.resize(rhsSize);
-        } else if (lhsSize == rhsSize) {
-            const auto lhsTop = digits      .back();
-            const auto rhsTop = rhs.digits().back();
-
-            if (lhsTop + rhsTop + 1 < lhsTop) {
-                digits.reserve(lhsSize + 1);
-            }
+        if (lhsTop + rhsTop + 1 < lhsTop) {
+            lhsAccess.reserve(lhsSize + 1);
         }
+    }
 
-        if (bignum::add(
-            std::span(    digits  ),
-            std::span(rhs.digits())
-        )) {
-            digits.push_back(1);
-        }
-    });
+    if (bignum::add(
+        lhsAccess.digits(),
+        rhs.digits()
+    )) {
+        lhsAccess.push_back(1);
+    }
 
     return lhs;
 }
@@ -78,22 +77,20 @@ auto operator-=(
     const BigUnsigned& rhs
 ) -> BigUnsigned& {
 
-    lhs.operate([&](auto& digits) {
-        if (lhs < rhs) {
-            auto tmp = rhs;
-            bignum::subtract(
-                std::span(tmp.digits()),
-                std::span(digits)
-            );
-            tmp.swap(digits);
+    if (lhs < rhs) {
+        auto tmp = rhs;
+        bignum::subtract(
+            tmp.access().digits(),
+            lhs.digits()
+        );
+        std::swap(lhs, tmp);
 
-        } else {
-            bignum::subtract(
-                std::span(digits),
-                std::span(rhs.digits())
-            );
-        }
-    });
+    } else {
+        bignum::subtract(
+            lhs.access().digits(),
+            rhs.digits()
+        );
+    }
 
     return lhs;
 }
@@ -113,17 +110,17 @@ auto operator*=(
     );
 
     auto resultSpan = std::span(
-        reinterpret_cast<MultiplicationContainingType*>(begin(result).base()),
-        reinterpret_cast<MultiplicationContainingType*>(end(result).base())
+        reinterpret_cast<MultiplicationType*>(begin(result).base()),
+        reinterpret_cast<MultiplicationType*>(end(result).base())
     );
 
     bignum::mul<MultiplicationContainingType>(
-        lhs.digits<const MultiplicationContainingType>(),
-        rhs.digits<const MultiplicationContainingType>(),
+        lhs.digits<const MultiplicationType>(),
+        rhs.digits<const MultiplicationType>(),
         resultSpan
     );
 
-    lhs.swap(result);
+    lhs.access().swap(result);
     return lhs;
 }
 
