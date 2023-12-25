@@ -4,57 +4,41 @@
 #include <span>
 
 #include <bignum/ModularMultiplication.hpp>
+#include <bignum/Utils.hpp>
 
 namespace bignum {
 
 template<
-    typename MultiplicationContainingType,
     typename T, 
     typename U, 
     typename K
 > requires
-    std::unsigned_integral<MultiplicationContainingType>
-    && std::unsigned_integral<std::remove_const_t<T>>
+    std::unsigned_integral<std::remove_const_t<T>>
     && std::unsigned_integral<std::remove_const_t<U>>
     && std::unsigned_integral<K>
     && std::same_as<std::remove_const_t<T>, std::remove_const_t<U>>
     && std::same_as<std::remove_const_t<U>, K>
-    && (sizeof(MultiplicationContainingType) >= sizeof(K))
 auto mul(
     std::span<T> lhs,
     std::span<U> rhs,
     std::span<K> result
 ) -> void {
-    constexpr auto digitBitSize = sizeof(U) * 8;
-
     for (auto l = 0u; l < size(lhs); ++l) {
+        auto carry       = K();
+        auto firstCarry  = K();
+        auto secondCarry = K();
+
         for (auto r = 0u; r < size(rhs); ++r) {
-            auto lower = K();
-            auto higher = K();
+            const auto [lower, higher] = bignum::mul(lhs[l], rhs[r]);
 
-            if constexpr (sizeof(MultiplicationContainingType) == sizeof(K)) {
-                std::tie(lower, higher) = bignum::mul(lhs[l], rhs[r]);
-            } else {
-                const auto mul = (MultiplicationContainingType) lhs[l] * rhs[r];
-                lower = K(mul & ~K());
-                higher = K(mul >> digitBitSize);
-            }
+            std::tie(result[l + r + 0], carry      ) = add(result[l + r + 0], lower);
+            std::tie(result[l + r + 1], firstCarry ) = add(result[l + r + 1], higher);
+            std::tie(result[l + r + 1], secondCarry) = add(result[l + r + 1], carry);
 
-            result[l + r] += lower;
+            carry = firstCarry || secondCarry;
 
-            auto carry = result[l + r] < lower;
-            result[l + r + 1] += carry;
-            result[l + r + 1] += higher;
-            
-            if (carry) { 
-                carry = result[l + r + 1] <= higher;
-            } else {
-                carry = result[l + r + 1] <  higher;
-            }
-
-            for (auto c = l + r + 2; c < size(result) && carry; ++c) {
-                result[c] += carry;
-                carry = !result[c];
+            for (auto c = l + r + 2; carry && c < size(result); ++c) {
+                std::tie(result[c], carry) = add(result[c], carry);
             }
         }
     }

@@ -8,12 +8,24 @@
 
 using namespace bignum;
 
-TEST(DigitMultiplicationTests, SingleDigit) {
-    auto a = BigUnsigned("99982349874598119000192834794191985798357496000032859237958137598982173948275");
-    auto b = 999u;
-    auto c = a * BigUnsigned(b);
+TEST(DigitMultiplicationTests, MassiveTest) {
+    const auto minSize = 1u;
+    const auto maxSize = 10u;
 
-    a *= b;
+    auto generator = RandomGenerator();
 
-    ASSERT_EQ(a, c);
+    for (auto i = 0u; i < 100000u; ++i) {
+        const auto size = generator.random(minSize, maxSize);
+        const auto data = generator.random<BigUnsigned::NativeDigit>(size);        
+        const auto big  = BigUnsigned(data);
+        const auto dig  = generator.random(
+             BigUnsigned::NativeDigit(), 
+            ~BigUnsigned::NativeDigit()
+        );
+
+        const auto actual   = big * dig;
+        const auto expected = big * BigUnsigned(dig);
+
+        EXPECT_EQ(actual, expected);
+    }
 }

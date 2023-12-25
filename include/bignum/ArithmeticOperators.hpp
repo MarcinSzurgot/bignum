@@ -24,15 +24,6 @@ auto operator+=(
     BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned&;
 
-template<std::unsigned_integral LessThanNative>
-requires (sizeof(LessThanNative) < sizeof(BigUnsigned::NativeDigit)) 
-auto operator+=(
-    BigUnsigned& lhs,
-    LessThanNative rhs
-) -> BigUnsigned& {
-    return lhs += BigUnsigned::NativeDigit(rhs);
-}
-
 auto operator-=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
@@ -43,15 +34,6 @@ auto operator-=(
     BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned&;
 
-template<std::unsigned_integral LessThanNative>
-requires (sizeof(LessThanNative) < sizeof(BigUnsigned::NativeDigit)) 
-auto operator-=(
-    BigUnsigned& lhs,
-    LessThanNative rhs
-) -> BigUnsigned& {
-    return lhs -= BigUnsigned::NativeDigit(rhs);
-}
-
 auto operator*=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
@@ -61,19 +43,15 @@ auto operator*=(
     BigUnsigned& lhs,
     BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned&;
-
-template<std::unsigned_integral LessThanNative>
-requires (sizeof(LessThanNative) < sizeof(BigUnsigned::NativeDigit)) 
-auto operator*=(
-    BigUnsigned& lhs,
-    LessThanNative rhs
-) -> BigUnsigned& {
-    return lhs *= BigUnsigned::NativeDigit(rhs);
-}
 
 auto operator/=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
+) -> BigUnsigned&;
+
+auto operator/=(
+    BigUnsigned& lhs,
+    BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned&;
 
 auto operator%=(
@@ -86,6 +64,11 @@ auto operator+(
     const BigUnsigned& rhs
 ) -> BigUnsigned;
 
+auto operator+(
+    const BigUnsigned& lhs,
+    BigUnsigned::NativeDigit rhs
+) -> BigUnsigned;
+
 auto operator-(
     const BigUnsigned& lhs,
     const BigUnsigned& rhs
@@ -94,6 +77,11 @@ auto operator-(
 auto operator*(
     const BigUnsigned& lhs,
     const BigUnsigned& rhs
+) -> BigUnsigned;
+
+auto operator*(
+    const BigUnsigned& lhs,
+    BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned;
 
 auto operator/(

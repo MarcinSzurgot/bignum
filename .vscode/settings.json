@@ -57,6 +57,7 @@
         "typeinfo": "cpp",
         "chrono": "cpp",
         "ratio": "cpp",
-        "span": "cpp"
+        "span": "cpp",
+        "bitset": "cpp"
     }
 }

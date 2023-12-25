@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bitset>
 #include <concepts>
 #include <cstdint>
 #include <span>
@@ -7,10 +8,17 @@
 
 namespace bignum {
 
-template<typename Functor, typename U>
-concept CallableWithVectorIntRef = requires(Functor t, std::vector<U>& v) {
-    { t(v) };
-} && std::unsigned_integral<std::remove_const_t<U>>;
+template<std::unsigned_integral U> 
+auto add(U lhs, U rhs) -> std::pair<U, U> {
+    const auto result = lhs + rhs;
+    return {result, result < lhs};
+}
+
+template<std::unsigned_integral U> 
+auto sub(U lhs, U rhs) -> std::pair<U, U> {
+    const auto result = lhs - rhs;
+    return {result, result > lhs};
+}
 
 namespace {
 

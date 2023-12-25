@@ -2,73 +2,67 @@
 
 #include <concepts>
 #include <span>  
+#include <tuple>
+
+#include <bignum/Utils.hpp>
 
 namespace bignum {
 
-template<typename T, typename U>
-requires std::equality_comparable<                    T >
-      && std::equality_comparable<std::remove_const_t<U>> 
-      && std::same_as<
-                                T, 
-            std::remove_const_t<U>
-        >
-auto subtract(
-    std::span<T> bigger,
-    std::span<U> smaller
-) -> bool {
-    auto carry = false;
-    for (auto d = 0u; d < size(smaller); ++d) {
-        const auto old = bigger[d];
-        bigger[d] -= smaller[d];
-        bigger[d] -= carry;
+template<typename C, typename Arg>
+concept BinaryOperator = requires(C c, Arg a1, Arg a2) {
+    { c(a1, a2) } -> std::same_as<std::pair<Arg, Arg>>;
+};
 
-        if (carry) {
-            carry = bigger[d] >= old;
-        } else {
-            carry = bigger[d] >  old;
-        }
+template<
+    typename T, 
+    typename U, 
+    typename BinaryOp
+>
+requires std::unsigned_integral<T>
+      && std::unsigned_integral<std::remove_const_t<U>> 
+      && std::same_as<T, std::remove_const_t<U>>
+      && BinaryOperator<BinaryOp, std::remove_const_t<T>>
+auto transform(
+    std::span<T> lhs,
+    std::span<U> rhs,
+    BinaryOp&& op  
+) -> T {
+    const auto common = std::min(size(lhs), size(rhs));
+
+    auto carry       = T();
+    auto firstCarry  = T();
+    auto secondCarry = T();
+
+    for (auto d = 0u; d < common; ++d) {
+        std::tie(lhs[d], firstCarry)  = op(lhs[d], carry);
+        std::tie(lhs[d], secondCarry) = op(lhs[d], rhs[d]);
+
+        carry = firstCarry || secondCarry;
     }
 
-    for (auto d = size(smaller); d < size(bigger) && carry; ++d) {
-        bigger[d] -= carry;
-        carry = !(bigger[d] + T(1));
+    for (auto d = common; carry && d < size(lhs); ++d) {
+        std::tie(lhs[d], carry) = op(lhs[d], carry);
     }
 
     return carry;
 }
 
 template<typename T, typename U>
-requires std::equality_comparable<                    T >
-      && std::equality_comparable<std::remove_const_t<U>> 
-      && std::same_as<
-                                T, 
-            std::remove_const_t<U>
-        >
+requires std::unsigned_integral<T>
+      && std::unsigned_integral<std::remove_const_t<U>> 
+      && std::same_as<T, std::remove_const_t<U>>
+auto subtract(
+    std::span<T> lhs,
+    std::span<U> rhs
+) -> T { return transform(lhs, rhs, sub<T>); }
+
+template<typename T, typename U>
+requires std::unsigned_integral<T>
+      && std::unsigned_integral<std::remove_const_t<U>> 
+      && std::same_as<T, std::remove_const_t<U>>
 auto add(
     std::span<T> lhs,
     std::span<U> rhs
-) -> bool {
-    const auto common = std::min(size(lhs), size(rhs));
-
-    auto carry = false;
-    for (auto d = 0u; d < common; ++d) {
-        const auto old = lhs[d];
-        lhs[d] += rhs[d];
-        lhs[d] += carry;
-
-        if (carry) {
-            carry = lhs[d] <= old;
-        } else {
-            carry = lhs[d] <  old;
-        }
-    }
-
-    for (auto d = common; d < size(lhs) && carry; ++d) {
-        lhs[d] += carry;
-        carry = !lhs[d];
-    }
-
-    return carry;
-}
+) -> T { return transform(lhs, rhs, add<T>); }
 
 }

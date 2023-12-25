@@ -76,28 +76,10 @@ auto operator+=(
     BigUnsigned& lhs,
     BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned& {
-    auto lhsAccess = lhs.access();
-    auto digits = lhsAccess.digits();
+    auto access = lhs.access();
 
-    auto carry = false;
-
-    const auto old = digits[0];
-    digits[0] += rhs;
-    digits[0] += carry;
-
-    if (carry) {
-        carry = digits[0] <= old;
-    } else {
-        carry = digits[0] <  old;
-    }
-
-    for (auto d = 0u; d < carry && size(digits); ++d) {
-        digits[d] += carry;
-        carry = !digits[d];
-    }
-
-    if (carry) {
-        lhsAccess.push_back(1);
+    if (add(access.digits(), std::span(std::addressof(rhs), 1))) {
+        access.push_back(BigUnsigned::NativeDigit(1));
     }
 
     return lhs;
@@ -130,24 +112,13 @@ auto operator-=(
     BigUnsigned& lhs,
     BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned& {
+    auto access = lhs.access();
+    auto digits = access.digits();
 
-    auto lhsAccess = lhs.access();
-    auto digits = lhsAccess.digits();
-
-    auto carry = false;
-    const auto old = digits[0];
-    digits[0] -= rhs;
-    digits[0] -= carry;
-
-    if (carry) {
-        carry = digits[0] >= old;
+    if (size(digits) == 1u && digits[0] < rhs) {
+        digits[0] = rhs - digits[0];
     } else {
-        carry = digits[0] >  old;
-    }
-
-    for (auto d = 0u; d < carry && size(digits); ++d) {
-        digits[d] -= carry;
-        carry = !(digits[d] + BigUnsigned::NativeDigit(1));
+        subtract(digits, std::span(std::addressof(rhs), 1));
     }
 
     return lhs;
@@ -157,25 +128,14 @@ auto operator*=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
 ) -> BigUnsigned& {
-    using MultiplicationType = std::uint32_t;
-    using MultiplicationContainingType = std::uint64_t;
-
-    static_assert(sizeof(MultiplicationType) <= sizeof(BigUnsigned::NativeDigit));
-    static_assert(sizeof(MultiplicationContainingType) == sizeof(MultiplicationType) * 2);
-
     auto result = std::vector<BigUnsigned::NativeDigit>(
         size(lhs.digits()) + size(rhs.digits())
     );
 
-    auto resultSpan = std::span(
-        reinterpret_cast<MultiplicationType*>(begin(result).base()),
-        reinterpret_cast<MultiplicationType*>(end(result).base())
-    );
-
-    bignum::mul<MultiplicationContainingType>(
-        lhs.digits<const MultiplicationType>(),
-        rhs.digits<const MultiplicationType>(),
-        resultSpan
+    bignum::mul(
+        lhs.digits(),
+        rhs.digits(),
+        std::span(result)
     );
 
     lhs.access().swap(result);
@@ -189,25 +149,23 @@ auto operator*=(
     auto access = lhs.access();
     auto digits = access.digits();
 
-    auto carry  = BigUnsigned::NativeDigit();
-    auto lower  = BigUnsigned::NativeDigit();
-    auto higher = BigUnsigned::NativeDigit();
+    auto lower       = BigUnsigned::NativeDigit();
+    auto higher      = BigUnsigned::NativeDigit();
+    auto carry       = BigUnsigned::NativeDigit();
+    auto firstCarry  = BigUnsigned::NativeDigit();
+    auto secondCarry = BigUnsigned::NativeDigit();
 
     for (auto d = 0u; d < size(digits); ++d) {
         const auto previousHigher = higher;
 
         std::tie(lower, higher) = bignum::mul(digits[d], rhs);
+        std::tie(digits[d], firstCarry) = add(lower, previousHigher);
+        std::tie(digits[d], secondCarry) = add(digits[d], carry);
 
-        digits[d] = lower + previousHigher + carry;
-        
-        if (carry) { 
-            carry = digits[d] <= lower;
-        } else {
-            carry = digits[d] <  lower;
-        }
+        carry = firstCarry || secondCarry;
     }
 
-    access.push_back(higher);
+    access.push_back(higher + carry);
 
     return lhs;
 }
@@ -217,6 +175,13 @@ auto operator/=(
     const BigUnsigned& rhs
 ) -> BigUnsigned& {
     return lhs = divide(lhs, rhs).first;
+}
+
+auto operator/=(
+    BigUnsigned& lhs,
+    BigUnsigned::NativeDigit rhs
+) -> BigUnsigned& {
+    
 }
 
 auto operator%=(
@@ -235,6 +200,15 @@ auto operator+(
     return result;
 }
 
+auto operator+(
+    const BigUnsigned& lhs,
+    BigUnsigned::NativeDigit rhs
+) -> BigUnsigned {
+    auto result = lhs;
+    result += rhs;
+    return result;
+}
+
 auto operator-(
     const BigUnsigned& lhs,
     const BigUnsigned& rhs
@@ -247,6 +221,15 @@ auto operator-(
 auto operator*(
     const BigUnsigned& lhs,
     const BigUnsigned& rhs
+) -> BigUnsigned {
+    auto result = lhs;
+    result *= rhs;
+    return result;
+}
+
+auto operator*(
+    const BigUnsigned& lhs,
+    BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned {
     auto result = lhs;
     result *= rhs;

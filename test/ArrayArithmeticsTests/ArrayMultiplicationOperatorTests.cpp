@@ -16,7 +16,7 @@ TEST_P(ArrayMultiplicationOperatorTests, MultiplicationOperation) {
     result.resize(size(lhs) + size(rhs));
     std::fill(begin(result), end(result), 0);
 
-    bignum::mul<std::uint64_t>(
+    bignum::mul(
         std::span(lhs),
         std::span(rhs),
         std::span(result)
