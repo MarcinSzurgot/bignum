@@ -3,9 +3,9 @@
 #include <concepts>
 
 #include <bignum/BigUnsigned.hpp>
-#include <bignum/ArrayArithmetics/ArraySubAdd.hpp>
-#include <bignum/ArrayArithmetics/ArrayMul.hpp>
-#include <bignum/ArrayArithmetics/ArrayDiv.hpp>
+#include <bignum/Arrays/AdditiveOperations.hpp>
+#include <bignum/Arrays/Multiplication.hpp>
+#include <bignum/Arrays/Division.hpp>
 
 namespace bignum {
 
@@ -19,19 +19,9 @@ auto operator+=(
     const BigUnsigned& rhs
 ) -> BigUnsigned&;
 
-auto operator+=(
-    BigUnsigned& lhs,
-    BigUnsigned::NativeDigit rhs
-) -> BigUnsigned&;
-
 auto operator-=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
-) -> BigUnsigned&;
-
-auto operator-=(
-    BigUnsigned& lhs,
-    BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned&;
 
 auto operator*=(
@@ -39,19 +29,9 @@ auto operator*=(
     const BigUnsigned& rhs
 ) -> BigUnsigned&;
 
-auto operator*=(
-    BigUnsigned& lhs,
-    BigUnsigned::NativeDigit rhs
-) -> BigUnsigned&;
-
 auto operator/=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
-) -> BigUnsigned&;
-
-auto operator/=(
-    BigUnsigned& lhs,
-    BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned&;
 
 auto operator%=(
@@ -64,11 +44,6 @@ auto operator+(
     const BigUnsigned& rhs
 ) -> BigUnsigned;
 
-auto operator+(
-    const BigUnsigned& lhs,
-    BigUnsigned::NativeDigit rhs
-) -> BigUnsigned;
-
 auto operator-(
     const BigUnsigned& lhs,
     const BigUnsigned& rhs
@@ -77,11 +52,6 @@ auto operator-(
 auto operator*(
     const BigUnsigned& lhs,
     const BigUnsigned& rhs
-) -> BigUnsigned;
-
-auto operator*(
-    const BigUnsigned& lhs,
-    BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned;
 
 auto operator/(

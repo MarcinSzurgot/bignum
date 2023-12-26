@@ -2,8 +2,8 @@
 
 #include <gtest/gtest.h>
 
-#include <bignum/ArrayArithmetics/ArraySubAdd.hpp>
-#include <bignum/ArrayLogic/ArrayLogic.hpp>
+#include <bignum/Arrays/AdditiveOperations.hpp>
+#include <bignum/Arrays/Comparators.hpp>
 #include <bignum/Utils.hpp>
 
 #include "../Utils.hpp"

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <bignum/ArrayArithmetics/ArraySubAdd.hpp>
+#include <bignum/Arrays/AdditiveOperations.hpp>
 
 #include <vector>
 

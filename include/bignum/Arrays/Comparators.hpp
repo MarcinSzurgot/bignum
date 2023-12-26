@@ -7,7 +7,7 @@ namespace bignum {
 
 template<typename T>
 requires std::equality_comparable<std::remove_const_t<T>> 
-auto isZero(
+auto operator!(
     std::span<T> array
 ) -> bool {
     return size(array) == 1ull && array[0] == T();

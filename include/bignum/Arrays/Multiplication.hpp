@@ -3,7 +3,7 @@
 #include <concepts>
 #include <span>
 
-#include <bignum/ModularMultiplication.hpp>
+#include <bignum/Digits/Arithmetics.hpp>
 #include <bignum/Utils.hpp>
 
 namespace bignum {

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <bignum/ArrayLogic/ArrayLogic.hpp>
+#include <bignum/Arrays/Comparators.hpp>
 
 #include "../Utils.hpp"
 

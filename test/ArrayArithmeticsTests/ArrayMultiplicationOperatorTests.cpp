@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <bignum/ArrayArithmetics/ArrayMul.hpp>
+#include <bignum/Arrays/Multiplication.hpp>
 #include <bignum/Utils.hpp>
 
 #include "../Utils.hpp"

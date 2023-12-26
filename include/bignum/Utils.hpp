@@ -8,18 +8,6 @@
 
 namespace bignum {
 
-template<std::unsigned_integral U> 
-auto add(U lhs, U rhs) -> std::pair<U, U> {
-    const auto result = lhs + rhs;
-    return {result, result < lhs};
-}
-
-template<std::unsigned_integral U> 
-auto sub(U lhs, U rhs) -> std::pair<U, U> {
-    const auto result = lhs - rhs;
-    return {result, result > lhs};
-}
-
 namespace {
 
 template<typename I>

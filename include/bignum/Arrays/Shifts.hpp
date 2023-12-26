@@ -3,7 +3,7 @@
 #include <concepts>
 #include <span>
 
-#include <bignum/ArrayLogic/ArrayLogic.hpp>
+#include <bignum/Arrays/Comparators.hpp>
 
 namespace bignum {
 
@@ -47,7 +47,7 @@ auto leftShift(
 ) -> void {
     constexpr auto digitBitSize = sizeof(U) * 8;
 
-    if (isZero(source)) {
+    if (!source) {
         return;
     }
 

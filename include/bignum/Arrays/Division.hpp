@@ -6,9 +6,9 @@
 #include <stdexcept>
 #include <vector>
 
-#include <bignum/ArrayArithmetics/ArrayShift.hpp>
-#include <bignum/ArrayArithmetics/ArraySubAdd.hpp>
-#include <bignum/ArrayLogic/ArrayLogic.hpp>
+#include <bignum/Arrays/Shifts.hpp>
+#include <bignum/Arrays/AdditiveOperations.hpp>
+#include <bignum/Arrays/Comparators.hpp>
 #include <bignum/Utils.hpp>
 
 namespace bignum {
@@ -37,7 +37,7 @@ auto divide(
 > {
     constexpr auto digitBitSize = sizeof(U1) * 8;
 
-    if (isZero(rhs)) {
+    if (!rhs) {
         throw std::runtime_error("Division by zero is not allowed!");
     }
 
@@ -53,39 +53,34 @@ auto divide(
 
     auto bitDiff = lhsTopBit - rhsTopBit;
     auto divider = std::vector<U3>(size(lhs));
-    bignum::leftShift(rhs, bitDiff, std::span(divider).subspan(bitDiff / digitBitSize));
+    auto divSpan = std::span(divider);
+    leftShift(rhs, bitDiff, divSpan.subspan(bitDiff / digitBitSize));
 
-    while (std::span(remainder) >= rhs) {
+    while (remainder >= rhs) {
         const auto newBitDiff = topBit(remainder) - rhsTopBit;
+        const auto newDivSize = rightShift(divSpan, bitDiff - newBitDiff);
 
-        divider.resize(size(divider) - bignum::rightShift(
-            std::span(divider), 
-            bitDiff - newBitDiff
-        ));
-
-        divider.resize(sizeWithoutLeadingZeroes(std::span(divider)));
+        divSpan = divSpan.subspan(0, size(divSpan) - newDivSize);
+        divSpan = divSpan.subspan(0, sizeWithoutLeadingZeroes(divSpan));
 
         bitDiff = newBitDiff;
 
-        if (std::span(divider) > std::span(remainder)) {
-            bignum::rightShift(
-                std::span(divider), 
-                1
-            );
+        if (divSpan > remainder) {
+            rightShift(divSpan, 1);
             bitDiff--;
         }
 
         quotient[bitDiff / digitBitSize] |= U3(1) << (bitDiff % digitBitSize);
 
-        bignum::subtract(
-            remainder,
-            std::span(divider)
-        );
+        subtract(remainder, divSpan);
 
         remainder = remainder.subspan(0, sizeWithoutLeadingZeroes(remainder));
     }
 
-    return {sizeWithoutLeadingZeroes(quotient), size(remainder)};
+    return {
+        size(quotient) - (quotient.back() == 0u), 
+        size(remainder)
+    };
 }
 
 }

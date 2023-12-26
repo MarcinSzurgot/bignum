@@ -1,7 +1,7 @@
 #pragma once 
 
-#include "BigUnsigned.hpp"
-#include "ArrayLogic/ArrayLogic.hpp"
+#include <bignum/BigUnsigned.hpp>
+#include <bignum/Arrays/Comparators.hpp>
 
 namespace bignum {
 

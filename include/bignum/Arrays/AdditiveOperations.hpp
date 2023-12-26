@@ -4,7 +4,7 @@
 #include <span>  
 #include <tuple>
 
-#include <bignum/Utils.hpp>
+#include <bignum/Digits/Arithmetics.hpp>
 
 namespace bignum {
 

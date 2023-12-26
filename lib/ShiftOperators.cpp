@@ -1,7 +1,7 @@
 #include <bignum/ShiftOperators.hpp>
 
 #include <bignum/Access.hpp>
-#include <bignum/ArrayArithmetics/ArrayShift.hpp>
+#include <bignum/Arrays/Shifts.hpp>
 #include <bignum/Access.hpp>
 
 namespace bignum {

@@ -2,8 +2,8 @@
 
 #include <gtest/gtest.h>
 
-#include <bignum/ArrayArithmetics/ArrayMul.hpp>
-#include <bignum/ModularMultiplication.hpp>
+#include <bignum/Arrays/Multiplication.hpp>
+#include <bignum/Digits/Arithmetics.hpp>
 
 #include "Utils.hpp"
 

@@ -5,6 +5,9 @@ set(SOURCES
     BigUnsigned.cpp
     ShiftOperators.cpp
     ArithmeticOperators.cpp
+
+    Digits/Arithmetics.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/bignum/ArrayLogic/ArrayLogic.hpp
 )
 

@@ -1,7 +1,7 @@
 #include <concepts>
 
 #include <gtest/gtest.h>
-#include <bignum/ArrayArithmetics/ArrayShift.hpp>
+#include <bignum/Arrays/Shifts.hpp>
 
 #include "../Utils.hpp"
 

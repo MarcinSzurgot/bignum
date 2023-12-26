@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 
 #include <bignum/bignum.hpp>
-#include <bignum/ModularMultiplication.hpp>
+#include <bignum/Digits/Arithmetics.hpp>
 
 #include "Utils.hpp"
 

@@ -1,11 +1,11 @@
 #include <bignum/BigUnsigned.hpp>
 
 #include <bignum/Utils.hpp>
-#include <bignum/ArrayArithmetics/ArrayDiv.hpp>
-#include <bignum/ArrayArithmetics/ArraySubAdd.hpp>
-#include <bignum/ArrayArithmetics/ArrayMul.hpp>
-#include <bignum/ArrayArithmetics/ArrayShift.hpp>
-#include <bignum/ArrayLogic/ArrayLogic.hpp>
+#include <bignum/Arrays/Division.hpp>
+#include <bignum/Arrays/AdditiveOperations.hpp>
+#include <bignum/Arrays/Multiplication.hpp>
+#include <bignum/Arrays/Shifts.hpp>
+#include <bignum/Arrays/Comparators.hpp>
 #include <bignum/Access.hpp>
 #include <bignum/LogicOperators.hpp>
 #include <bignum/ShiftOperators.hpp>
