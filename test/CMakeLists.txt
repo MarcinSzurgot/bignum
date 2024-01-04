@@ -33,6 +33,7 @@ set(TEST_SOURCES
     ArrayLogicsTests/ArrayLessThanOperatorTests.cpp
 
     DigitOperatorsTests/DigitMultiplicationTests.cpp
+    DigitOperatorsTests/ShiftsTests.cpp
 )
 
 add_executable(tests ${TEST_SOURCES})

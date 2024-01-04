@@ -23,13 +23,13 @@ auto mul(
     std::span<U> rhs,
     std::span<K> result
 ) -> void {
-    for (auto l = 0u; l < size(lhs); ++l) {
+    for (auto l = typename std::span<T>::size_type(); l < size(lhs); ++l) {
         auto carry       = K();
         auto firstCarry  = K();
         auto secondCarry = K();
 
-        for (auto r = 0u; r < size(rhs); ++r) {
-            const auto [lower, higher] = bignum::mul(lhs[l], rhs[r]);
+        for (auto r = typename std::span<T>::size_type(); r < size(rhs); ++r) {
+            const auto [lower, higher] = mul(lhs[l], rhs[r]);
 
             std::tie(result[l + r + 0], carry      ) = add(result[l + r + 0], lower);
             std::tie(result[l + r + 1], firstCarry ) = add(result[l + r + 1], higher);

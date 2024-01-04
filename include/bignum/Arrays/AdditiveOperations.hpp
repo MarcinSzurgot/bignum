@@ -51,7 +51,7 @@ template<typename T, typename U>
 requires std::unsigned_integral<T>
       && std::unsigned_integral<std::remove_const_t<U>> 
       && std::same_as<T, std::remove_const_t<U>>
-auto subtract(
+auto sub(
     std::span<T> lhs,
     std::span<U> rhs
 ) -> T { return transform(lhs, rhs, sub<T>); }

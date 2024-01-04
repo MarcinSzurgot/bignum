@@ -26,7 +26,7 @@ TEST_P(ArrayDivisionOperatorTests, ArryDivisionTest) {
     auto remainder = quotient;
 
 
-    const auto [quotSize, remSize] = bignum::divide(
+    const auto [quotSize, remSize] = div(
         std::span(lhs),
         std::span(rhs),
         std::span(quotient),
@@ -72,7 +72,7 @@ TEST_P(ArrayDivisionOperator64bitTests, ArryDivisionTest) {
     auto remainder = quotient;
 
 
-    const auto [quotSize, remSize] = bignum::divide(
+    const auto [quotSize, remSize] = div(
         std::span(lhs),
         std::span(rhs),
         std::span(quotient),

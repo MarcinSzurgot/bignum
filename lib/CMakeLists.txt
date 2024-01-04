@@ -7,8 +7,6 @@ set(SOURCES
     ArithmeticOperators.cpp
 
     Digits/Arithmetics.cpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/bignum/ArrayLogic/ArrayLogic.hpp
 )
 
 add_library(MyLibrary ${SOURCES})

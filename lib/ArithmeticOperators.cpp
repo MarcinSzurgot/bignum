@@ -26,7 +26,7 @@ auto divide(
     auto quotient  = std::vector<BigUnsigned::NativeDigit>(bitDiff / BigUnsigned::NativeDigitBitSize + 1); 
     auto remainder = std::vector<BigUnsigned::NativeDigit>(size(lhsDigits));
 
-    const auto [quotSize, remSize] = bignum::divide(
+    const auto [quotSize, remSize] = div(
         lhsDigits,
         rhsDigits,
         std::span(quotient),
@@ -79,14 +79,14 @@ auto operator-=(
 
     if (lhs < rhs) {
         auto tmp = rhs;
-        bignum::subtract(
+        sub(
             tmp.access().digits(),
             lhs.digits()
         );
         std::swap(lhs, tmp);
 
     } else {
-        bignum::subtract(
+        sub(
             lhs.access().digits(),
             rhs.digits()
         );

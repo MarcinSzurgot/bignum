@@ -6,11 +6,11 @@
 namespace bignum {
 
 template<typename T>
-requires std::equality_comparable<std::remove_const_t<T>> 
+requires std::equality_comparable<std::remove_const_t<T>>
 auto operator!(
     std::span<T> array
 ) -> bool {
-    return size(array) == 1ull && array[0] == T();
+    return size(array) == typename std::span<T>::size_type(1) && array.front() == T();
 }
 
 template<typename T, typename U>
@@ -25,7 +25,7 @@ auto operator==(
         return false;
     }
 
-    for (std::size_t i = 0; i < size(lhs); ++i) {
+    for (auto i = typename std::span<U>::size_type(); i < size(lhs); ++i) {
         if (lhs[i] != rhs[i]) {
             return false;
         }
@@ -54,7 +54,7 @@ auto operator<(
         return size(lhs) < size(rhs);
     }
 
-    for (auto d = size(lhs); d > 0u; --d) {
+    for (auto d = size(lhs); d > typename std::span<T>::size_type(); --d) {
         if (lhs[d - 1] != rhs[d - 1]) {
             return lhs[d - 1] < rhs[d - 1];
         }

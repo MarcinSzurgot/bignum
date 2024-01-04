@@ -16,16 +16,11 @@ TEST_P(ArraySubtractionTest, SubtractionOperation) {
     using namespace bignum;
 
     auto [num1, num2, expected] = GetParam();
+    auto [result, smaller] = std::span(num1) < std::span(num2) 
+    ? std::make_pair(num2, num1) 
+    : std::make_pair(num1, num2);
 
-    const auto isNum1LessThanNum2 = std::span(num1) < std::span(num2);
-
-    auto& result = isNum1LessThanNum2 ? num2 : num1;
-    const auto& smaller = isNum1LessThanNum2 ? num1 : num2;
-
-    bignum::subtract(
-        std::span(result),
-        std::span(smaller)
-    );
+    sub(std::span(result), std::span(smaller));
 
     ASSERT_EQ(result, expected);
 }

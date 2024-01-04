@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bitset>
 #include <concepts>
 #include <cstdint>
 #include <span>
@@ -9,6 +10,7 @@
 #include <bignum/Arrays/Shifts.hpp>
 #include <bignum/Arrays/AdditiveOperations.hpp>
 #include <bignum/Arrays/Comparators.hpp>
+#include <bignum/Digits/Arithmetics.hpp>
 #include <bignum/Utils.hpp>
 
 namespace bignum {
@@ -26,7 +28,7 @@ template<
     && std::same_as<std::remove_const_t<U1>, std::remove_const_t<U2>>
     && std::same_as<std::remove_const_t<U2>, U3>
     && std::same_as<U3, U4>
-auto divide(
+auto div(
     std::span<U1> lhs,
     std::span<U2> rhs,
     std::span<U3> quotient,
@@ -35,8 +37,6 @@ auto divide(
     typename std::span<U3>::size_type, 
     typename std::span<U4>::size_type
 > {
-    constexpr auto digitBitSize = sizeof(U1) * 8;
-
     if (!rhs) {
         throw std::runtime_error("Division by zero is not allowed!");
     }
@@ -54,7 +54,7 @@ auto divide(
     auto bitDiff = lhsTopBit - rhsTopBit;
     auto divider = std::vector<U3>(size(lhs));
     auto divSpan = std::span(divider);
-    leftShift(rhs, bitDiff, divSpan.subspan(bitDiff / digitBitSize));
+    leftShift(rhs, bitDiff, divSpan.subspan(bitDiff / Bits<U1>::Size));
 
     while (remainder >= rhs) {
         const auto newBitDiff = topBit(remainder) - rhsTopBit;
@@ -70,9 +70,9 @@ auto divide(
             bitDiff--;
         }
 
-        quotient[bitDiff / digitBitSize] |= U3(1) << (bitDiff % digitBitSize);
+        quotient[bitDiff / Bits<U1>::Size] |= U3(1) << (bitDiff & Bits<U1>::ShiftMask);
 
-        subtract(remainder, divSpan);
+        sub(remainder, divSpan);
 
         remainder = remainder.subspan(0, sizeWithoutLeadingZeroes(remainder));
     }
