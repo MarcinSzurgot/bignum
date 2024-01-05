@@ -8,9 +8,7 @@ namespace bignum {
 inline auto operator==(
     const BigUnsigned& lhs,
     const BigUnsigned& rhs
-) -> bool { 
-    return lhs.digits() == rhs.digits(); 
-}
+) -> bool { return lhs.digits() == rhs.digits(); }
 
 inline auto operator!=(
     const BigUnsigned& lhs,
@@ -20,9 +18,7 @@ inline auto operator!=(
 inline auto operator<(
     const BigUnsigned& lhs,
     const BigUnsigned& rhs
-) -> bool {  
-    return lhs.digits() < rhs.digits(); 
-}
+) -> bool { return lhs.digits() < rhs.digits(); }
 
 inline auto operator>=(
     const BigUnsigned& lhs,

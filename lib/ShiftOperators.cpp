@@ -3,6 +3,7 @@
 #include <bignum/Access.hpp>
 #include <bignum/Arrays/Shifts.hpp>
 #include <bignum/Access.hpp>
+#include <bignum/Digits/Arithmetics.hpp>
 
 namespace bignum {
 
@@ -29,14 +30,12 @@ auto operator<<=(
     BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned& {
           auto lhsAccess = lhs.access();
-    const auto wholeDigitsShift = rhs / BigUnsigned::NativeDigitBitSize;
-    const auto bitShift = rhs % BigUnsigned::NativeDigitBitSize;
-    const auto carry = (bool) (lhsAccess.digits().back() >> (BigUnsigned::NativeDigitBitSize - bitShift));
+    const auto [wholeDigitsShift, bitShift] = div(rhs, BigUnsigned::NativeDigitBitSize);
 
-    if (wholeDigitsShift + carry + lhsAccess.size() > lhsAccess.capacity()) {
-        auto shifted = std::vector<BigUnsigned::NativeDigit>(lhsAccess.size() + wholeDigitsShift + carry);
+    if (wholeDigitsShift + lhsAccess.size() >= lhsAccess.capacity()) {
+        auto shifted = std::vector<BigUnsigned::NativeDigit>(lhsAccess.size() + wholeDigitsShift + 1);
 
-        bignum::leftShift(
+        shifted.back() |= lshift(
             lhsAccess.digits(),
             rhs,
             std::span(shifted).subspan(wholeDigitsShift)
@@ -45,7 +44,7 @@ auto operator<<=(
         lhsAccess.swap(shifted);
 
     } else {
-        lhsAccess.resize(lhsAccess.size() + wholeDigitsShift + carry);
+        lhsAccess.resize(lhsAccess.size() + wholeDigitsShift + 1);
 
         auto digits = lhsAccess.digits();
 
@@ -54,7 +53,7 @@ auto operator<<=(
             begin(digits) + wholeDigitsShift, 0
         );
 
-        bignum::leftShift(
+        digits.back() |= lshift(
             digits,
             rhs,
             digits.subspan(wholeDigitsShift)
@@ -68,7 +67,12 @@ auto operator>>=(
     BigUnsigned& lhs,
     BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned& {
-    bignum::rightShift(lhs.access().digits(), rhs);
+    auto access = lhs.access();
+    rshift(
+        access.digits(), 
+        rhs,
+        access.digits()
+    );
     return lhs;
 }
 

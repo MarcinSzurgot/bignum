@@ -8,23 +8,21 @@ using namespace bignum;
 class ArrayLeftShiftOperatorTests : public ::testing::TestWithParam<ShiftOp> {};
 
 TEST_P(ArrayLeftShiftOperatorTests, LeftShiftOperation) {
-    const auto [lhs, rhs, expected] = GetParam();
+    auto [lhs, rhs, expected] = GetParam();
 
-    auto result = lhs;
-    result.push_back(0);
-    std::fill(begin(result), end(result), 0);
+    lhs.push_back(0);
 
-    bignum::leftShift(
+    lhs.back() |= lshift(
         std::span(lhs),
         rhs,
-        std::span(result)
+        std::span(lhs)
     );
 
-    if (result.back() == 0) {
-        result.pop_back();
+    if (lhs.back() == 0) {
+        lhs.pop_back();
     }
 
-    ASSERT_EQ(result, expected);
+    ASSERT_EQ(lhs, expected);
 }
 
 INSTANTIATE_TEST_SUITE_P(

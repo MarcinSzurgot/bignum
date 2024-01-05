@@ -54,19 +54,26 @@ auto div(
     auto bitDiff = lhsTopBit - rhsTopBit;
     auto divider = std::vector<U3>(size(lhs));
     auto divSpan = std::span(divider);
-    leftShift(rhs, bitDiff, divSpan.subspan(bitDiff / Bits<U1>::Size));
+    divSpan.back() |= lshift(rhs, bitDiff, divSpan.subspan(bitDiff / Bits<U1>::Size));
 
     while (remainder >= rhs) {
         const auto newBitDiff = topBit(remainder) - rhsTopBit;
-        const auto newDivSize = rightShift(divSpan, bitDiff - newBitDiff);
+        const auto [wholeDigitShift, bitShift] = div<U1>(bitDiff - newBitDiff, Bits<U1>::Size);
 
-        divSpan = divSpan.subspan(0, size(divSpan) - newDivSize);
+        rshift(
+            divSpan.subspan(wholeDigitShift),
+            bitShift, 
+            divSpan
+        );
+
+        divSpan = divSpan.subspan(0, size(divSpan) - wholeDigitShift);
         divSpan = divSpan.subspan(0, sizeWithoutLeadingZeroes(divSpan));
 
         bitDiff = newBitDiff;
 
         if (divSpan > remainder) {
-            rightShift(divSpan, 1);
+            rshift(divSpan, 1, divSpan);
+            divSpan.subspan(0, size(divSpan) * (bool) divSpan.back());
             bitDiff--;
         }
 
