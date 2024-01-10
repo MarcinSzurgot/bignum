@@ -21,6 +21,7 @@ set(TEST_SOURCES
     MassiveCalculationTests.cpp
     ModuloOperatorTests.cpp
     MultiplicationOperatorTests.cpp
+    RSATests.cpp
     StringConversionTests.cpp
     Utils.hpp
 

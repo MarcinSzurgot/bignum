@@ -22,7 +22,7 @@ requires std::unsigned_integral<T>
       && std::unsigned_integral<std::remove_const_t<U>> 
       && std::same_as<T, std::remove_const_t<U>>
       && BinaryOperator<BinaryOp, std::remove_const_t<T>>
-auto transform(
+constexpr auto transform(
     std::span<T> lhs,
     std::span<U> rhs,
     BinaryOp&& op  
@@ -51,7 +51,7 @@ template<typename T, typename U>
 requires std::unsigned_integral<T>
       && std::unsigned_integral<std::remove_const_t<U>> 
       && std::same_as<T, std::remove_const_t<U>>
-auto sub(
+constexpr auto sub(
     std::span<T> lhs,
     std::span<U> rhs
 ) -> T { return transform(lhs, rhs, sub<T>); }
@@ -60,9 +60,19 @@ template<typename T, typename U>
 requires std::unsigned_integral<T>
       && std::unsigned_integral<std::remove_const_t<U>> 
       && std::same_as<T, std::remove_const_t<U>>
-auto add(
+constexpr auto add(
     std::span<T> lhs,
     std::span<U> rhs
 ) -> T { return transform(lhs, rhs, add<T>); }
+
+template<std::unsigned_integral U>
+constexpr auto add(std::span<U> lhs, U rhs) -> U {
+    return add(lhs, std::span(std::addressof(rhs), 1));
+}
+
+template<std::unsigned_integral U>
+constexpr auto sub(std::span<U> lhs, U rhs) -> U {
+    return sub(lhs, std::span(std::addressof(rhs), 1));
+}
 
 }

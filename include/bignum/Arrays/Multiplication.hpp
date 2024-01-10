@@ -8,6 +8,27 @@
 
 namespace bignum {
 
+template<std::unsigned_integral U>
+auto mul(std::span<U> lhs, U rhs) -> U {
+    auto lower       = BigUnsigned::NativeDigit();
+    auto higher      = BigUnsigned::NativeDigit();
+    auto carry       = BigUnsigned::NativeDigit();
+    auto firstCarry  = BigUnsigned::NativeDigit();
+    auto secondCarry = BigUnsigned::NativeDigit();
+
+    for (auto d = 0u; d < size(lhs); ++d) {
+        const auto previousHigher = higher;
+
+        std::tie(lower,     higher  ) = mul(lhs[d], rhs);
+        std::tie(lhs[d], firstCarry ) = add(lower, previousHigher);
+        std::tie(lhs[d], secondCarry) = add(lhs[d], carry);
+
+        carry = firstCarry || secondCarry;
+    }
+
+    return higher + carry;
+}
+
 template<
     typename T, 
     typename U, 
