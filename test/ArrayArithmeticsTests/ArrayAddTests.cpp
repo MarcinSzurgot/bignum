@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <bignum/Arrays/AdditiveOperations.hpp>
+#include <bignum/Ranges/Additive.hpp>
 
 #include <vector>
 
@@ -19,10 +19,7 @@ TEST_P(ArrayAdditionTest, AdditionOperation) {
         num1.resize(size(num2));
     }
 
-    const auto carry = bignum::add(
-        std::span(num1),
-        std::span(num2)
-    );
+    const auto carry = bignum::add(num1, num2, num1);
 
     if (carry) {
         num1.push_back(1);

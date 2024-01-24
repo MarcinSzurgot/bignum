@@ -58,6 +58,18 @@
         "chrono": "cpp",
         "ratio": "cpp",
         "span": "cpp",
-        "bitset": "cpp"
+        "bitset": "cpp",
+        "valarray": "cpp",
+        "any": "cpp",
+        "charconv": "cpp",
+        "condition_variable": "cpp",
+        "cstring": "cpp",
+        "mutex": "cpp",
+        "numbers": "cpp",
+        "stop_token": "cpp",
+        "thread": "cpp",
+        "variant": "cpp",
+        "format": "cpp",
+        "semaphore": "cpp"
     }
 }

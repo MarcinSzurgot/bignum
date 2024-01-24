@@ -2,8 +2,8 @@
 
 #include <gtest/gtest.h>
 
-#include <bignum/Arrays/AdditiveOperations.hpp>
 #include <bignum/Arrays/Comparators.hpp>
+#include <bignum/Ranges/Additive.hpp>
 #include <bignum/Utils.hpp>
 
 #include "../Utils.hpp"
@@ -16,11 +16,11 @@ TEST_P(ArraySubtractionTest, SubtractionOperation) {
     using namespace bignum;
 
     auto [num1, num2, expected] = GetParam();
-    auto [result, smaller] = std::span(num1) < std::span(num2) 
+    auto [result, smaller] = num1 < num2
     ? std::make_pair(num2, num1) 
     : std::make_pair(num1, num2);
 
-    sub(std::span(result), std::span(smaller));
+    sub(result, smaller, result);
 
     ASSERT_EQ(result, expected);
 }

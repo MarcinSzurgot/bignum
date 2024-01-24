@@ -64,7 +64,8 @@ auto operator+=(
 
     if (bignum::add(
         lhsAccess.digits(),
-        rhs.digits()
+        rhs.digits(),
+        lhsAccess.digits()
     )) {
         lhsAccess.push_back(1);
     }
@@ -81,14 +82,16 @@ auto operator-=(
         auto tmp = rhs;
         sub(
             tmp.access().digits(),
-            lhs.digits()
+            lhs.digits(),
+            tmp.access().digits()
         );
         std::swap(lhs, tmp);
 
     } else {
         sub(
             lhs.access().digits(),
-            rhs.digits()
+            rhs.digits(),
+            lhs.access().digits()
         );
     }
 
@@ -170,6 +173,51 @@ auto operator%(
     auto result = lhs;
     result %= rhs;
     return result;
+}
+
+auto operator+=(
+    BigUnsigned& lhs,
+    BigUnsigned::NativeDigit rhs
+) -> BigUnsigned& {
+    auto access = lhs.access();
+    access.push_back(add(access.digits(), rhs));
+
+    return lhs;
+}
+
+auto operator-=(
+    BigUnsigned& lhs,
+    BigUnsigned::NativeDigit rhs
+) -> BigUnsigned& {
+    auto access = lhs.access();
+    auto digits = access.digits();
+
+    if (size(digits) == 1u && digits[0] < rhs) {
+        digits[0] = rhs - digits[0];
+    } else {
+        sub(digits, rhs);
+    }
+
+    return lhs;
+}
+
+auto operator*=(
+    BigUnsigned& lhs,
+    BigUnsigned::NativeDigit rhs
+) -> BigUnsigned& {
+    auto access = lhs.access();
+    auto digits = access.digits();
+
+    access.push_back(mul(digits, rhs));
+
+    return lhs;
+}
+
+auto operator/=(
+    BigUnsigned& lhs,
+    BigUnsigned::NativeDigit rhs
+) -> BigUnsigned& {
+    
 }
 
 }

@@ -9,14 +9,12 @@ using namespace bignum;
 class ArrayComparisonTest : public ::testing::TestWithParam<LogicBinaryOp> {};
 
 TEST_P(ArrayComparisonTest, LessThanOperation) {
-    using namespace bignum;
-
     const auto& [lhs, rhs, expected] = GetParam();
 
     auto lhsSpan = std::span(lhs);
     auto rhsSpan = std::span(rhs); 
 
-    ASSERT_EQ(lhsSpan < rhsSpan, expected) << "lhs = " << lhsSpan << ", rhs = " << rhsSpan;
+    ASSERT_EQ(lhsSpan < rhsSpan, expected);
 }
 
 INSTANTIATE_TEST_SUITE_P(

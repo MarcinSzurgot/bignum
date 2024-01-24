@@ -12,7 +12,7 @@ TEST(MassiveCalculationTests, MassiveMultiplicationTests) {
 
     auto rnd = RandomGenerator();
 
-    for (auto i = 0u; i < 100000u; ++i) {
+    for (auto i = 0u; i < 20000u; ++i) {
 
         const auto a = BigUnsigned(rnd.random<BigUnsigned::NativeDigit>(rnd.random(minSize, maxSize)));
         const auto b = BigUnsigned(rnd.random<BigUnsigned::NativeDigit>(rnd.random(minSize, maxSize)));

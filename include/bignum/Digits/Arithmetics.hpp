@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <concepts>
 #include <tuple>
 
@@ -65,10 +66,44 @@ constexpr auto add(U lhs, U rhs) -> std::pair<U, U> {
     return {result, result < lhs};
 }
 
-template<std::unsigned_integral U> 
-constexpr auto sub(U lhs, U rhs) -> std::pair<U, U> {
-    const auto result = U(lhs - rhs);
-    return {result, result > lhs};
+template<
+    std::unsigned_integral Unsigned,
+    std::unsigned_integral ...Us>
+requires (std::same_as<Unsigned, Us> && ...)
+constexpr auto add(
+    Unsigned a,
+    Unsigned b, 
+    Us... rest
+) -> std::pair<Unsigned, Unsigned> {
+    if constexpr (sizeof...(Us) == 0) {
+        const auto result = Unsigned(a + b);
+        return {result, result < a};
+    } else {
+        const auto& [ firstResult,  firstCarry] = add(a, b);
+        const auto& [secondResult, secondCarry] = add(firstResult, rest...);
+
+        return std::make_pair(secondResult, firstCarry + secondCarry);
+    }
+}
+
+template<
+    std::unsigned_integral Unsigned,
+    std::unsigned_integral ...Us>
+requires (std::same_as<Unsigned, Us> && ...)
+constexpr auto sub(
+    Unsigned a,
+    Unsigned b, 
+    Us... rest
+) -> std::pair<Unsigned, Unsigned> {
+    if constexpr (sizeof...(Us) == 0) {
+        const auto result = Unsigned(a - b);
+        return {result, result > a};
+    } else {
+        const auto& [ firstResult,  firstCarry] = add(b, rest...);
+        const auto& [secondResult, secondCarry] = sub(a, firstResult);
+
+        return std::make_pair(secondResult, firstCarry + secondCarry);
+    }
 }
 
 template<std::unsigned_integral U>
@@ -93,71 +128,6 @@ template<std::unsigned_integral U>
 constexpr auto div(U lhs, U rhs) -> std::pair<U, U> {
     const auto d = U(lhs / rhs);
     return {d, lhs - rhs * d};
-}
-
-auto operator+=(
-    BigUnsigned& lhs,
-    BigUnsigned::NativeDigit rhs
-) -> BigUnsigned&;
-
-auto operator-=(
-    BigUnsigned& lhs,
-    BigUnsigned::NativeDigit rhs
-) -> BigUnsigned&;
-
-auto operator*=(
-    BigUnsigned& lhs,
-    BigUnsigned::NativeDigit rhs
-) -> BigUnsigned&;
-
-auto operator/=(
-    BigUnsigned& lhs,
-    BigUnsigned::NativeDigit rhs
-) -> BigUnsigned&;
-
-inline auto operator+(
-    BigUnsigned&& lhs,
-    BigUnsigned::NativeDigit rhs
-) -> BigUnsigned {
-    lhs += rhs;
-    return std::move(lhs);
-}
-
-inline auto operator+(
-    const BigUnsigned& lhs,
-    BigUnsigned::NativeDigit rhs
-) -> BigUnsigned {
-    return BigUnsigned(lhs) + rhs;
-}
-
-inline auto operator-(
-    BigUnsigned&& lhs,
-    BigUnsigned::NativeDigit rhs
-) -> BigUnsigned {
-    lhs -= rhs;
-    return std::move(lhs);
-}
-
-inline auto operator-(
-    const BigUnsigned& lhs,
-    BigUnsigned::NativeDigit rhs
-) -> BigUnsigned {
-    return BigUnsigned(lhs) - rhs;
-}
-
-inline auto operator*(
-    BigUnsigned&& lhs,
-    BigUnsigned::NativeDigit rhs
-) -> BigUnsigned {
-    lhs *= rhs;
-    return std::move(lhs);
-}
-
-inline auto operator*(
-    const BigUnsigned& lhs,
-    BigUnsigned::NativeDigit rhs
-) -> BigUnsigned {
-    return BigUnsigned(lhs) * rhs;
 }
 
 }

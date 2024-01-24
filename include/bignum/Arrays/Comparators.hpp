@@ -1,93 +1,112 @@
 #pragma once
 
+#include <algorithm>
 #include <concepts>
+#include <ranges>
 #include <span>
 
 namespace bignum {
 
-template<typename T>
-requires std::equality_comparable<std::remove_const_t<T>>
-auto operator!(
-    std::span<T> array
-) -> bool {
-    return size(array) == typename std::span<T>::size_type(1) && array.front() == T();
+template<typename Range>
+requires std::ranges::forward_range<Range>
+    && std::ranges::sized_range<Range>
+    && std::equality_comparable<std::ranges::range_value_t<Range>>
+auto operator!(Range&& range) -> bool {
+    return size(range) == typename std::ranges::range_size_t<Range>(1) 
+    && *begin(range) == typename std::ranges::range_value_t<Range>();
 }
 
-template<typename T, typename U>
-requires std::equality_comparable<std::remove_const_t<T>> 
-    && std::equality_comparable<std::remove_const_t<U>> 
-    && std::same_as<std::remove_const_t<T>, std::remove_const_t<U>>
+template<typename Range1, typename Range2>
+requires std::equality_comparable<std::ranges::range_value_t<Range1>> 
+    && std::equality_comparable<std::ranges::range_value_t<Range2>> 
+    && std::same_as<
+        std::ranges::range_value_t<Range1>, 
+        std::ranges::range_value_t<Range2>
+    >
 auto operator==(
-    std::span<T> lhs,
-    std::span<U> rhs
+    Range1&& lhs,
+    Range2&& rhs
 ) -> bool {
     if (size(lhs) != size(rhs)) {
         return false;
     }
 
-    for (auto i = typename std::span<U>::size_type(); i < size(lhs); ++i) {
-        if (lhs[i] != rhs[i]) {
-            return false;
-        }
-    }
-    return true;
+    return std::ranges::all_of(
+        std::views::zip(lhs, rhs), 
+        [](auto&& x) { return x.first == x.second; }
+    );
 }
 
-template<typename T, typename U>
-requires std::equality_comparable<std::remove_const_t<T>> 
-    && std::equality_comparable<std::remove_const_t<U>> 
-    && std::same_as<std::remove_const_t<T>, std::remove_const_t<U>>
+template<typename Range1, typename Range2>
+requires std::equality_comparable<std::ranges::range_value_t<Range1>> 
+    && std::equality_comparable<std::ranges::range_value_t<Range2>> 
+    && std::same_as<
+        std::ranges::range_value_t<Range1>, 
+        std::ranges::range_value_t<Range2>
+    >
 auto operator!=(
-    std::span<T> lhs,
-    std::span<U> rhs
+    Range1&& lhs,
+    Range2&& rhs
 ) -> bool { return !(lhs == rhs); }
 
-template<typename T, typename U>
-requires std::three_way_comparable<std::remove_const_t<T>> 
-    && std::three_way_comparable<std::remove_const_t<U>> 
-    && std::same_as<std::remove_const_t<T>, std::remove_const_t<U>>
+template<typename Range1, typename Range2>
+requires std::three_way_comparable<std::ranges::range_value_t<Range1>> 
+    && std::three_way_comparable<std::ranges::range_value_t<Range2>> 
+    && std::same_as<
+        std::ranges::range_value_t<Range1>, 
+        std::ranges::range_value_t<Range2>
+    >
 auto operator<(
-    std::span<T> lhs,
-    std::span<U> rhs
+    Range1&& lhs,
+    Range2&& rhs
 ) -> bool {
     if (size(lhs) != size(rhs)) {
         return size(lhs) < size(rhs);
     }
 
-    for (auto d = size(lhs); d > typename std::span<T>::size_type(); --d) {
-        if (lhs[d - 1] != rhs[d - 1]) {
-            return lhs[d - 1] < rhs[d - 1];
+    for (auto&& [l, r] : std::views::zip(lhs, rhs) | std::views::reverse) {
+        if (l != r) {
+            return l < r;
         }
     }
 
     return false;
 }
 
-template<typename T, typename U>
-requires std::three_way_comparable<std::remove_const_t<T>> 
-    && std::three_way_comparable<std::remove_const_t<U>> 
-    && std::same_as<std::remove_const_t<T>, std::remove_const_t<U>>
+template<typename Range1, typename Range2>
+requires std::three_way_comparable<std::ranges::range_value_t<Range1>> 
+    && std::three_way_comparable<std::ranges::range_value_t<Range2>> 
+    && std::same_as<
+        std::ranges::range_value_t<Range1>, 
+        std::ranges::range_value_t<Range2>
+    >
 auto operator>=(
-    std::span<T> lhs,
-    std::span<U> rhs
+    Range1&& lhs,
+    Range2&& rhs
 ) -> bool { return !(lhs < rhs); }
 
-template<typename T, typename U>
-requires std::three_way_comparable<std::remove_const_t<T>> 
-    && std::three_way_comparable<std::remove_const_t<U>> 
-    && std::same_as<std::remove_const_t<T>, std::remove_const_t<U>>
+template<typename Range1, typename Range2>
+requires std::three_way_comparable<std::ranges::range_value_t<Range1>> 
+    && std::three_way_comparable<std::ranges::range_value_t<Range2>> 
+    && std::same_as<
+        std::ranges::range_value_t<Range1>, 
+        std::ranges::range_value_t<Range2>
+    >
 auto operator>(
-    std::span<T> lhs,
-    std::span<U> rhs
+    Range1&& lhs,
+    Range2&& rhs
 ) -> bool { return rhs < lhs; }
 
-template<typename T, typename U>
-requires std::three_way_comparable<std::remove_const_t<T>> 
-    && std::three_way_comparable<std::remove_const_t<U>> 
-    && std::same_as<std::remove_const_t<T>, std::remove_const_t<U>>
+template<typename Range1, typename Range2>
+requires std::three_way_comparable<std::ranges::range_value_t<Range1>> 
+    && std::three_way_comparable<std::ranges::range_value_t<Range2>> 
+    && std::same_as<
+        std::ranges::range_value_t<Range1>, 
+        std::ranges::range_value_t<Range2>
+    >
 auto operator<=(
-    std::span<T> lhs,
-    std::span<U> rhs
+    Range1&& lhs,
+    Range2&& rhs
 ) -> bool { return !(lhs > rhs); }
 
 }

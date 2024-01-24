@@ -1,4 +1,4 @@
-#include <bignum/BigUnsigned.hpp>
+#include <bignum/bignum.hpp>
 
 #include <chrono>
 #include <concepts>
@@ -47,6 +47,17 @@ struct RandomGenerator {
             return dist(generator_);
         });
         return random;
+    }
+
+    bignum::BigUnsigned bigUnsigned(std::size_t bitSize) {
+        using namespace bignum;
+
+        using DigitBits = Bits<BigUnsigned::NativeDigit>;
+
+        const auto [whole, bit] = div(bitSize, DigitBits::Size);
+        auto number = BigUnsigned(random<BigUnsigned::NativeDigit>(whole));
+        number.access().digits().back() &= lshift(DigitBits::Mask, bit).second;
+        return number;
     }
 
 private:

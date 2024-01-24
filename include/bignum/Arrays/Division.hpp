@@ -3,14 +3,15 @@
 #include <bitset>
 #include <concepts>
 #include <cstdint>
+#include <ranges>
 #include <span>
 #include <stdexcept>
 #include <vector>
 
 #include <bignum/Arrays/Shifts.hpp>
-#include <bignum/Arrays/AdditiveOperations.hpp>
 #include <bignum/Arrays/Comparators.hpp>
 #include <bignum/Digits/Arithmetics.hpp>
+#include <bignum/Ranges/Additive.hpp>
 #include <bignum/Utils.hpp>
 
 namespace bignum {
@@ -41,8 +42,8 @@ auto div(
         throw std::runtime_error("Division by zero is not allowed!");
     }
 
-    std::fill(begin(quotient), end(quotient), 0);
-    std::copy(begin(lhs), end(lhs), begin(remainder));
+    std::ranges::fill(quotient, 0);
+    std::ranges::copy(lhs, begin(remainder));
 
     if (lhs < rhs) {
         return {size(quotient), size(remainder)};
@@ -54,7 +55,11 @@ auto div(
     auto bitDiff = lhsTopBit - rhsTopBit;
     auto divider = std::vector<U3>(size(lhs));
     auto divSpan = std::span(divider);
-    divSpan.back() |= lshift(rhs, bitDiff, divSpan.subspan(bitDiff / Bits<U1>::Size));
+    divSpan.back() |= lshift(
+        rhs, 
+        bitDiff, 
+        divSpan.subspan(bitDiff / Bits<U1>::Size)
+    );
 
     while (remainder >= rhs) {
         const auto newBitDiff = topBit(remainder) - rhsTopBit;
@@ -79,7 +84,7 @@ auto div(
 
         quotient[bitDiff / Bits<U1>::Size] |= U3(1) << (bitDiff & Bits<U1>::ShiftMask);
 
-        sub(remainder, divSpan);
+        sub(remainder, divSpan, remainder);
 
         remainder = remainder.subspan(0, sizeWithoutLeadingZeroes(remainder));
     }
