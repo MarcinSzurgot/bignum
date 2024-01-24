@@ -20,8 +20,6 @@ BigUnsigned pow2(BigUnsigned::NativeDigit pow) {
 }
 
 TEST(RSATests, test) {
-    // using NativeDigit = BigUnsigned::NativeDigit;
-
     // auto generator = RandomGenerator();
 
     // auto primeCandidate = generator.bigUnsigned(2048);

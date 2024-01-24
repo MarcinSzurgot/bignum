@@ -180,7 +180,11 @@ auto operator+=(
     BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned& {
     auto access = lhs.access();
-    access.push_back(add(access.digits(), rhs));
+    access.push_back(add(
+        access.digits(), 
+        rhs,
+        access.digits()
+    ));
 
     return lhs;
 }
@@ -195,7 +199,7 @@ auto operator-=(
     if (size(digits) == 1u && digits[0] < rhs) {
         digits[0] = rhs - digits[0];
     } else {
-        sub(digits, rhs);
+        sub(digits, rhs, digits);
     }
 
     return lhs;
