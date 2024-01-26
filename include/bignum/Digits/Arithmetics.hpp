@@ -60,12 +60,6 @@ constexpr auto rshift(U value, Shift shift) -> std::pair<U, U> {
     };
 }
 
-template<std::unsigned_integral U> 
-constexpr auto add(U lhs, U rhs) -> std::pair<U, U> {
-    const auto result = U(lhs + rhs);
-    return {result, result < lhs};
-}
-
 template<
     std::unsigned_integral Unsigned,
     std::unsigned_integral ...Us>

@@ -3,30 +3,31 @@
 #include <concepts>
 #include <span>
 
+#include <bignum/Concepts/Concepts.hpp>
 #include <bignum/Digits/Arithmetics.hpp>
+#include <bignum/Ranges/Algorithms.hpp>
+#include <bignum/Ranges/Additive.hpp>
 #include <bignum/Utils.hpp>
 
 namespace bignum {
 
-template<std::unsigned_integral U>
-auto mul(std::span<U> lhs, U rhs) -> U {
-    auto lower       = BigUnsigned::NativeDigit();
-    auto higher      = BigUnsigned::NativeDigit();
-    auto carry       = BigUnsigned::NativeDigit();
-    auto firstCarry  = BigUnsigned::NativeDigit();
-    auto secondCarry = BigUnsigned::NativeDigit();
-
-    for (auto d = 0u; d < size(lhs); ++d) {
-        const auto previousHigher = higher;
-
-        std::tie(lower,     higher  ) = mul(lhs[d], rhs);
-        std::tie(lhs[d], firstCarry ) = add(lower, previousHigher);
-        std::tie(lhs[d], secondCarry) = add(lhs[d], carry);
-
-        carry = firstCarry || secondCarry;
-    }
-
-    return higher + carry;
+template<
+    typename InputRange, 
+    typename OutputIter, 
+    std::unsigned_integral Unsigned = std::ranges::range_value_t<InputRange>
+>
+requires TransformableToIter<OutputIter, InputRange, Unsigned>
+auto mul(
+    InputRange&& lhs, 
+    Unsigned rhs,
+    OutputIter&& result
+) -> Unsigned {
+    return transformWithCarry(lhs, Unsigned(), result, 
+        [rhs](auto next, auto carry){
+            const auto [lower,     higher] = mul(next,    rhs);
+            const auto [result, nextCarry] = add(lower, carry);
+            return std::make_pair(result, nextCarry + higher);
+    });
 }
 
 template<
@@ -44,23 +45,33 @@ auto mul(
     std::span<U> rhs,
     std::span<K> result
 ) -> void {
-    for (auto l = typename std::span<T>::size_type(); l < size(lhs); ++l) {
-        auto carry       = K();
-        auto firstCarry  = K();
-        auto secondCarry = K();
+    auto resultLast = end(result);
 
-        for (auto r = typename std::span<T>::size_type(); r < size(rhs); ++r) {
+    // for (auto r = typename std::span<T>::size_type(); r < size(rhs); ++r) {
+        // const auto [lower, higher] = mul(lhs[l], rhs[r]);
+
+        // std::tie(* resultIter     , carry) = add(* resultIter     ,         lower);
+        // std::tie(*(resultIter + 1), carry) = add(*(resultIter + 1), higher, carry);
+
+        // const auto carry = mul(lhs, rhs[r], result.subspan(r).begin());
+        // add(result.subspan(r + size(lhs)), carry, result.subspan(r + size(lhs)));
+    // }
+
+    for (auto l = typename std::span<T>::size_type(); l < size(lhs); ++l) {
+        auto carry = K();
+        auto resultIter = std::next(begin(result), l);
+
+        for (auto r = typename std::span<T>::size_type(); r < size(rhs); ++r, ++resultIter) {
             const auto [lower, higher] = mul(lhs[l], rhs[r]);
 
-            std::tie(result[l + r + 0], carry      ) = add(result[l + r + 0], lower);
-            std::tie(result[l + r + 1], firstCarry ) = add(result[l + r + 1], higher);
-            std::tie(result[l + r + 1], secondCarry) = add(result[l + r + 1], carry);
+            std::tie(* resultIter     , carry) = add(* resultIter     ,         lower);
+            std::tie(*(resultIter + 1), carry) = add(*(resultIter + 1), higher, carry);
 
-            carry = firstCarry || secondCarry;
-
-            for (auto c = l + r + 2; carry && c < size(result); ++c) {
-                std::tie(result[c], carry) = add(result[c], carry);
-            }
+            add(
+                std::ranges::subrange(resultIter + 2, resultLast), 
+                carry, 
+                std::ranges::subrange(resultIter + 2, resultLast)
+            );
         }
     }
 }

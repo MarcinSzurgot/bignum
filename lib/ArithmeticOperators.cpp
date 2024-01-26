@@ -62,7 +62,7 @@ auto operator+=(
         }
     }
 
-    if (bignum::add(
+    if (add(
         lhsAccess.digits(),
         rhs.digits(),
         lhsAccess.digits()
@@ -212,7 +212,7 @@ auto operator*=(
     auto access = lhs.access();
     auto digits = access.digits();
 
-    access.push_back(mul(digits, rhs));
+    access.push_back(mul(digits, rhs, digits.begin()));
 
     return lhs;
 }

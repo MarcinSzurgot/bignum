@@ -8,38 +8,68 @@
 namespace bignum {
 
 template<
+    typename InputRange,
+    typename OutputIter, 
+    typename BinaryOp,
+    std::unsigned_integral Unsigned = std::iter_value_t<std::remove_reference_t<OutputIter>>
+>
+requires TransformableToIter<
+    std::remove_reference_t<OutputIter>, 
+    std::remove_reference_t<InputRange>
+>
+constexpr auto transformWithCarry(
+    InputRange&& input,
+    Unsigned initialCarry,
+    OutputIter&& out,
+    BinaryOp&& op  
+) -> Unsigned {
+    for(auto&& i : input) {
+        std::tie(*out++, initialCarry) = op(i, initialCarry);
+    }
+    return initialCarry;
+}
+
+template<
     typename InputRange1,
     typename InputRange2,
     typename OutputRange, 
     typename BinaryOp,
-    typename ReturnType = std::ranges::range_value_t<OutputRange>
+    std::unsigned_integral Unsigned = std::ranges::range_value_t<std::remove_reference_t<OutputRange>>
 >
-requires TransformableToRange<OutputRange, InputRange1, InputRange2>
+requires TransformableToRange<
+    std::remove_reference_t<OutputRange>, 
+    std::remove_reference_t<InputRange1>, 
+    std::remove_reference_t<InputRange2>
+>
 constexpr auto transformWithCarry(
     InputRange1&& lhs,
     InputRange2&& rhs,
     OutputRange&& result,
     BinaryOp&& op  
-) -> ReturnType {
+) -> Unsigned {
 
-    auto carry = ReturnType();
+    auto carry = Unsigned();
 
+    auto firstIter1 = begin(lhs);
+    auto lastIter1  = end(lhs);
+    auto firstIter2 = begin(rhs);
+    auto lastIter2  = end(rhs);
     auto outIter = begin(result);
-    for (const auto& [l, r] : std::views::zip(
-        std::forward<InputRange1>(lhs), 
-        std::forward<InputRange2>(rhs)
-    )) {
-        const auto [batch,  firstCarry] = op(l, r);
+
+    for (; firstIter1 != lastIter1 && firstIter2 != lastIter2;
+            ++firstIter1, ++firstIter2, ++outIter) {
+        const auto [batch,  firstCarry] = op(*firstIter1, *firstIter2);
         const auto [final, secondCarry] = op(batch, carry);
         carry = firstCarry || secondCarry;
-        *outIter++ = final;
+        *outIter = final;
     }
 
-    for (auto lastOut = end(result); outIter != lastOut; ++outIter) {
-        std::tie(*outIter, carry) = op(*outIter, carry);
-    }
-
-    return carry;
+    return transformWithCarry(
+        std::ranges::subrange(firstIter1, lastIter1),
+        carry, 
+        outIter,
+        std::forward<BinaryOp>(op)
+    );
 }
 
 }
