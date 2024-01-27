@@ -12,15 +12,43 @@
 namespace bignum {
 
 template<
-    typename InputRange, 
+    typename InputRange1,
+    typename InputRange2,
     typename OutputIter, 
-    std::unsigned_integral Unsigned = std::ranges::range_value_t<InputRange>
+    typename BinaryOp,
+    std::unsigned_integral Unsigned = std::iter_value_t<std::remove_reference_t<OutputIter>>
 >
-requires TransformableToIter<OutputIter, InputRange, Unsigned>
+requires TransformableToIter<
+    std::remove_reference_t<OutputIter>, 
+    std::remove_reference_t<InputRange1>,
+    std::remove_reference_t<InputRange2>
+>
+constexpr auto transformWithCarry(
+    InputRange1&& input1,
+    InputRange2&& input2,
+    Unsigned initialCarry,
+    OutputIter&& out,
+    BinaryOp&& op  
+) -> std::pair<Unsigned, OutputIter> {
+    for(auto&& [i1, i2] : std::views::zip(input1, input2)) {
+        std::tie(*out++, initialCarry) = op(i1, i2, initialCarry);
+    }
+    return {initialCarry, out};
+}
+
+template<
+    typename InputRange,
+    typename OutputIter,
+    std::unsigned_integral Unsigned = std::iter_value_t<std::remove_reference_t<OutputIter>>
+>
+requires TransformableToIter<OutputIter, 
+    std::remove_reference_t<InputRange>,
+    std::remove_reference_t<Unsigned>
+>
 auto mul(
-    InputRange&& lhs, 
+    InputRange&& lhs,
     Unsigned rhs,
-    OutputIter&& result
+    OutputIter result
 ) -> Unsigned {
     return transformWithCarry(lhs, Unsigned(), result, 
         [rhs](auto next, auto carry){
@@ -31,48 +59,60 @@ auto mul(
 }
 
 template<
-    typename T, 
-    typename U, 
-    typename K
-> requires
-    std::unsigned_integral<std::remove_const_t<T>>
-    && std::unsigned_integral<std::remove_const_t<U>>
-    && std::unsigned_integral<K>
-    && std::same_as<std::remove_const_t<T>, std::remove_const_t<U>>
-    && std::same_as<std::remove_const_t<U>, K>
+    typename InputRange1,
+    typename InputRange2,
+    typename OutputIter,
+    std::unsigned_integral Unsigned = std::iter_value_t<std::remove_reference_t<OutputIter>>
+>
+requires TransformableToIter<OutputIter, 
+    std::remove_reference_t<InputRange1>,
+    std::remove_reference_t<InputRange2>,
+    std::remove_reference_t<Unsigned>
+>
 auto mul(
-    std::span<T> lhs,
-    std::span<U> rhs,
-    std::span<K> result
+    InputRange1&& lhs,
+    Unsigned rhs,
+    InputRange2&& adding,
+    OutputIter result
+) -> std::pair<Unsigned, OutputIter> {
+    return transformWithCarry(lhs, adding, Unsigned(), result, 
+        [rhs](auto&& next1, auto&& next2, auto&& carry){
+            const auto [lower,     higher] = mul(next1,   rhs);
+            const auto [result, nextCarry] = add(lower, next2, carry);
+            return std::make_pair(result, nextCarry + higher);
+    });
+}
+
+template<
+    std::ranges::input_range InputRange1, 
+    std::ranges::input_range InputRange2, 
+    typename OutputRange
+> requires TransformableToRange<
+    std::remove_reference_t<OutputRange>,
+    std::remove_reference_t<InputRange1>,
+    std::remove_reference_t<InputRange2>
+>
+auto mul(
+    InputRange1&& lhs,
+    InputRange2&& rhs,
+    OutputRange&& result
 ) -> void {
-    auto resultLast = end(result);
+    auto firstRhs    = begin(rhs);
+    auto lastRhs     = end(rhs);
+    auto firstResult = begin(result);
+    auto lastResult  = end(result);
 
-    // for (auto r = typename std::span<T>::size_type(); r < size(rhs); ++r) {
-        // const auto [lower, higher] = mul(lhs[l], rhs[r]);
+    for (; firstRhs != lastRhs; ++firstRhs, ++firstResult) {
+        const auto [carry, afterMulResult] = mul(
+            lhs, 
+            *firstRhs, 
+            std::ranges::subrange(firstResult, lastResult),
+            firstResult
+        );
 
-        // std::tie(* resultIter     , carry) = add(* resultIter     ,         lower);
-        // std::tie(*(resultIter + 1), carry) = add(*(resultIter + 1), higher, carry);
+        auto finishResult = std::ranges::subrange(afterMulResult, lastResult);
 
-        // const auto carry = mul(lhs, rhs[r], result.subspan(r).begin());
-        // add(result.subspan(r + size(lhs)), carry, result.subspan(r + size(lhs)));
-    // }
-
-    for (auto l = typename std::span<T>::size_type(); l < size(lhs); ++l) {
-        auto carry = K();
-        auto resultIter = std::next(begin(result), l);
-
-        for (auto r = typename std::span<T>::size_type(); r < size(rhs); ++r, ++resultIter) {
-            const auto [lower, higher] = mul(lhs[l], rhs[r]);
-
-            std::tie(* resultIter     , carry) = add(* resultIter     ,         lower);
-            std::tie(*(resultIter + 1), carry) = add(*(resultIter + 1), higher, carry);
-
-            add(
-                std::ranges::subrange(resultIter + 2, resultLast), 
-                carry, 
-                std::ranges::subrange(resultIter + 2, resultLast)
-            );
-        }
+        add(finishResult, carry, finishResult);
     }
 }
 

@@ -62,13 +62,11 @@ auto operator+=(
         }
     }
 
-    if (add(
+    lhsAccess.push_back(add(
         lhsAccess.digits(),
         rhs.digits(),
         lhsAccess.digits()
-    )) {
-        lhsAccess.push_back(1);
-    }
+    ));
 
     return lhs;
 }
@@ -106,11 +104,7 @@ auto operator*=(
         size(lhs.digits()) + size(rhs.digits())
     );
 
-    bignum::mul(
-        lhs.digits(),
-        rhs.digits(),
-        std::span(result)
-    );
+    mul(lhs.digits(), rhs.digits(), result);
 
     lhs.access().swap(result);
     return lhs;

@@ -44,12 +44,10 @@ requires TransformableToRange<
 constexpr auto transformWithCarry(
     InputRange1&& lhs,
     InputRange2&& rhs,
+    Unsigned initialCarry,
     OutputRange&& result,
     BinaryOp&& op  
 ) -> Unsigned {
-
-    auto carry = Unsigned();
-
     auto firstIter1 = begin(lhs);
     auto lastIter1  = end(lhs);
     auto firstIter2 = begin(rhs);
@@ -59,14 +57,14 @@ constexpr auto transformWithCarry(
     for (; firstIter1 != lastIter1 && firstIter2 != lastIter2;
             ++firstIter1, ++firstIter2, ++outIter) {
         const auto [batch,  firstCarry] = op(*firstIter1, *firstIter2);
-        const auto [final, secondCarry] = op(batch, carry);
-        carry = firstCarry || secondCarry;
+        const auto [final, secondCarry] = op(batch, initialCarry);
+        initialCarry = firstCarry || secondCarry;
         *outIter = final;
     }
 
     return transformWithCarry(
         std::ranges::subrange(firstIter1, lastIter1),
-        carry, 
+        initialCarry, 
         outIter,
         std::forward<BinaryOp>(op)
     );

@@ -4,11 +4,8 @@
 #include <bignum/Concepts/Concepts.hpp>
 #include <bignum/Ranges/Algorithms.hpp>
 
-#include <algorithm>
 #include <concepts>
-#include <numeric>
 #include <ranges>
-#include <span>  
 #include <tuple>
 
 namespace bignum {
@@ -24,7 +21,7 @@ constexpr auto sub(
     InputRange1&& lhs,
     InputRange2&& rhs,
     OutputRange&& result
-) -> Unsigned { return transformWithCarry(lhs, rhs, result, sub<Unsigned>); }
+) -> Unsigned { return transformWithCarry(lhs, rhs, Unsigned(), result, sub<Unsigned>); }
 
 template<
     std::ranges::input_range InputRange1,
@@ -41,7 +38,7 @@ constexpr auto add(
     InputRange1&& lhs,
     InputRange2&& rhs,
     OutputRange&& result
-) -> Unsigned { return transformWithCarry(lhs, rhs, result, add<Unsigned>); }
+) -> Unsigned { return transformWithCarry(lhs, rhs, Unsigned(), result, add<Unsigned>); }
 
 template<
     typename InputRange,
