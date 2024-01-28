@@ -14,11 +14,7 @@ class ArrayRightShiftTest : public ::testing::TestWithParam<ShiftOp> {};
 TEST_P(ArrayRightShiftTest, RightShiftOperation) {
     auto [lhs, rhs, expected] = GetParam();
 
-    rshift(
-        std::span(lhs),
-        rhs,
-        std::span(lhs)
-    );
+    rshift(lhs, rhs, begin(lhs));
 
     ASSERT_EQ(lhs, expected);
 }

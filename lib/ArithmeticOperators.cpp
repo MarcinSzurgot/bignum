@@ -46,26 +46,26 @@ auto operator+=(
           BigUnsigned& lhs,
     const BigUnsigned& rhs
 ) -> BigUnsigned& {
-    auto lhsAccess = lhs.access();
+    auto access = lhs.access();
 
-    const auto lhsSize = lhsAccess.size();
+    const auto lhsSize = access.size();
     const auto rhsSize = size(rhs.digits());
 
     if (lhsSize < rhsSize) {
-        lhsAccess.resize(rhsSize);
+        access.resize(rhsSize);
     } else if (lhsSize == rhsSize) {
-        const auto lhsTop = lhsAccess.digits().back();
-        const auto rhsTop = rhs      .digits().back();
+        const auto lhsTop = access.digits().back();
+        const auto rhsTop = rhs   .digits().back();
 
         if (lhsTop + rhsTop + 1 < lhsTop) {
-            lhsAccess.reserve(lhsSize + 1);
+            access.reserve(lhsSize + 1);
         }
     }
 
-    lhsAccess.push_back(add(
-        lhsAccess.digits(),
+    access.push_back(add(
+        access.digits(),
         rhs.digits(),
-        lhsAccess.digits()
+        access.digits().begin()
     ));
 
     return lhs;
@@ -81,7 +81,7 @@ auto operator-=(
         sub(
             tmp.access().digits(),
             lhs.digits(),
-            tmp.access().digits()
+            tmp.access().digits().begin()
         );
         std::swap(lhs, tmp);
 
@@ -89,7 +89,7 @@ auto operator-=(
         sub(
             lhs.access().digits(),
             rhs.digits(),
-            lhs.access().digits()
+            lhs.access().digits().begin()
         );
     }
 
@@ -174,12 +174,8 @@ auto operator+=(
     BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned& {
     auto access = lhs.access();
-    access.push_back(add(
-        access.digits(), 
-        rhs,
-        access.digits()
-    ));
-
+    auto digits = access.digits();
+    access.push_back(add(digits, rhs, digits.begin()));
     return lhs;
 }
 
@@ -193,7 +189,7 @@ auto operator-=(
     if (size(digits) == 1u && digits[0] < rhs) {
         digits[0] = rhs - digits[0];
     } else {
-        sub(digits, rhs, digits);
+        sub(digits, rhs, digits.begin());
     }
 
     return lhs;

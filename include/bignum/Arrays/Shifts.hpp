@@ -1,60 +1,61 @@
 #pragma once
 
 #include <concepts>
-#include <span>
+#include <ranges>
 
-#include <bignum/Arrays/Comparators.hpp>
 #include <bignum/Digits/Arithmetics.hpp>
+#include <bignum/Ranges/Algorithms.hpp>
 
 namespace bignum {
 
 template<
-    typename U, 
-    typename K
+    std::ranges::input_range InputRange, 
+    typename OutputIterator,
+    std::unsigned_integral Unsigned = std::iter_value_t<OutputIterator>
 >
-requires std::unsigned_integral<std::remove_const_t<U>>
-    && std::unsigned_integral<K>
-    && std::same_as<std::remove_const_t<U>, K>
+requires TransformableToIter<OutputIterator, InputRange>
 auto rshift(
-    std::span<U> source,
-    std::size_t bitShift,
-    std::span<K> result
-) -> K {
-    bitShift &= Bits<U>::ShiftMask;
+    InputRange&& input,
+    std::size_t shift,
+    OutputIterator output
+) -> Unsigned {
+    shift &= Bits<Unsigned>::ShiftMask;
 
-    auto [outShifted, carry] = rshift(source[0], bitShift);
-    for (auto d = typename std::span<U>::size_type(1); d < size(source); ++d) {
-        const auto [lower, upper]      = rshift(source[d], bitShift);
-        std::tie(result[d - 1], carry) = std::make_pair(carry | lower, upper);
-    }
+    auto first = begin(input);
+    auto [outshifted, carry] = rshift(*first++, shift);
 
-    result[size(source) - 1] = carry;
+    carry = cascade(
+        std::ranges::subrange(first, end(input)), carry, output, 
+        [shift](auto&& next, auto carry) {
+           const auto [lower, upper] = rshift(next, shift);
+           return std::make_pair(carry | lower, upper);
+        }
+    ).first;
 
-    return outShifted;
+    *(output + (size(input) - 1)) = carry;
+
+    return outshifted;
 }
 
 template<
-    typename U, 
-    typename K
+    std::ranges::input_range InputRange, 
+    typename OutputIterator,
+    std::unsigned_integral Unsigned = std::iter_value_t<OutputIterator>
 >
-requires std::unsigned_integral<std::remove_const_t<U>>
-    && std::unsigned_integral<K>
-    && std::same_as<std::remove_const_t<U>, K>
+requires TransformableToIter<OutputIterator, InputRange>
 auto lshift(
-    std::span<U> source,
-    std::size_t bitShift,
-    std::span<K> result
-) -> K {
-    bitShift &= Bits<U>::ShiftMask;
+    InputRange&& input,
+    std::size_t shift,
+    OutputIterator result
+) -> Unsigned {
+    shift &= Bits<Unsigned>::ShiftMask;
 
-    auto carry = U();
-
-    for (auto d = typename std::span<U>::size_type(); d < size(source); ++d) {
-        const auto [lower, upper] = lshift(source[d], bitShift);
-        std::tie(result[d], carry) = std::make_pair(carry | lower, upper);
-    }
-
-    return carry;
+    return cascade(input, Unsigned(), result,
+        [shift] (auto&& next, auto carry) { 
+           const auto [lower, upper] = lshift(next, shift); 
+           return std::make_pair(carry | lower, upper);
+        }
+    ).first;
 }
 
 }

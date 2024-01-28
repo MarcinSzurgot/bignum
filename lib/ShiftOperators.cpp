@@ -5,6 +5,8 @@
 #include <bignum/Access.hpp>
 #include <bignum/Digits/Arithmetics.hpp>
 
+#include <ranges>
+
 namespace bignum {
 
 auto operator<<(
@@ -38,7 +40,7 @@ auto operator<<=(
         shifted.back() |= lshift(
             lhsAccess.digits(),
             rhs,
-            std::span(shifted).subspan(wholeDigitsShift)
+            begin(shifted) + wholeDigitsShift
         );
 
         lhsAccess.swap(shifted);
@@ -48,15 +50,12 @@ auto operator<<=(
 
         auto digits = lhsAccess.digits();
 
-        std::fill(
-            begin(digits), 
-            begin(digits) + wholeDigitsShift, 0
-        );
+        std::ranges::fill(digits.subspan(0, wholeDigitsShift), 0);
 
         digits.back() |= lshift(
             digits,
             rhs,
-            digits.subspan(wholeDigitsShift)
+            begin(digits) + wholeDigitsShift
         );
     }
 
@@ -68,11 +67,8 @@ auto operator>>=(
     BigUnsigned::NativeDigit rhs
 ) -> BigUnsigned& {
     auto access = lhs.access();
-    rshift(
-        access.digits(), 
-        rhs,
-        access.digits()
-    );
+    auto digits = access.digits();
+    rshift(digits, rhs, digits.begin());
     return lhs;
 }
 

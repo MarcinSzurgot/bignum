@@ -19,7 +19,7 @@ TEST_P(ArrayAdditionTest, AdditionOperation) {
         num1.resize(size(num2));
     }
 
-    const auto carry = bignum::add(num1, num2, num1);
+    const auto carry = add(num1, num2, begin(num1));
 
     if (carry) {
         num1.push_back(1);

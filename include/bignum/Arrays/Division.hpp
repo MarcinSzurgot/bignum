@@ -58,7 +58,7 @@ auto div(
     divSpan.back() |= lshift(
         rhs, 
         bitDiff, 
-        divSpan.subspan(bitDiff / Bits<U1>::Size)
+        divSpan.subspan(bitDiff / Bits<U1>::Size).begin()
     );
 
     while (remainder >= rhs) {
@@ -68,7 +68,7 @@ auto div(
         rshift(
             divSpan.subspan(wholeDigitShift),
             bitShift, 
-            divSpan
+            divSpan.begin()
         );
 
         divSpan = divSpan.subspan(0, size(divSpan) - wholeDigitShift);
@@ -77,14 +77,14 @@ auto div(
         bitDiff = newBitDiff;
 
         if (divSpan > remainder) {
-            rshift(divSpan, 1, divSpan);
+            rshift(divSpan, 1, divSpan.begin());
             divSpan.subspan(0, size(divSpan) * (bool) divSpan.back());
             bitDiff--;
         }
 
         quotient[bitDiff / Bits<U1>::Size] |= U3(1) << (bitDiff & Bits<U1>::ShiftMask);
 
-        sub(remainder, divSpan, remainder);
+        sub(remainder, divSpan, remainder.begin());
 
         remainder = remainder.subspan(0, sizeWithoutLeadingZeroes(remainder));
     }

@@ -20,7 +20,7 @@ TEST_P(ArraySubtractionTest, SubtractionOperation) {
     ? std::make_pair(num2, num1) 
     : std::make_pair(num1, num2);
 
-    sub(result, smaller, result);
+    sub(result, smaller, begin(result));
 
     ASSERT_EQ(result, expected);
 }

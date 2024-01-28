@@ -9,65 +9,43 @@ namespace bignum {
 
 template<
     typename InputRange,
-    typename OutputIter, 
-    typename BinaryOp,
-    std::unsigned_integral Unsigned = std::iter_value_t<std::remove_reference_t<OutputIter>>
+    typename Carry,
+    typename OutputIterator, 
+    typename BinaryOp
 >
-requires TransformableToIter<
-    std::remove_reference_t<OutputIter>, 
-    std::remove_reference_t<InputRange>
->
-constexpr auto transformWithCarry(
+constexpr auto cascade(
     InputRange&& input,
-    Unsigned initialCarry,
-    OutputIter&& out,
+    Carry initialCarry,
+    OutputIterator output,
     BinaryOp&& op  
-) -> Unsigned {
+) -> std::pair<Carry, OutputIterator> {
     for(auto&& i : input) {
-        std::tie(*out++, initialCarry) = op(i, initialCarry);
+        std::tie(*output++, initialCarry) = op(i, std::move(initialCarry));
     }
-    return initialCarry;
+
+    return std::make_pair(initialCarry, output);
 }
 
 template<
-    typename InputRange1,
-    typename InputRange2,
-    typename OutputRange, 
-    typename BinaryOp,
-    std::unsigned_integral Unsigned = std::ranges::range_value_t<std::remove_reference_t<OutputRange>>
+    std::ranges::input_range InputRange1,
+    std::ranges::input_range InputRange2,
+    typename OutputIterator,
+    typename Carry,
+    typename TernaryOperator
 >
-requires TransformableToRange<
-    std::remove_reference_t<OutputRange>, 
-    std::remove_reference_t<InputRange1>, 
-    std::remove_reference_t<InputRange2>
->
-constexpr auto transformWithCarry(
-    InputRange1&& lhs,
-    InputRange2&& rhs,
-    Unsigned initialCarry,
-    OutputRange&& result,
-    BinaryOp&& op  
-) -> Unsigned {
-    auto firstIter1 = begin(lhs);
-    auto lastIter1  = end(lhs);
-    auto firstIter2 = begin(rhs);
-    auto lastIter2  = end(rhs);
-    auto outIter = begin(result);
-
-    for (; firstIter1 != lastIter1 && firstIter2 != lastIter2;
-            ++firstIter1, ++firstIter2, ++outIter) {
-        const auto [batch,  firstCarry] = op(*firstIter1, *firstIter2);
-        const auto [final, secondCarry] = op(batch, initialCarry);
-        initialCarry = firstCarry || secondCarry;
-        *outIter = final;
+requires std::output_iterator<OutputIterator, std::iter_value_t<OutputIterator>>
+constexpr auto cascade(
+    InputRange1&& input1,
+    InputRange2&& input2,
+    Carry initialCarry,
+    OutputIterator output,
+    TernaryOperator&& op  
+) -> std::pair<Carry, OutputIterator> {
+    for (auto&& [i1, i2] : std::views::zip(input1, input2)) {
+        std::tie(*output++, initialCarry) = op(i1, i2, std::move(initialCarry));
     }
 
-    return transformWithCarry(
-        std::ranges::subrange(firstIter1, lastIter1),
-        initialCarry, 
-        outIter,
-        std::forward<BinaryOp>(op)
-    );
+    return std::make_pair(initialCarry, output);
 }
 
 }

@@ -12,11 +12,7 @@ TEST_P(ArrayLeftShiftOperatorTests, LeftShiftOperation) {
 
     lhs.push_back(0);
 
-    lhs.back() |= lshift(
-        std::span(lhs),
-        rhs,
-        std::span(lhs)
-    );
+    lhs.back() |= lshift(lhs, rhs, begin(lhs));
 
     if (lhs.back() == 0) {
         lhs.pop_back();

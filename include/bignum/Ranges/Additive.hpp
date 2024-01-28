@@ -13,59 +13,79 @@ namespace bignum {
 template<
     typename InputRange1,
     typename InputRange2,
-    typename OutputRange,
-    std::unsigned_integral Unsigned = std::ranges::range_value_t<OutputRange>
+    typename OutputIterator,
+    std::unsigned_integral Unsigned = std::iter_value_t<OutputIterator>
 >
-requires TransformableToRange<OutputRange, InputRange1, InputRange2>
+requires TransformableToIter<OutputIterator, InputRange1, InputRange2>
 constexpr auto sub(
     InputRange1&& lhs,
     InputRange2&& rhs,
-    OutputRange&& result
-) -> Unsigned { return transformWithCarry(lhs, rhs, Unsigned(), result, sub<Unsigned>); }
+    OutputIterator output
+) -> Unsigned { 
+    const auto [carry, continuation] = cascade(
+        lhs, rhs, Unsigned(), output, sub<Unsigned, Unsigned>
+    );
+
+    return cascade(
+        std::ranges::subrange(begin(lhs) + size(rhs), end(lhs)),
+        carry, 
+        continuation,
+        sub<Unsigned>
+    ).first;
+}
 
 template<
     std::ranges::input_range InputRange1,
     std::ranges::input_range InputRange2,
-    typename OutputRange,
-    std::unsigned_integral Unsigned = std::ranges::range_value_t<std::remove_reference_t<OutputRange>>
+    typename OutputIterator,
+    std::unsigned_integral Unsigned = std::iter_value_t<OutputIterator>
 > 
-requires TransformableToRange<
-    std::remove_reference_t<OutputRange>, 
+requires TransformableToIter<OutputIterator, 
     std::remove_reference_t<InputRange1>, 
     std::remove_reference_t<InputRange2>
 >
 constexpr auto add(
     InputRange1&& lhs,
     InputRange2&& rhs,
-    OutputRange&& result
-) -> Unsigned { return transformWithCarry(lhs, rhs, Unsigned(), result, add<Unsigned>); }
+    OutputIterator output
+) -> Unsigned { 
+    const auto [carry, continuation] = cascade(
+        lhs, rhs, Unsigned(), output, add<Unsigned, Unsigned>
+    );
+        
+    return cascade(
+        std::ranges::subrange(begin(lhs) + size(rhs), end(lhs)),
+        carry, 
+        continuation,
+        add<Unsigned>
+    ).first;
+}
 
 template<
     typename InputRange,
-    typename OutputRange, 
+    typename OutputIterator, 
     std::unsigned_integral Unsigned
 > 
-requires TransformableToRange<OutputRange, InputRange, Unsigned>
+requires TransformableToIter<OutputIterator, InputRange, Unsigned>
 constexpr auto sub(
     InputRange&& lhs, 
     Unsigned rhs,
-    OutputRange&& result
-) -> Unsigned { return transformWithCarry(lhs, rhs, begin(result), sub<Unsigned>); }
+    OutputIterator output
+) -> Unsigned { return cascade(lhs, rhs, output, sub<Unsigned>).first; }
 
 template<
     typename InputRange,
-    typename OutputRange, 
-    std::unsigned_integral Unsigned = std::ranges::range_value_t<std::remove_reference_t<OutputRange>>
+    std::unsigned_integral Unsigned,
+    typename OutputIterator
 >
-requires TransformableToRange<
-    std::remove_reference_t<OutputRange>, 
+requires TransformableToIter<OutputIterator,
     std::remove_reference_t<InputRange>, 
     Unsigned
 >
 constexpr auto add(
     InputRange&& lhs, 
     Unsigned rhs,
-    OutputRange&& result
-) -> Unsigned { return transformWithCarry(lhs, rhs, begin(result), add<Unsigned>); }
+    OutputIterator output
+) -> Unsigned { return cascade(lhs, rhs, output, add<Unsigned>).first; }
 
 }

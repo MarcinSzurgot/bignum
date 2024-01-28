@@ -1,38 +1,37 @@
 #pragma once
 
 #include <algorithm>
-#include <bitset>
 #include <concepts>
 #include <cstdint>
+#include <ranges>
 #include <span>
-#include <vector>
 
 namespace bignum {
 
 namespace {
 
-template<typename I>
-requires std::integral<std::remove_const_t<I>>
+template<std::ranges::input_range InputRange>
+requires std::integral<std::ranges::range_value_t<InputRange>>
 auto leadingZeroes(
-    std::span<I> digits
-) -> std::span<I>::size_type {
-    return std::find_if(
-        rbegin(digits),
-        rend(digits),
-        [](auto digit) { return digit > 0; }
-    ) - rbegin(digits);
+    InputRange&& digits
+) -> std::ranges::range_difference_t<InputRange> {
+    auto reversed = std::views::reverse(digits);
+
+    return std::ranges::find_if(reversed, [](auto&& digit) { 
+        return digit > 0; 
+    }) - begin(reversed);
 }
 
 }
 
-template<typename I>
-requires std::integral<std::remove_const_t<I>>
+template<std::ranges::input_range InputRange>
+requires std::integral<std::ranges::range_value_t<InputRange>>
 auto sizeWithoutLeadingZeroes(
-    std::span<I> digits
-) -> std::span<I>::size_type {
+    InputRange&& digits
+) -> std::ranges::range_difference_t<InputRange> {
     return std::max(
-        size(digits) - leadingZeroes(digits), 
-        typename std::span<I>::size_type(1)
+        ssize(digits) - leadingZeroes(digits), 
+        typename std::ranges::range_difference_t<InputRange>(1)
     );
 }
 
