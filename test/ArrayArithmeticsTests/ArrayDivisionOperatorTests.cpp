@@ -22,7 +22,7 @@ TEST_P(ArrayDivisionOperatorTests, ArryDivisionTest) {
     const auto [lhs, rhs, expected] = GetParam();
 
     auto quotient = lhs;
-    std::fill(begin(quotient), end(quotient), 0);
+    std::ranges::fill(quotient, 0);
     auto remainder = quotient;
 
 
