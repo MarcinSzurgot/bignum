@@ -52,6 +52,10 @@ auto mul(
             return std::make_pair(result, nextCarry + higher);
     }, adding);
 
+    for (; carry; ++result) {
+        std::tie(*result, carry) = add(*result, carry);
+    }
+
     return std::make_pair(carry, result);
 }
 
@@ -65,15 +69,8 @@ auto mul(
     InputRange2&& rhs,
     OutputIterator output
 ) -> void {
-    using namespace std::ranges;
-
     for (auto&& r : rhs) {
-        auto [carry, afterMulOutput] = mul(lhs, r, output, output);
-
-        for (; carry; ++afterMulOutput) {
-            std::tie(*afterMulOutput, carry) = add(*afterMulOutput, carry);
-        }
-
+        mul(lhs, r, output, output);
         ++output;
     }
 }
