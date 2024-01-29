@@ -26,20 +26,3 @@ TEST(DigitShiftsTests, LeftShiftAllCases) {
         }
     }
 }
-
-// TEST(DigitShiftsTests, RightShiftAllCases) {
-//     using BaseUInt       = std::uint8_t;
-//     using ContainingUInt = std::uint16_t;
-
-//     constexpr auto baseMax = BaseUInt(~BaseUInt());
-
-//     for (auto value = ContainingUInt(); value <= ContainingUInt(baseMax); ++value) {
-//         for (auto shift = ContainingUInt(); shift < ContainingUInt(Bits<BaseUInt>::Size); ++shift) {
-//             const auto expected = halve<ContainingUInt>(value >> shift);
-//             const auto actual   = rshift<BaseUInt>(value, shift);
-
-//             EXPECT_EQ(+actual.first,  +expected.first);
-//             EXPECT_EQ(+actual.second, +expected.second);
-//         }
-//     }
-// }

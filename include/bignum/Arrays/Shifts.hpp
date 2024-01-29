@@ -9,11 +9,10 @@
 namespace bignum {
 
 template<
-    std::ranges::input_range InputRange, 
-    typename OutputIterator,
+    std::ranges::forward_range InputRange, 
+    std::bidirectional_iterator OutputIterator,
     std::unsigned_integral Unsigned = std::iter_value_t<OutputIterator>
 >
-requires TransformableToIter<OutputIterator, InputRange>
 auto rshift(
     InputRange&& input,
     std::size_t shift,
@@ -23,26 +22,24 @@ auto rshift(
 
     auto first = begin(input);
     auto [outshifted, carry] = rshift(*first++, shift);
-
-    carry = cascade(
-        std::ranges::subrange(first, end(input)), carry, output, 
-        [shift](auto&& next, auto carry) {
-           const auto [lower, upper] = rshift(next, shift);
-           return std::make_pair(carry | lower, upper);
+    carry = cascade(std::ranges::subrange(first, end(input)), carry, output, 
+        [shift, &output](auto&& next, auto carry) {
+            ++output;
+            const auto [lower, upper] = rshift(next, shift);
+            return std::make_pair(carry | lower, upper);
         }
-    ).first;
+    );
 
-    *(output + (size(input) - 1)) = carry;
+    *output-- = carry;
 
     return outshifted;
 }
 
 template<
-    std::ranges::input_range InputRange, 
-    typename OutputIterator,
+    std::ranges::forward_range InputRange, 
+    std::input_iterator OutputIterator,
     std::unsigned_integral Unsigned = std::iter_value_t<OutputIterator>
 >
-requires TransformableToIter<OutputIterator, InputRange>
 auto lshift(
     InputRange&& input,
     std::size_t shift,
@@ -55,7 +52,7 @@ auto lshift(
            const auto [lower, upper] = lshift(next, shift); 
            return std::make_pair(carry | lower, upper);
         }
-    ).first;
+    );
 }
 
 }

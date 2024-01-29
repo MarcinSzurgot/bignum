@@ -14,15 +14,11 @@ TEST_P(ArrayMultiplicationOperatorTests, MultiplicationOperation) {
 
     auto result = lhs;
     result.resize(size(lhs) + size(rhs));
-    std::fill(begin(result), end(result), 0);
+    std::ranges::fill(result, 0);
 
-    bignum::mul(
-        std::span(lhs),
-        std::span(rhs),
-        std::span(result)
-    );
+    mul(lhs, rhs, begin(result));
 
-    result.resize(sizeWithoutLeadingZeroes(std::span(result)));
+    result.resize(sizeWithoutLeadingZeroes(result));
 
     ASSERT_EQ(result, expected);
 }

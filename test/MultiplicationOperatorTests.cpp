@@ -21,7 +21,7 @@ class BigUnsignedModularMultiplicationTest : public ::testing::TestWithParam<Mod
 TEST_P(BigUnsignedModularMultiplicationTest, ModularMultiplication) {
     const auto [lhs, rhs, expected] = GetParam();
 
-    const auto [lower, upper] = bignum::mul(lhs, rhs);
+    const auto [lower, upper] = mul(lhs, rhs);
 
     ASSERT_EQ(lower, expected.first);
     ASSERT_EQ(upper, expected.second);
@@ -61,7 +61,7 @@ TEST(BigUnsignedModularMultiplicationTest, ModularMultiplicationAllCases) {
     for (auto l = 0u; l < baseSize; ++l) {
         for (auto r = 0u; r < baseSize; ++r) {
             const auto expected = l * r;
-            const auto [lower, higher] = bignum::mul<mul_type>(l, r);
+            const auto [lower, higher] = mul<mul_type>(l, r);
             const auto actual = lower + (containing_type) higher * baseSize;
 
             ASSERT_EQ(expected, actual) << "for " << (int) l << " * " << (int) r;

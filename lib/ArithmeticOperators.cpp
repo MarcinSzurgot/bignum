@@ -104,7 +104,7 @@ auto operator*=(
         size(lhs.digits()) + size(rhs.digits())
     );
 
-    mul(lhs.digits(), rhs.digits(), result);
+    mul(lhs.digits(), rhs.digits(), begin(result));
 
     lhs.access().swap(result);
     return lhs;
