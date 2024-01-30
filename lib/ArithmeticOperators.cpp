@@ -2,6 +2,7 @@
 
 #include <bignum/Access.hpp>
 #include <bignum/BigUnsigned.hpp>
+#include <bignum/Digits/Arithmetics.hpp>
 #include <bignum/LogicOperators.hpp>
 #include <bignum/ShiftOperators.hpp>
 
@@ -15,20 +16,12 @@ auto divide(
         return {BigUnsigned(), lhs};
     }
 
-    const auto lhsDigits = lhs.digits();
-    const auto rhsDigits = rhs.digits();
-
-    const auto rhsTopBit = topBit(rhsDigits);
-    const auto lhsTopBit = topBit(lhsDigits);
-
-    auto bitDiff = lhsTopBit - rhsTopBit;
-    auto divider = rhs << bitDiff;
-    auto quotient  = std::vector<BigUnsigned::NativeDigit>(bitDiff / BigUnsigned::NativeDigitBitSize + 1); 
-    auto remainder = std::vector<BigUnsigned::NativeDigit>(size(lhsDigits));
+    auto quotient  = std::vector<BigUnsigned::NativeDigit>(size(lhs.digits()) - size(rhs.digits()) + 1); 
+    auto remainder = std::vector<BigUnsigned::NativeDigit>(size(lhs.digits()));
 
     const auto [quotSize, remSize] = div(
-        lhsDigits,
-        rhsDigits,
+        lhs.digits(),
+        rhs.digits(),
         std::span(quotient),
         std::span(remainder)
     );
@@ -57,7 +50,7 @@ auto operator+=(
         const auto lhsTop = access.digits().back();
         const auto rhsTop = rhs   .digits().back();
 
-        if (lhsTop + rhsTop + 1 < lhsTop) {
+        if (add(lhsTop, rhsTop, BigUnsigned::NativeDigit(1)).second) {
             access.reserve(lhsSize + 1);
         }
     }

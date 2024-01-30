@@ -1,11 +1,11 @@
 #pragma once 
 
-#include <concepts>
-
 #include <bignum/BigUnsigned.hpp>
 #include <bignum/Arrays/Multiplication.hpp>
 #include <bignum/Arrays/Division.hpp>
 #include <bignum/Ranges/Additive.hpp>
+
+#include <concepts>
 
 namespace bignum {
 

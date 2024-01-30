@@ -3,7 +3,6 @@
 #include <concepts>
 #include <span>
 
-#include <bignum/Concepts/Concepts.hpp>
 #include <bignum/Digits/Arithmetics.hpp>
 #include <bignum/Ranges/Algorithms.hpp>
 #include <bignum/Ranges/Additive.hpp>
@@ -11,21 +10,18 @@
 namespace bignum {
 
 template<
-    typename InputRange,
-    typename OutputIter,
-    std::unsigned_integral Unsigned = std::iter_value_t<OutputIter>
->
-requires TransformableToIter<OutputIter, 
-    std::remove_reference_t<InputRange>,
-    std::remove_reference_t<Unsigned>
+    std::ranges::forward_range InputRange,
+    std::forward_iterator OutputIterator,
+    std::unsigned_integral Unsigned = std::iter_value_t<OutputIterator>
 >
 auto mul(
     InputRange&& lhs,
     Unsigned rhs,
-    OutputIter result
+    OutputIterator result
 ) -> Unsigned {
     return cascade(lhs, Unsigned(), result, 
-        [rhs](auto next, auto carry){
+        [rhs, &result](auto next, auto carry){
+            ++result;
             const auto [lower,     higher] = mul(next,    rhs);
             const auto [result, nextCarry] = add(lower, carry);
             return std::make_pair(result, nextCarry + higher);
@@ -35,15 +31,15 @@ auto mul(
 template<
     std::ranges::forward_range InputRange,
     std::forward_iterator InputIterator,
-    std::forward_iterator OutputIter,
-    std::unsigned_integral Unsigned = std::iter_value_t<OutputIter>
+    std::forward_iterator OutputIterator,
+    std::unsigned_integral Unsigned = std::iter_value_t<OutputIterator>
 >
 auto mul(
     InputRange&& lhs,
     Unsigned rhs,
     InputIterator adding,
-    OutputIter result
-) -> std::pair<Unsigned, OutputIter> {
+    OutputIterator result
+) -> std::pair<Unsigned, OutputIterator> {
     auto carry = cascade(lhs, Unsigned(), result, 
         [rhs, &result](auto&& next1, auto&& next2, auto&& carry){
             ++result;
@@ -51,10 +47,6 @@ auto mul(
             const auto [result, nextCarry] = add(lower, next2, carry);
             return std::make_pair(result, nextCarry + higher);
     }, adding);
-
-    for (; carry; ++result) {
-        std::tie(*result, carry) = add(*result, carry);
-    }
 
     return std::make_pair(carry, result);
 }
@@ -70,8 +62,12 @@ auto mul(
     OutputIterator output
 ) -> void {
     for (auto&& r : rhs) {
-        mul(lhs, r, output, output);
+        auto [carry, continuation] = mul(lhs, r, output, output);
         ++output;
+
+        for (; carry; ++continuation) {
+            std::tie(*continuation, carry) = add(*continuation, carry);
+        }
     }
 }
 

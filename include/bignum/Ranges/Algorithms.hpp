@@ -1,7 +1,5 @@
 #pragma once
 
-#include <bignum/Concepts/Concepts.hpp>
-
 #include <algorithm>
 #include <ranges>
 

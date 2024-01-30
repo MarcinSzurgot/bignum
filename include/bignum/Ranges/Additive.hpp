@@ -1,7 +1,6 @@
 #pragma once 
 
 #include <bignum/Digits/Arithmetics.hpp>
-#include <bignum/Concepts/Concepts.hpp>
 #include <bignum/Ranges/Algorithms.hpp>
 
 #include <concepts>

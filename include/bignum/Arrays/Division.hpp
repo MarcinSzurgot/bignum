@@ -8,8 +8,8 @@
 #include <stdexcept>
 #include <vector>
 
-#include <bignum/Arrays/Shifts.hpp>
 #include <bignum/Arrays/Comparators.hpp>
+#include <bignum/Arrays/Shifts.hpp>
 #include <bignum/Digits/Arithmetics.hpp>
 #include <bignum/Ranges/Additive.hpp>
 #include <bignum/Utils.hpp>
