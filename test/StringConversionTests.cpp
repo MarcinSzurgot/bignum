@@ -27,8 +27,6 @@ TEST_P(BigUnsignedStringConversionTest, ConstructorTests) {
 TEST(BigUnsignedStringConversionTest, OperationPerformance) {
     using namespace std::chrono;
 
-    const auto iterations = 100u;
-
     auto rnd = [
         generator = std::mt19937(
             high_resolution_clock::now()
@@ -60,7 +58,7 @@ TEST(BigUnsignedStringConversionTest, OperationPerformance) {
 
     const auto start = high_resolution_clock::now();
 
-    for (auto i = 0u; i < iterations; ++i) {
+    for (auto i : std::views::iota(0, 1000)) {
         const auto expected = rnd(100);
         const auto converted = BigUnsigned(expected);
         const auto actual = static_cast<std::string>(converted);

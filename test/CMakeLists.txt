@@ -33,6 +33,7 @@ set(TEST_SOURCES
     ArrayArithmeticsTests/ArraySubtractionTests.cpp
     ArrayLogicsTests/ArrayLessThanOperatorTests.cpp
 
+    DigitOperatorsTests/DigitDivisionTests.cpp
     DigitOperatorsTests/DigitMultiplicationTests.cpp
     DigitOperatorsTests/ShiftsTests.cpp
 )
