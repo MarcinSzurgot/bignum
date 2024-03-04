@@ -1,9 +1,11 @@
 #include <bignum/BigUnsigned.hpp>
 
 #include <bignum/Arrays/Division.hpp>
+#include <bignum/Arrays/Comparators.hpp>
 #include <bignum/Access.hpp>
 #include <bignum/LogicOperators.hpp>
 #include <bignum/ArithmeticOperators.hpp>
+#include <bignum/Ranges/Division.hpp>
 
 #include <array>
 #include <iostream>
@@ -99,16 +101,26 @@ BigUnsigned::operator std::string() const {
     }
 
     const auto maxDivisorPowerOf10 = std::size_t(18);
-    const auto div = powerOf10(maxDivisorPowerOf10);
+    const auto divisor = powerOf10(maxDivisorPowerOf10).digits()[0];
 
     auto result = std::string();
     result.reserve(size(digits_) * maxDivisorPowerOf10);
 
-    for (auto quot = *this, mod = BigUnsigned(); (bool) quot;) {
-        const auto notLastDivision = quot > div;
+    auto quot = digits_;
 
-        std::tie(quot, mod) = divide(quot, div);
-        auto string = std::to_string(mod.digits()[0]);
+    for (auto quotSpan = std::span(quot); !!quotSpan;) {
+        const auto notLastDivision = (size(quotSpan) > 1) || (quotSpan[0] > divisor);
+        const auto mod = div(
+            std::ranges::reverse_view(quotSpan), 
+            divisor,
+            std::reverse_iterator(end(quotSpan))
+        );
+
+        if (size(quotSpan) > 1 && !quotSpan.back()) {
+            quotSpan = quotSpan.subspan(0, size(quotSpan) - 1);
+        }
+
+        auto string = std::to_string(mod);
         if (size(string) < maxDivisorPowerOf10 && notLastDivision) {
             const auto zeroes = std::string(maxDivisorPowerOf10 - size(string), '0');
             string.insert(string.begin(), zeroes.begin(), zeroes.end());
