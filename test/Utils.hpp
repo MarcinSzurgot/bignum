@@ -4,6 +4,7 @@
 #include <concepts>
 #include <iostream>
 #include <random>
+#include <ranges>
 #include <span>
 #include <vector>
 
@@ -40,13 +41,19 @@ struct RandomGenerator {
 
     template<std::unsigned_integral U>
     std::vector<U> random(std::size_t size) {
-        auto dist = std::uniform_int_distribution(U(), ~U());
+        auto result = std::vector<U>(size);
+        random(result);
+        return result;
+    }
 
-        auto random = std::vector<U>(size);
-        std::generate(begin(random), end(random), [this, &dist]{
+    template<std::ranges::forward_range OutputRange>
+    auto random(OutputRange&& output) -> void {
+        using U = std::ranges::range_value_t<OutputRange>;
+
+        auto dist = std::uniform_int_distribution(U(), ~U());
+        std::ranges::generate(output, [this, &dist]{
             return dist(generator_);
         });
-        return random;
     }
 
     bignum::BigUnsigned bigUnsigned(std::size_t bitSize) {
