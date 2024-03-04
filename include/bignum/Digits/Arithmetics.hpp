@@ -124,4 +124,38 @@ constexpr auto div(U lhs, U rhs) -> std::pair<U, U> {
     return {d, lhs - rhs * d};
 }
 
+template<std::unsigned_integral U>
+constexpr auto div(
+    U lower,
+    U higher,
+    U divisor
+) -> std::pair<std::array<U, 2>, U> {
+    const auto base = Bits<U>::Mask;
+    const auto [bq, br] = div(base, divisor);
+
+    auto [higherQuotient, higherRemaining] = div(higher, divisor);
+    auto lowerQuotientFinal = U();
+
+    while(higherRemaining) {
+        const auto [lowerQuotient, lowerRemainder] = div(lower, divisor);
+        const auto [lowerRemainingNextPartial, higherRemainingNext] = mul<U>(br + 1, higherRemaining);
+        const auto [lowerRemainingNext, carry] = add(lowerRemainingNextPartial, lowerRemainder);
+
+        lowerQuotientFinal += bq * higherRemaining + lowerQuotient;
+        lower = lowerRemainingNext;
+        higherRemaining = higherRemainingNext + carry;
+    }
+
+    const auto [lastQuotient, lastRemainder] = div(lower, divisor);
+
+    lowerQuotientFinal += lastQuotient;
+
+    return std::make_pair(
+        std::array {
+            lowerQuotientFinal, 
+            higherQuotient
+        }, lastRemainder
+    );
+}
+
 }

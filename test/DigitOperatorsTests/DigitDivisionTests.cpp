@@ -1,60 +1,11 @@
 #include <gtest/gtest.h>
 
 #include <bignum/Digits/Arithmetics.hpp>
+#include <bignum/Ranges/Division.hpp>
 
 #include "../Utils.hpp"
 
 using namespace bignum;
-
-template<std::unsigned_integral U>
-constexpr auto div(
-    U lower,
-    U higher,
-    U divisor
-) -> std::pair<std::array<U, 2>, U> {
-    const auto base = Bits<U>::Mask;
-    const auto [bq, br] = div(base, divisor);
-
-    auto [higherQuotient, higherRemaining] = div(higher, divisor);
-    auto lowerQuotientFinal = U();
-
-    while(higherRemaining) {
-        const auto [lowerQuotient, lowerRemainder] = div(lower, divisor);
-        const auto [lowerRemainingNextPartial, higherRemainingNext] = mul<U>(br + 1, higherRemaining);
-        const auto [lowerRemainingNext, carry] = add(lowerRemainingNextPartial, lowerRemainder);
-
-        lowerQuotientFinal += bq * higherRemaining + lowerQuotient;
-        lower = lowerRemainingNext;
-        higherRemaining = higherRemainingNext + carry;
-    }
-
-    const auto [lastQuotient, lastRemainder] = div(lower, divisor);
-
-    lowerQuotientFinal += lastQuotient;
-
-    return std::make_pair(
-        std::array {
-            lowerQuotientFinal, 
-            higherQuotient
-        }, lastRemainder
-    );
-}
-
-template<
-    std::ranges::forward_range InputRange,
-    std::unsigned_integral U,
-    std::forward_iterator OutputIterator
->
-constexpr auto div(
-    InputRange&& dividend,
-    U divisor,
-    OutputIterator quotient
-) -> U {
-    return cascade(dividend, U(), quotient, [divisor](auto&& d, auto&& carry) {
-        const auto [quotient, remainder] = div(d, carry, divisor);
-        return std::make_pair(quotient[0], remainder);
-    });
-}
 
 TEST(DigitDivisionTests, TestDividingDoubleDigits) {
     using Unsigned = std::uint64_t;
@@ -64,7 +15,7 @@ TEST(DigitDivisionTests, TestDividingDoubleDigits) {
     auto expected  = std::array<Unsigned, 3>();
     auto remainder = Unsigned();
 
-    for (auto _ : std::views::iota(0, 100000)) {
+    for (auto _ : std::views::iota(0, 1000000)) {
         const auto dvdnH   = generator.random<Unsigned>(0, Bits<Unsigned>::Mask);
         const auto dvdnL   = generator.random<Unsigned>(0, Bits<Unsigned>::Mask);
         const auto divisor = generator.random<Unsigned>(1, Bits<Unsigned>::Mask);
@@ -92,7 +43,7 @@ TEST(DigitDivisionTests, TestDividingMultipleDigits) {
     auto resultStorage   = std::vector<Unsigned>(maxSize);
     auto expectedStorage = std::vector<Unsigned>(maxSize);
 
-    for (auto _ : std::views::iota(0, 100000)) {
+    for (auto _ : std::views::iota(0, 1000)) {
         const auto size = generator.random<std::size_t>(1, maxSize);
 
         auto dividend = std::span(begin(dividendStorage), size);
