@@ -37,48 +37,20 @@ BigUnsigned::BigUnsigned(
     trim();
 }
 
-BigUnsigned::BigUnsigned(std::string string) : BigUnsigned(NativeDigit()) {
-    const auto maxDivisorPowerOf10 = maxPower<NativeDigit>(10);
-    
-    auto digit = BigUnsigned();
-    for (auto s = 0u; s < size(string); s += maxDivisorPowerOf10) {
-        const auto stringDigit = std::string(
-            string.begin() + s,
-            string.begin() + std::min(s + maxDivisorPowerOf10, string.size())
-        );
-
-        digit.digits_[0] = std::atol(stringDigit.data());
-
-        *this += digit;
-        if (s + size(stringDigit) < size(string)) {
-            *this *= powers<NativeDigit>(std::min(
-                maxDivisorPowerOf10, 
-                size(string) - (s + size(stringDigit))
-            ));
-        }
-    }
+BigUnsigned::BigUnsigned(std::string_view string) 
+    : BigUnsigned(fromChars<NativeDigit>(string)) {
 }
 
 BigUnsigned::operator bool() const {
     return size(digits_) > 1u || digits_[0] > 0u;
 }
 
-BigUnsigned::operator std::string() const {
-          auto result = std::string(size(digits_) * 30, '0');
-    const auto range = bignum::string(digits_, result.data());
-
-    result.erase(
-        begin(result), 
-        begin(result) + (range.data() - result.data())
-    );
-    
-    return result;
-}
+BigUnsigned::operator std::string() const { return bignum::toChars(digits_); }
 
 BigUnsigned::Access BigUnsigned::access() { return {*this}; }
 
 void BigUnsigned::trim() {
-    digits_.resize(sizeWithoutLeadingZeroes(std::span(digits_)));
+    digits_.resize(sizeWithoutLeadingZeroes(digits_));
 }
 
 }

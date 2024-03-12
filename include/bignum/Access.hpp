@@ -28,7 +28,7 @@ struct BigUnsigned::Access {
     requires (sizeof(U) <= sizeof(BigUnsigned::NativeDigit))
     std::span<U> digits() { 
         auto first = reinterpret_cast<U*>(begin(base_.digits_).base());
-        auto last  = reinterpret_cast<U*>(end(base_.digits_).base());
+        auto last  = reinterpret_cast<U*>(  end(base_.digits_).base());
         return {first, last};
     }
 

@@ -9,15 +9,6 @@
 
 namespace bignum {
 
-template<std::unsigned_integral U> 
-struct Bits {
-    static constexpr U Size = sizeof(U) * 8;
-    static constexpr U Mask = ~U();
-    static constexpr U HalfSize = Size / 2;
-    static constexpr U HalfMask = Mask >> HalfSize;
-    static constexpr U ShiftMask = Size - 1;
-};
-
 template<std::unsigned_integral U>
 constexpr auto halve(U value) -> std::pair<U, U> {
     return {

@@ -8,6 +8,15 @@
 
 namespace bignum {
 
+template<std::unsigned_integral U> 
+struct Bits {
+    static constexpr U Size = sizeof(U) * 8;
+    static constexpr U Mask = ~U();
+    static constexpr U HalfSize = Size / 2;
+    static constexpr U HalfMask = Mask >> HalfSize;
+    static constexpr U ShiftMask = Size - 1;
+};
+
 namespace {
 
 template<std::ranges::input_range InputRange>
@@ -35,25 +44,28 @@ auto sizeWithoutLeadingZeroes(
     );
 }
 
-template<typename I>
-requires std::integral<std::remove_const_t<I>>
+template<typename InputRange>
+requires std::unsigned_integral<std::ranges::range_value_t<InputRange>>
+    && std::ranges::sized_range<InputRange>
+    && std::ranges::bidirectional_range<InputRange>
 auto topBit(
-    std::span<I> digits
-) -> std::span<I>::size_type {
-    constexpr auto digitBitSize = sizeof(I) * 8;
+    InputRange&& digits
+) -> std::ranges::range_size_t<InputRange> {
+    using Size     = std::ranges::range_size_t<InputRange>;
+    using Unsigned = std::ranges::range_value_t<InputRange>;
 
-    if (empty(digits) || (size(digits) == 1u && digits.front() == 0u)) { 
+    if (empty(digits) || (size(digits) == Size(1) && *begin(digits) == Unsigned())) { 
         return 0u;
     }
 
-    const auto topDigit = digits.back();
+    const auto topDigit = *(end(digits) - 1);
 
-    auto bit = digitBitSize - 1;
-    for (; bit > 0u && !((I(1) << bit) & topDigit); --bit) {
+    auto bit = Bits<Unsigned>::Size - 1;
+    for (; bit > 0u && !((Unsigned(1) << bit) & topDigit); --bit) {
 
     }
 
-    return bit + (size(digits) - 1) * digitBitSize;
+    return bit + (size(digits) - 1) * Bits<Unsigned>::Size;
 }
 
 }

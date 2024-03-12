@@ -20,7 +20,7 @@ struct BigUnsigned {
 
              BigUnsigned();
     explicit BigUnsigned(std::initializer_list<NativeDigit> digits);             
-    explicit BigUnsigned(std::string string);
+    explicit BigUnsigned(std::string_view string);
 
     template<typename LessThanNative>
     requires std::unsigned_integral<std::remove_const_t<LessThanNative>>
