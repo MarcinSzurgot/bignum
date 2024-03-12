@@ -61,7 +61,7 @@ struct RandomGenerator {
 
         using DigitBits = Bits<BigUnsigned::NativeDigit>;
 
-        const auto [whole, bit] = div(bitSize, DigitBits::Size);
+        const auto [whole, bit] = div<BigUnsigned::NativeDigit>(bitSize, DigitBits::Size);
         auto number = BigUnsigned(random<BigUnsigned::NativeDigit>(whole));
         number.access().digits().back() &= lshift(DigitBits::Mask, bit).second;
         return number;

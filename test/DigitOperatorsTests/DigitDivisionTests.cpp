@@ -3,9 +3,12 @@
 #include <bignum/Digits/Arithmetics.hpp>
 #include <bignum/Ranges/Division.hpp>
 
+#include <charconv>
+
 #include "../Utils.hpp"
 
 using namespace bignum;
+using namespace std::string_literals;
 
 TEST(DigitDivisionTests, TestDividingDoubleDigits) {
     using Unsigned = std::uint64_t;

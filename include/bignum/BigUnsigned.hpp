@@ -16,7 +16,7 @@ struct BigUnsigned {
 
     using NativeDigit = std::uint64_t;
 
-    static constexpr auto NativeDigitBitSize = sizeof(NativeDigit) * 8;
+    static constexpr auto NativeDigitBitSize = NativeDigit(sizeof(NativeDigit) * 8);
 
              BigUnsigned();
     explicit BigUnsigned(std::initializer_list<NativeDigit> digits);             

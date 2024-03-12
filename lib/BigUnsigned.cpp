@@ -6,6 +6,7 @@
 #include <bignum/LogicOperators.hpp>
 #include <bignum/ArithmeticOperators.hpp>
 #include <bignum/Ranges/Division.hpp>
+#include <bignum/Ranges/String.hpp>
 
 #include <array>
 #include <iostream>
@@ -17,41 +18,6 @@ template<>
 BigUnsigned::BigUnsigned<BigUnsigned::NativeDigit>(
     NativeDigit digit
 ) : BigUnsigned { digit } { 
-}
-
-namespace {
-
-constexpr auto digitBitSize = sizeof(bignum::BigUnsigned::NativeDigit) * 8;
-
-static auto powerOf10(
-    unsigned power
-) -> const bignum::BigUnsigned& {
-    const static auto powers = std::array {
-        bignum::BigUnsigned(1u),
-        bignum::BigUnsigned(10u),
-        bignum::BigUnsigned(100u),
-        bignum::BigUnsigned(1000u),
-        bignum::BigUnsigned(10000u),
-        bignum::BigUnsigned(100000u),
-        bignum::BigUnsigned(1000000u),
-        bignum::BigUnsigned(10000000u),
-        bignum::BigUnsigned(100000000u),
-        bignum::BigUnsigned(1000000000u),
-        bignum::BigUnsigned(10000000000u),
-        bignum::BigUnsigned(100000000000u),
-        bignum::BigUnsigned(1000000000000u),
-        bignum::BigUnsigned(10000000000000u),
-        bignum::BigUnsigned(100000000000000u),
-        bignum::BigUnsigned(1000000000000000u),
-        bignum::BigUnsigned(10000000000000000u),
-        bignum::BigUnsigned(100000000000000000u),
-        bignum::BigUnsigned(1000000000000000000u),
-        bignum::BigUnsigned(10000000000000000000u)
-    };
-
-    return powers[power];
-}
-
 }
 
 BigUnsigned::BigUnsigned() : BigUnsigned(NativeDigit()) {}
@@ -72,7 +38,7 @@ BigUnsigned::BigUnsigned(
 }
 
 BigUnsigned::BigUnsigned(std::string string) : BigUnsigned(NativeDigit()) {
-    const auto maxDivisorPowerOf10 = std::size_t(18);
+    const auto maxDivisorPowerOf10 = maxPower<NativeDigit>(10);
     
     auto digit = BigUnsigned();
     for (auto s = 0u; s < size(string); s += maxDivisorPowerOf10) {
@@ -85,7 +51,10 @@ BigUnsigned::BigUnsigned(std::string string) : BigUnsigned(NativeDigit()) {
 
         *this += digit;
         if (s + size(stringDigit) < size(string)) {
-            *this *= powerOf10(std::min(maxDivisorPowerOf10, size(string) - (s + size(stringDigit))));
+            *this *= powers<NativeDigit>(std::min(
+                maxDivisorPowerOf10, 
+                size(string) - (s + size(stringDigit))
+            ));
         }
     }
 }
@@ -95,38 +64,13 @@ BigUnsigned::operator bool() const {
 }
 
 BigUnsigned::operator std::string() const {
+          auto result = std::string(size(digits_) * 30, '0');
+    const auto range = bignum::string(digits_, result.data());
 
-    if (!*this) {
-        return "0";
-    }
-
-    const auto maxDivisorPowerOf10 = std::size_t(18);
-    const auto divisor = powerOf10(maxDivisorPowerOf10).digits()[0];
-
-    auto result = std::string();
-    result.reserve(size(digits_) * maxDivisorPowerOf10);
-
-    auto quot = digits_;
-
-    for (auto quotSpan = std::span(quot); !!quotSpan;) {
-        const auto notLastDivision = (size(quotSpan) > 1) || (quotSpan[0] > divisor);
-        const auto mod = div(
-            std::ranges::reverse_view(quotSpan), 
-            divisor,
-            std::reverse_iterator(end(quotSpan))
-        );
-
-        if (size(quotSpan) > 1 && !quotSpan.back()) {
-            quotSpan = quotSpan.subspan(0, size(quotSpan) - 1);
-        }
-
-        auto string = std::to_string(mod);
-        if (size(string) < maxDivisorPowerOf10 && notLastDivision) {
-            const auto zeroes = std::string(maxDivisorPowerOf10 - size(string), '0');
-            string.insert(string.begin(), zeroes.begin(), zeroes.end());
-        }
-        result.insert(result.begin(), string.begin(), string.end());
-    }
+    result.erase(
+        begin(result), 
+        begin(result) + (range.data() - result.data())
+    );
     
     return result;
 }
