@@ -6,25 +6,35 @@
 #include <random>
 #include <ranges>
 #include <span>
+#include <sstream>
 #include <vector>
 
-template<typename U>
-requires std::unsigned_integral<std::remove_const_t<U>>
-std::ostream& operator<<(std::ostream& os, std::span<const U> num) {
-    os << std::hex << "{0x" << num[0];
-    for (auto d = 1u; d < size(num); ++d) {
-        os << ", 0x" << num[d];
+using NativeDigit = std::uint8_t;
+
+template<std::ranges::forward_range Range>
+requires std::unsigned_integral<std::ranges::range_value_t<Range>>
+std::string toString(Range&& range) {
+    auto first = begin(range);
+    auto last = end(range);
+
+    if (first == last) {
+        return "{}";
     }
-    return os << "}";
+
+    auto builder = std::stringstream();
+
+    builder << std::hex << "{0x" << +(*first);
+    ++first;
+    for(; first != last; ++first) {
+        builder << ", 0x" << +(*first);
+    }
+    builder << "}";
+    return builder.str();
 }
 
 template<std::unsigned_integral U>
-std::ostream& operator<<(std::ostream& os, const std::vector<U>& num) {
-    return os << std::span(num);
-}
-
-inline std::ostream& operator<<(std::ostream& os, const bignum::BigUnsigned& num) {
-    return os << num.digits();
+inline std::ostream& operator<<(std::ostream& os, const bignum::BigUnsigned<U>& num) {
+    return os << toString(num.digits());
 }
 
 struct RandomGenerator {
@@ -50,20 +60,19 @@ struct RandomGenerator {
     auto random(OutputRange&& output) -> void {
         using U = std::ranges::range_value_t<OutputRange>;
 
-        auto dist = std::uniform_int_distribution(U(), ~U());
+        auto dist = std::uniform_int_distribution(U(), U(~U()));
         std::ranges::generate(output, [this, &dist]{
             return dist(generator_);
         });
     }
 
-    bignum::BigUnsigned bigUnsigned(std::size_t bitSize) {
+    template<std::unsigned_integral U>
+    bignum::BigUnsigned<U> bigUnsigned(std::size_t bitSize) {
         using namespace bignum;
 
-        using DigitBits = Bits<BigUnsigned::NativeDigit>;
-
-        const auto [whole, bit] = div<BigUnsigned::NativeDigit>(bitSize, DigitBits::Size);
-        auto number = BigUnsigned(random<BigUnsigned::NativeDigit>(whole));
-        number.access().digits().back() &= lshift(DigitBits::Mask, bit).second;
+        const auto [whole, bit] = div<U>(bitSize, Bits<U>::Size);
+        auto number = BigUnsigned(random<U>(whole));
+        number.access().digits().back() &= lshift(Bits<U>::Mask, bit).second;
         return number;
     }
 

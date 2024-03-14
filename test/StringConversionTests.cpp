@@ -4,23 +4,27 @@
 
 #include <gtest/gtest.h>
 
-#include <bignum/bignum.hpp>
+#include <bignum/BigUnsigned.hpp>
 #include <bignum/Digits/Arithmetics.hpp>
+#include <bignum/Ranges/String.hpp>
 
 #include "Utils.hpp"
 
 using namespace bignum;
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 
-class BigUnsignedStringConversionTest : public ::testing::TestWithParam<std::tuple<std::string, BigUnsigned>> { };
+class BigUnsignedStringConversionTest : public ::testing::TestWithParam<std::tuple<std::string_view, BigUnsigned<NativeDigit>>> { };
 
 TEST_P(BigUnsignedStringConversionTest, ConstructorTests) {
     const auto string = std::get<0>(GetParam());
     const auto expected = std::get<1>(GetParam());
 
-    const auto actual = BigUnsigned(string);
+    const auto actual = BigUnsigned<NativeDigit>(string);
 
-    ASSERT_EQ(actual, expected);   
+    ASSERT_EQ(actual, expected) 
+        << "actual:   " << toString(actual.digits()) << "\n"
+        << "expected: " << toString(expected.digits()) << "\n";
 }
 
 
@@ -60,8 +64,8 @@ TEST(BigUnsignedStringConversionTest, OperationPerformance) {
 
     for (auto i : std::views::iota(0, 1000)) {
         const auto expected = rnd(100);
-        const auto converted = BigUnsigned(expected);
-        const auto actual = static_cast<std::string>(converted);
+        const auto converted = bignum::fromChars<std::uint64_t>(expected);
+        const auto actual = bignum::toChars(converted);
 
         ASSERT_EQ(actual, expected);
     }
@@ -77,10 +81,10 @@ INSTANTIATE_TEST_SUITE_P(
     BigUnsignedTests,
     BigUnsignedStringConversionTest,
     ::testing::Values(
-        std::make_tuple("0"s, BigUnsigned()),
-        std::make_tuple("1"s, BigUnsigned(1ul)),
-        std::make_tuple("123"s, BigUnsigned(123ul)),
-        std::make_tuple("18446744073709551616"s, BigUnsigned(1ul) << 64),
-        std::make_tuple("340282366920938463463374607431768211456"s, BigUnsigned(1ul) << 128)
+        std::make_tuple("0"sv, BigUnsigned<NativeDigit>()),
+        std::make_tuple("1"sv, BigUnsigned<NativeDigit>(1ul)),
+        std::make_tuple("123"sv, BigUnsigned<NativeDigit>(123ul)),
+        std::make_tuple("18446744073709551616"sv, BigUnsigned<NativeDigit>(1ul) << 64u),
+        std::make_tuple("340282366920938463463374607431768211456"sv, BigUnsigned<NativeDigit>(1ul) << 128u)
     )
 );

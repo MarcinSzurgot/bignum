@@ -2,6 +2,7 @@
 
 #include <ranges>
 
+#include <bignum/Digits/Arithmetics.hpp>
 #include <bignum/Ranges/Algorithms.hpp>
 
 namespace bignum {

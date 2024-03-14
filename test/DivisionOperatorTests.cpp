@@ -1,12 +1,14 @@
 #include <gtest/gtest.h>
 
-#include <bignum/bignum.hpp>
+#include <bignum/Arrays/Division.hpp>
 
 #include "Utils.hpp"
 
 using namespace bignum;
 
-class BigUnsignedDivisionTests : public ::testing::TestWithParam<std::tuple<BigUnsigned, BigUnsigned, BigUnsigned>> {};
+using Big = BigUnsigned<NativeDigit>;
+
+class BigUnsignedDivisionTests : public ::testing::TestWithParam<std::tuple<Big, Big, Big>> {};
 
 TEST_P(BigUnsignedDivisionTests, DivisionAssignmentOperator) {
           auto num1     = std::get<0>(GetParam());
@@ -22,19 +24,19 @@ INSTANTIATE_TEST_SUITE_P(
     DivisionTests,
     BigUnsignedDivisionTests,
     ::testing::Values(
-        std::make_tuple(BigUnsigned({0x0}), BigUnsigned({0x1}), BigUnsigned({0x0})),
-        std::make_tuple(BigUnsigned({0x8}), BigUnsigned({0x4}), BigUnsigned({0x2})),
-        std::make_tuple(BigUnsigned({0x10, 0x0}), BigUnsigned({0x1}), BigUnsigned({0x10, 0x0})),
-        std::make_tuple(BigUnsigned({0x10, 0x0}), BigUnsigned({0x2}), BigUnsigned({0x8, 0x0})),
-        std::make_tuple(BigUnsigned({0xFFFFFFFF, 0xFFFFFFFF}), BigUnsigned({0xFFFFFFFF}), BigUnsigned({0x1, 0x1})),
-        std::make_tuple(BigUnsigned({0xFFFFFFFF, 0xFFFFFFFF}), BigUnsigned({0x1}), BigUnsigned({0xFFFFFFFF, 0xFFFFFFFF})),
-        std::make_tuple(BigUnsigned({0xFFFFFFFF, 0x0}), BigUnsigned({0xFFFFFFFF}), BigUnsigned({0x1})),
-        std::make_tuple(BigUnsigned({0xFFFFFFFF, 0x0, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x7FFFFFFF, 0x8000000000000000})),
-        std::make_tuple(BigUnsigned({0x1, 0x0, 0x0}), BigUnsigned({0x1, 0x0}), BigUnsigned({0x1})),
-        std::make_tuple(BigUnsigned({0x1, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x8000000000000000})),
-        std::make_tuple(BigUnsigned({0x0, 0x1, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x8000000000000000, 0x8000000000000000})),
-        std::make_tuple(BigUnsigned({0x0, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x8000000000000000})),
-        std::make_tuple(BigUnsigned({0x0, 0x1, 0x1, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x8000000000000000, 0x8000000000000000, 0x8000000000000000})),
-        std::make_tuple(BigUnsigned({0x0, 0x1, 0x1, 0x0, 0x1}), BigUnsigned({0x2}), BigUnsigned({0x8000000000000000, 0x8000000000000000, 0x0, 0x8000000000000000}))
+        std::make_tuple(Big({0x0}), Big({0x1}), Big({0x0})),
+        std::make_tuple(Big({0x8}), Big({0x4}), Big({0x2})),
+        std::make_tuple(Big({0x10, 0x0}), Big({0x1}), Big({0x10, 0x0})),
+        std::make_tuple(Big({0x10, 0x0}), Big({0x2}), Big({0x8, 0x0})),
+        std::make_tuple(Big({0xFFFFFFFF, 0xFFFFFFFF}), Big({0xFFFFFFFF}), Big({0x1, 0x1})),
+        std::make_tuple(Big({0xFFFFFFFF, 0xFFFFFFFF}), Big({0x1}), Big({0xFFFFFFFF, 0xFFFFFFFF})),
+        std::make_tuple(Big({0xFFFFFFFF, 0x0}), Big({0xFFFFFFFF}), Big({0x1})),
+        std::make_tuple(Big({0xFFFFFFFF, 0x0, 0x1}), Big({0x2}), Big({0x7FFFFFFF, 0x8000000000000000})),
+        std::make_tuple(Big({0x1, 0x0, 0x0}), Big({0x1, 0x0}), Big({0x1})),
+        std::make_tuple(Big({0x1, 0x1}), Big({0x2}), Big({0x8000000000000000})),
+        std::make_tuple(Big({0x0, 0x1, 0x1}), Big({0x2}), Big({0x8000000000000000, 0x8000000000000000})),
+        std::make_tuple(Big({0x0, 0x1}), Big({0x2}), Big({0x8000000000000000})),
+        std::make_tuple(Big({0x0, 0x1, 0x1, 0x1}), Big({0x2}), Big({0x8000000000000000, 0x8000000000000000, 0x8000000000000000})),
+        std::make_tuple(Big({0x0, 0x1, 0x1, 0x0, 0x1}), Big({0x2}), Big({0x8000000000000000, 0x8000000000000000, 0x0, 0x8000000000000000}))
     )
 );

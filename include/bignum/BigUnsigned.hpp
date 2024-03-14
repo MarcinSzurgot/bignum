@@ -1,6 +1,7 @@
 #pragma once
 
-#include <bignum/Utils.hpp>
+#include <bignum/Ranges/Conversions.hpp>
+#include <bignum/Ranges/String.hpp>
 
 #include <cinttypes>
 #include <concepts>
@@ -9,123 +10,48 @@
 
 namespace bignum {
 
+template<std::unsigned_integral Native = std::uint8_t>
 struct BigUnsigned {
-
            struct Access;
     friend struct Access;
 
-    using NativeDigit = std::uint64_t;
-
-    static constexpr auto NativeDigitBitSize = NativeDigit(sizeof(NativeDigit) * 8);
-
-             BigUnsigned();
-    explicit BigUnsigned(std::initializer_list<NativeDigit> digits);             
-    explicit BigUnsigned(std::string_view string);
-
-    template<typename LessThanNative>
-    requires std::unsigned_integral<std::remove_const_t<LessThanNative>>
-             && (sizeof(std::remove_const_t<LessThanNative>) < sizeof(NativeDigit))
-    explicit BigUnsigned(
-        std::span<LessThanNative> digits
-    ) : digits_(nativeDigits(digits)) {
+             BigUnsigned() : BigUnsigned(Native()) {}
+    explicit BigUnsigned(std::string_view string) : BigUnsigned(fromChars<Native>(string)) { }
+    
+    explicit BigUnsigned(const std::vector<Native>&  digits) : BigUnsigned(std::vector(digits)) { }
+    explicit BigUnsigned(      std::vector<Native>&& digits) : digits_(std::move(digits)) { 
+        trim();
     }
 
-    template<typename GreaterThanNative>
-    requires std::unsigned_integral<std::remove_const_t<GreaterThanNative>>
-             && (sizeof(std::remove_const_t<GreaterThanNative>) > sizeof(NativeDigit))
-    explicit BigUnsigned(
-        std::span<GreaterThanNative> digits
-    ) : BigUnsigned(nativeDigits(digits)) {
-    }
-
-    template<std::unsigned_integral NotNativeDigit>
-    requires (sizeof(NotNativeDigit) != sizeof(NativeDigit))
-    explicit BigUnsigned(
-        const std::vector<NotNativeDigit>& digits
-    ) : BigUnsigned(std::span(digits)) {
-
-    }
-
-    explicit BigUnsigned(const std::vector<NativeDigit>&  digits);
-    explicit BigUnsigned(      std::vector<NativeDigit>&& digits);
+    template<std::ranges::input_range Range>
+    requires std::unsigned_integral<std::ranges::range_value_t<Range>>
+    explicit BigUnsigned(Range&& digits) : BigUnsigned(bignum::vector<Native>(digits)) { }
 
     template<std::unsigned_integral Digit>
-    explicit BigUnsigned(Digit digit);
+    explicit BigUnsigned(Digit digit) : BigUnsigned(bignum::vector<Native>(digit)) { }
 
-    template<std::unsigned_integral LessThanNative>
-    requires (sizeof(LessThanNative) < sizeof(NativeDigit))
-    explicit BigUnsigned(LessThanNative digit) : BigUnsigned(NativeDigit(digit)) {
-    }
+    operator        bool() const { return size(digits_) > 1u || digits_[0] > 0u; }
+    operator std::string() const { return bignum::toChars(digits_); }
 
-    template<std::unsigned_integral GreaterThanNative>
-    requires (sizeof(GreaterThanNative) > sizeof(NativeDigit))
-    explicit BigUnsigned(
-        GreaterThanNative digit
-    ) : BigUnsigned(std::span(
-            std::addressof(digit), 
-            sizeof(GreaterThanNative) / sizeof(NativeDigit)
-    )) {
-    }
+    Access access() { return {*this}; }
 
-    explicit operator bool() const;
-    explicit operator std::string() const;
-
-    Access access();
-
-    template<std::unsigned_integral U = NativeDigit>
-    requires (sizeof(U) <= sizeof(NativeDigit))
+    template<std::unsigned_integral U = Native>
+    requires (sizeof(U) <= sizeof(Native))
     std::span<const U> digits() const {
-        auto first = reinterpret_cast<const U*>(begin(digits_).base());
-        auto last  = reinterpret_cast<const U*>(end(digits_).base());
+        constexpr auto ratio = sizeof(Native) / sizeof(U);
+
+        auto first = reinterpret_cast<const U*>(digits_.data());
+        auto last  = reinterpret_cast<const U*>(digits_.data() + size(digits_) * ratio);
         return {first, last};
     }
 
-    template<std::unsigned_integral U = NativeDigit>
-    requires (sizeof(U) <= sizeof(NativeDigit))
-    std::span<const U> cdigits() const { return digits(); }
-
 private:
 
-    void trim();
-
-    std::vector<NativeDigit> digits_;
-
-    template<typename LessThanNative>
-    requires std::unsigned_integral<std::remove_const_t<LessThanNative>>
-    && (sizeof(LessThanNative) < sizeof(NativeDigit))
-    static std::vector<NativeDigit> nativeDigits(std::span<LessThanNative> digits) {
-        const auto nativeWholeDigitsCount = size(digits) / sizeof(NativeDigit);
-        const auto remainder = size(digits) - nativeWholeDigitsCount * sizeof(NativeDigit);
-        auto nativeSize = nativeWholeDigitsCount + (remainder > 0u);
-        nativeSize = nativeSize ? nativeSize : 1u;
-
-        auto nativeDigits = std::vector<NativeDigit>(nativeSize);
-        std::copy(
-            begin(digits),
-            end(digits),
-            reinterpret_cast<std::remove_const_t<LessThanNative>*>(begin(nativeDigits).base())
-        );
-
-        return nativeDigits;
+    void trim() {
+        digits_.resize(sizeWithoutLeadingZeroes(digits_));
     }
 
-    template<typename GreaterThanNative>
-    requires std::unsigned_integral<std::remove_const_t<GreaterThanNative>>
-    && (sizeof(std::remove_const_t<GreaterThanNative>) > sizeof(NativeDigit))
-    static std::vector<NativeDigit> nativeDigits(std::span<GreaterThanNative> digits) {
-
-        auto nativeDigits = std::vector<NativeDigit>(
-            size(digits) * ((sizeof(std::remove_const_t<GreaterThanNative>) / sizeof(NativeDigit)))
-        );
-        
-        std::copy(
-            reinterpret_cast<GreaterThanNative*>(begin(digits).base()),
-            reinterpret_cast<GreaterThanNative*>(end(digits).base()),
-            begin(nativeDigits)
-        );
-
-        return nativeDigits;
-    }
+    std::vector<Native> digits_;
 };
 
 }

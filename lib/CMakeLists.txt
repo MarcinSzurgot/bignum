@@ -1,12 +1,6 @@
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(SOURCES
-    BigUnsigned.cpp
-    ShiftOperators.cpp
-    ArithmeticOperators.cpp
-)
+add_library(MyLibrary INTERFACE)
 
-add_library(MyLibrary ${SOURCES})
-
-target_include_directories(MyLibrary PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+target_include_directories(MyLibrary INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/../include)

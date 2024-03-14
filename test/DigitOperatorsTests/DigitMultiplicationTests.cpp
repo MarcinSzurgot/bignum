@@ -16,11 +16,11 @@ TEST(DigitMultiplicationTests, MassiveTest) {
 
     for (auto i = 0u; i < 100000u; ++i) {
         const auto size = generator.random(minSize, maxSize);
-        const auto data = generator.random<BigUnsigned::NativeDigit>(size);        
+        const auto data = generator.random<NativeDigit>(size);        
         const auto big  = BigUnsigned(data);
         const auto dig  = generator.random(
-             BigUnsigned::NativeDigit(), 
-            ~BigUnsigned::NativeDigit()
+                 NativeDigit(), 
+            Bits<NativeDigit>::Mask
         );
 
         const auto actual   = big * dig;

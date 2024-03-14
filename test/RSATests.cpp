@@ -11,13 +11,13 @@
 
 using namespace bignum;
 
-BigUnsigned pow2(BigUnsigned::NativeDigit pow) {
-    auto result = BigUnsigned(2u);
+// BigUnsigned pow2(BigUnsigned::NativeDigit pow) {
+//     auto result = BigUnsigned(2u);
 
-    result <<= pow;
+//     result <<= pow;
 
-    return result;
-}
+//     return result;
+// }
 
 TEST(RSATests, test) {
     // auto generator = RandomGenerator();

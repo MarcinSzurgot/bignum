@@ -4,9 +4,13 @@
 
 #include <iostream>
 
+#include "Utils.hpp"
+
 using namespace bignum;
 
-class BigUnsignedModuloTests : public ::testing::TestWithParam<std::tuple<BigUnsigned, BigUnsigned, BigUnsigned>> {};
+using Big = BigUnsigned<NativeDigit>;
+
+class BigUnsignedModuloTests : public ::testing::TestWithParam<std::tuple<Big, Big, Big>> {};
 
 TEST_P(BigUnsignedModuloTests, ModuloAssignmentOperator) {
           auto num1     = std::get<0>(GetParam());
@@ -22,9 +26,9 @@ INSTANTIATE_TEST_SUITE_P(
     ModuloTests,
     BigUnsignedModuloTests,
     ::testing::Values(
-        std::make_tuple(BigUnsigned("1000000000000000000000000000000000876"), BigUnsigned("1000"), BigUnsigned("876")),
-        std::make_tuple(BigUnsigned("6666666666666"), BigUnsigned("20000000000000000000"), BigUnsigned("6666666666666")),
-        std::make_tuple(BigUnsigned(1u) << 1024, BigUnsigned(1u) << 256, BigUnsigned()),
-        std::make_tuple((BigUnsigned(1u) << 4096) + BigUnsigned(1u), BigUnsigned(2u), BigUnsigned(1u))
+        std::make_tuple(Big("1000000000000000000000000000000000876"), Big("1000"), Big("876")),
+        std::make_tuple(Big("6666666666666"), Big("20000000000000000000"), Big("6666666666666")),
+        std::make_tuple(Big(1u) << std::size_t(1024), Big(1u) << 256u, Big()),
+        std::make_tuple((Big(1u) << 4096u) + Big(1u), Big(2u), Big(1u))
     )
 );
