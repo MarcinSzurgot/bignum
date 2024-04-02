@@ -62,7 +62,7 @@ auto div2(
         );
 
         divSpan = divSpan.subspan(0, size(divSpan) - wholeDigitShift);
-        divSpan = divSpan.subspan(0, sizeWithoutLeadingZeroes(divSpan));
+        divSpan = {begin(divSpan), trimm(divSpan)};
 
         bitDiff = newBitDiff;
 
@@ -76,7 +76,7 @@ auto div2(
 
         sub(remainder, divSpan, remainder.begin());
 
-        remainder = remainder.subspan(0, sizeWithoutLeadingZeroes(remainder));
+        remainder = {begin(remainder), trimm(remainder)};     
     }
 
     return {

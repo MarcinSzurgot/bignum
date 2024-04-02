@@ -18,7 +18,7 @@ TEST_P(ArrayMultiplicationOperatorTests, MultiplicationOperation) {
 
     mul(lhs, rhs, begin(result));
 
-    result.resize(sizeWithoutLeadingZeroes(result));
+    result.erase(trimm(result), end(result));
 
     ASSERT_EQ(result, expected);
 }

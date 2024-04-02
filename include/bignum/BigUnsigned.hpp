@@ -30,7 +30,7 @@ struct BigUnsigned {
     template<std::unsigned_integral Digit>
     explicit BigUnsigned(Digit digit) : BigUnsigned(bignum::vector<Native>(digit)) { }
 
-    operator        bool() const { return size(digits_) > 1u || digits_[0] > 0u; }
+    operator        bool() const { return !!digits_; }
     operator std::string() const { return bignum::toChars(digits_); }
 
     Access access() { return {*this}; }
@@ -48,7 +48,7 @@ struct BigUnsigned {
 private:
 
     void trim() {
-        digits_.resize(sizeWithoutLeadingZeroes(digits_));
+        digits_.erase(trimm(digits_), end(digits_));
     }
 
     std::vector<Native> digits_;

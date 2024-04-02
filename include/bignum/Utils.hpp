@@ -1,5 +1,7 @@
 #pragma once
 
+#include <bignum/Bits.hpp>
+
 #include <algorithm>
 #include <concepts>
 #include <cstdint>
@@ -8,40 +10,24 @@
 
 namespace bignum {
 
-template<std::unsigned_integral U> 
-struct Bits {
-    static constexpr U Size = sizeof(U) * 8;
-    static constexpr U Mask = ~U();
-    static constexpr U HalfSize = Size / 2;
-    static constexpr U HalfMask = Mask >> HalfSize;
-    static constexpr U ShiftMask = Size - 1;
-};
+template<std::ranges::input_range Range>
+requires std::convertible_to<std::ranges::range_value_t<Range>, bool>
+auto trimm(Range&& range) -> std::ranges::iterator_t<Range> {
+    const auto first = begin(range);
+    const auto last  = end(range);
 
-namespace {
+    if (first == last) {
+        return last;
+    }
 
-template<std::ranges::input_range InputRange>
-requires std::integral<std::ranges::range_value_t<InputRange>>
-auto leadingZeroes(
-    InputRange&& digits
-) -> std::ranges::range_difference_t<InputRange> {
-    auto reversed = std::views::reverse(digits);
+    const auto trimmed = (
+        std::ranges::subrange(first, last)
+        | std::views::reverse
+        | std::views::drop_while(std::logical_not<>{})
+        | std::views::reverse
+    ).end().base().base();
 
-    return std::ranges::find_if(reversed, [](auto&& digit) { 
-        return digit > 0; 
-    }) - begin(reversed);
-}
-
-}
-
-template<std::ranges::input_range InputRange>
-requires std::integral<std::ranges::range_value_t<InputRange>>
-auto sizeWithoutLeadingZeroes(
-    InputRange&& digits
-) -> std::ranges::range_difference_t<InputRange> {
-    return std::max(
-        ssize(digits) - leadingZeroes(digits), 
-        typename std::ranges::range_difference_t<InputRange>(1)
-    );
+    return trimmed == first ? trimmed + 1 : trimmed;
 }
 
 template<typename InputRange>

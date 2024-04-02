@@ -52,6 +52,10 @@ auto div(
     const auto rhsTopBit = topBit(rhs);
     const auto lhsTopBit = topBit(lhs);
 
+    // std::cout 
+    //     << "rhsTopBit: " << rhsTopBit << "\n"
+    //     << "lhsTopBit: " << lhsTopBit << "\n";
+
     auto bitDiff = lhsTopBit - rhsTopBit;
     auto divider = std::vector<U3>(size(lhs));
     auto divSpan = std::span(divider);
@@ -68,25 +72,25 @@ auto div(
         rshift(
             divSpan.subspan(wholeDigitShift),
             bitShift, 
-            divSpan.begin()
+            begin(divSpan)
         );
 
         divSpan = divSpan.subspan(0, size(divSpan) - wholeDigitShift);
-        divSpan = divSpan.subspan(0, sizeWithoutLeadingZeroes(divSpan));
+        divSpan = {begin(divSpan), trimm(divSpan)};
 
         bitDiff = newBitDiff;
 
         if (divSpan > remainder) {
-            rshift(divSpan, 1, divSpan.begin());
+            rshift(divSpan, 1, begin(divSpan));
             divSpan.subspan(0, size(divSpan) * (bool) divSpan.back());
             bitDiff--;
         }
 
         quotient[bitDiff / Bits<U1>::Size] |= U3(1) << (bitDiff & Bits<U1>::ShiftMask);
 
-        sub(remainder, divSpan, remainder.begin());
+        sub(remainder, divSpan, begin(remainder));
 
-        remainder = remainder.subspan(0, sizeWithoutLeadingZeroes(remainder));
+        remainder = {begin(remainder), trimm(remainder)};
     }
 
     return {

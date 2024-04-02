@@ -8,14 +8,14 @@
 namespace bignum {
 
 template<
-    std::ranges::forward_range InputRange,
+    std::ranges::input_range Range,
     std::unsigned_integral U,
-    std::forward_iterator OutputIterator
->
+    typename Output
+> requires std::output_iterator<Output, U>
 constexpr auto div(
-    InputRange&& dividend,
+    Range&& dividend,
     U divisor,
-    OutputIterator quotient
+    Output quotient
 ) -> U {
     return cascade(dividend, U(), quotient, [divisor](auto&& d, auto&& carry) {
         const auto [quotient, remainder] = div(d, carry, divisor);

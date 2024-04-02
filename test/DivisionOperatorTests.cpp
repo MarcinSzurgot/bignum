@@ -8,35 +8,53 @@ using namespace bignum;
 
 using Big = BigUnsigned<NativeDigit>;
 
-class BigUnsignedDivisionTests : public ::testing::TestWithParam<std::tuple<Big, Big, Big>> {};
+using Unsigned = std::uint64_t;
+using ArithmeticParams = BinaryOpParams<
+    std::vector<Unsigned>,
+    std::vector<Unsigned>,
+    std::vector<Unsigned>
+>;
+
+
+class BigUnsignedDivisionTests : public ::testing::TestWithParam<ArithmeticParams> {};
 
 TEST_P(BigUnsignedDivisionTests, DivisionAssignmentOperator) {
-          auto num1     = std::get<0>(GetParam());
-    const auto num2     = std::get<1>(GetParam());
-    const auto expected = std::get<2>(GetParam());
+    const auto [num1, num2, expected] = GetParam();
 
-    num1 /= num2;
+    auto quotient  = std::vector<Unsigned>(size(num1) - size(num2) + 1);
+    auto remainder = std::vector<Unsigned>(size(num1));
 
-    EXPECT_EQ(num1, expected);
+    const auto [quotSize, _] = bignum::div(
+        std::span(num1), 
+        std::span(num2), 
+        std::span(quotient),
+        std::span(remainder)
+    );
+
+    quotient.resize(quotSize);
+
+    EXPECT_EQ(quotient, expected) 
+        << "quotient: " << toString(quotient) << "\n"
+        << "expected: " << toString(expected) << "\n";
 }
 
 INSTANTIATE_TEST_SUITE_P(
     DivisionTests,
     BigUnsignedDivisionTests,
     ::testing::Values(
-        std::make_tuple(Big({0x0}), Big({0x1}), Big({0x0})),
-        std::make_tuple(Big({0x8}), Big({0x4}), Big({0x2})),
-        std::make_tuple(Big({0x10, 0x0}), Big({0x1}), Big({0x10, 0x0})),
-        std::make_tuple(Big({0x10, 0x0}), Big({0x2}), Big({0x8, 0x0})),
-        std::make_tuple(Big({0xFFFFFFFF, 0xFFFFFFFF}), Big({0xFFFFFFFF}), Big({0x1, 0x1})),
-        std::make_tuple(Big({0xFFFFFFFF, 0xFFFFFFFF}), Big({0x1}), Big({0xFFFFFFFF, 0xFFFFFFFF})),
-        std::make_tuple(Big({0xFFFFFFFF, 0x0}), Big({0xFFFFFFFF}), Big({0x1})),
-        std::make_tuple(Big({0xFFFFFFFF, 0x0, 0x1}), Big({0x2}), Big({0x7FFFFFFF, 0x8000000000000000})),
-        std::make_tuple(Big({0x1, 0x0, 0x0}), Big({0x1, 0x0}), Big({0x1})),
-        std::make_tuple(Big({0x1, 0x1}), Big({0x2}), Big({0x8000000000000000})),
-        std::make_tuple(Big({0x0, 0x1, 0x1}), Big({0x2}), Big({0x8000000000000000, 0x8000000000000000})),
-        std::make_tuple(Big({0x0, 0x1}), Big({0x2}), Big({0x8000000000000000})),
-        std::make_tuple(Big({0x0, 0x1, 0x1, 0x1}), Big({0x2}), Big({0x8000000000000000, 0x8000000000000000, 0x8000000000000000})),
-        std::make_tuple(Big({0x0, 0x1, 0x1, 0x0, 0x1}), Big({0x2}), Big({0x8000000000000000, 0x8000000000000000, 0x0, 0x8000000000000000}))
+        ArithmeticParams({0x0}, {0x1}, {0x0}),
+        ArithmeticParams({0x8}, {0x4}, {0x2}),
+        ArithmeticParams({0x10}, {0x1}, {0x10}),
+        ArithmeticParams({0x10}, {0x2}, {0x8}),
+        ArithmeticParams({0xFFFFFFFF, 0xFFFFFFFF}, {0xFFFFFFFF}, {0x1, 0x1}),
+        ArithmeticParams({0xFFFFFFFF, 0xFFFFFFFF}, {0x1}, {0xFFFFFFFF, 0xFFFFFFFF}),
+        ArithmeticParams({0x0, 0xFFFFFFFF}, {0xFFFFFFFF}, {0x0, 0x1}),
+        ArithmeticParams({0xFFFFFFFF, 0x0, 0x1}, {0x2}, {0x7FFFFFFF, 0x8000000000000000}),
+        ArithmeticParams({0x0, 0x0, 0x1}, {0x0, 0x1}, {0x0, 0x1}),
+        ArithmeticParams({0x1, 0x1}, {0x2}, {0x8000000000000000}),
+        ArithmeticParams({0x0, 0x1, 0x1}, {0x2}, {0x8000000000000000, 0x8000000000000000}),
+        ArithmeticParams({0x0, 0x1}, {0x2}, {0x8000000000000000}),
+        ArithmeticParams({0x0, 0x1, 0x1, 0x1}, {0x2}, {0x8000000000000000, 0x8000000000000000, 0x8000000000000000}),
+        ArithmeticParams({0x0, 0x1, 0x1, 0x0, 0x1}, {0x2}, {0x8000000000000000, 0x8000000000000000, 0x0, 0x8000000000000000})
     )
 );

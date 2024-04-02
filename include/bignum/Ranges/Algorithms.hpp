@@ -6,18 +6,18 @@
 namespace bignum {
 
 template<
-    std::ranges::forward_range InputRange,
-    std::forward_iterator OutputIterator,
+    std::ranges::input_range Range,
+    typename Output,
     typename Carry,
     typename Functor,
-    std::forward_iterator... InputIterators
->
+    std::input_iterator... Inputs
+> requires std::input_iterator<Output>
 constexpr auto cascade(
-    InputRange&& input1,
+    Range&& input1,
     Carry initialCarry,
-    OutputIterator output,
+    Output output,
     Functor&& func,
-    InputIterators ...inputs
+    Inputs ...inputs
 ) -> Carry {
     for (auto&& i1 : input1) {
         std::tie(*output++, initialCarry) = func(i1, *inputs++..., std::move(initialCarry));

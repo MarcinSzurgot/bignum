@@ -111,6 +111,10 @@ constexpr auto fromChars(
         }
     }
 
+    if (empty(digits)) {
+        digits.push_back(U());
+    }
+
     return digits;
 }
 
