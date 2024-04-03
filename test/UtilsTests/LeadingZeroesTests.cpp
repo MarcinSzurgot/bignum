@@ -28,8 +28,8 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::Values(
         LeadingZeroesParams({0, 0, 1, 1, 1, 0}, {0, 0, 1, 1, 1}),
         LeadingZeroesParams({0, 0, 1, 1, 1, 0, 0}, {0, 0, 1, 1, 1}),
-        LeadingZeroesParams({0}, {0}),
-        LeadingZeroesParams({0, 0}, {0}),
+        LeadingZeroesParams({0}, {}),
+        LeadingZeroesParams({0, 0}, {}),
         LeadingZeroesParams({}, {}),
         LeadingZeroesParams({1}, {1}),
         LeadingZeroesParams({666, 666}, {666, 666})

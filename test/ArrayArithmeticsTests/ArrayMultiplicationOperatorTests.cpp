@@ -28,7 +28,7 @@ INSTANTIATE_TEST_SUITE_P(
     ArrayMultiplicationOperatorTests,
     ::testing::Values(
         ArithmeticBinaryOp({0x5}, {0x3}, {0xF}),
-        ArithmeticBinaryOp({0x5}, {0x0}, {0x0}),
+        ArithmeticBinaryOp({0x5}, {0x0}, {}),
         ArithmeticBinaryOp({0x5}, {0x5}, {0x19}),
         ArithmeticBinaryOp({0x5}, {0x1}, {0x5}),
         ArithmeticBinaryOp({0xFFFFFFFF}, {0x2}, {0xFFFFFFFE, 0x1}),

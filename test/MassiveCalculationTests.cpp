@@ -22,9 +22,8 @@ TEST(MassiveCalculationTests, MassiveMultiplicationTests) {
         }
 
         const auto c = a * b;
-        const auto s = (std::string) c;
-        const auto da = BigUnsigned(s) / b;
-        const auto db = BigUnsigned(s) / a;
+        const auto da = c / b;
+        const auto db = c / a;
 
         EXPECT_EQ(a, da) 
             << " a: "   << toString( a.digits()) 

@@ -148,7 +148,7 @@ constexpr auto toChars(InputRange&& digits) -> std::string {
             end(converted)
         );
 
-        if (size(quot) > 1 && !quot.front()) {
+        if (!quot.front()) {
             quot = quot.subspan(1);
         }
     }

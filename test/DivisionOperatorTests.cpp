@@ -42,7 +42,7 @@ INSTANTIATE_TEST_SUITE_P(
     DivisionTests,
     BigUnsignedDivisionTests,
     ::testing::Values(
-        ArithmeticParams({0x0}, {0x1}, {0x0}),
+        ArithmeticParams({0x0}, {0x1}, {}),
         ArithmeticParams({0x8}, {0x4}, {0x2}),
         ArithmeticParams({0x10}, {0x1}, {0x10}),
         ArithmeticParams({0x10}, {0x2}, {0x8}),

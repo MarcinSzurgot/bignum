@@ -7,13 +7,9 @@
 
 namespace bignum {
 
-template<typename Range>
-requires std::ranges::forward_range<Range>
-    && std::ranges::sized_range<Range>
-    && std::equality_comparable<std::ranges::range_value_t<Range>>
+template<std::ranges::input_range Range>
 auto operator!(Range&& range) -> bool {
-    return size(range) == typename std::ranges::range_size_t<Range>(1) 
-    && *begin(range) == typename std::ranges::range_value_t<Range>();
+    return begin(range) == end(range);
 }
 
 template<typename Range1, typename Range2>

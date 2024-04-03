@@ -10,24 +10,15 @@
 
 namespace bignum {
 
-template<std::ranges::input_range Range>
+template<std::ranges::bidirectional_range Range>
 requires std::convertible_to<std::ranges::range_value_t<Range>, bool>
 auto trimm(Range&& range) -> std::ranges::iterator_t<Range> {
-    const auto first = begin(range);
-    const auto last  = end(range);
-
-    if (first == last) {
-        return last;
-    }
-
-    const auto trimmed = (
-        std::ranges::subrange(first, last)
+    return (
+        range
         | std::views::reverse
         | std::views::drop_while(std::logical_not<>{})
         | std::views::reverse
     ).end().base().base();
-
-    return trimmed == first ? trimmed + 1 : trimmed;
 }
 
 template<typename InputRange>

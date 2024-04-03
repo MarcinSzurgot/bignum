@@ -46,6 +46,8 @@ auto div(
     std::ranges::copy(lhs, begin(remainder));
 
     if (lhs < rhs) {
+        quotient = {begin(quotient), trimm(quotient)};
+        remainder = {begin(remainder), trimm(remainder)};
         return {size(quotient), size(remainder)};
     }
 
