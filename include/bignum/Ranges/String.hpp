@@ -111,10 +111,6 @@ constexpr auto fromChars(
         }
     }
 
-    if (empty(digits)) {
-        digits.push_back(U());
-    }
-
     return digits;
 }
 
@@ -148,9 +144,7 @@ constexpr auto toChars(InputRange&& digits) -> std::string {
             end(converted)
         );
 
-        if (!quot.front()) {
-            quot = quot.subspan(1);
-        }
+        quot = quot.subspan(1);
     }
 
     return result;

@@ -6,6 +6,134 @@
 
 using namespace bignum;
 
+template<
+    std::ranges::bidirectional_range Dividend,
+    std::ranges::bidirectional_range Divisor,
+    std::bidirectional_iterator Quotient,
+    std::bidirectional_iterator Remainder
+> requires 
+    std::unsigned_integral<std::ranges::range_value_t<Dividend>>
+    && std::same_as<std::ranges::range_value_t<Dividend>, std::ranges::range_value_t<Divisor>>
+    && std::same_as<std::ranges::range_value_t<Dividend>, std::iter_value_t<Quotient>>
+    && std::same_as<std::ranges::range_value_t<Dividend>, std::iter_value_t<Remainder>>
+constexpr auto div(
+    Dividend&& dividend, // big-endian
+    Divisor&& divisor, // big-endian
+    Quotient quotient, // big-endian
+    Remainder remainder // big-endian
+) -> std::pair<Quotient, Remainder> {
+    using Unsigned = std::ranges::range_value_t<Dividend>;
+
+    if (!divisor) {
+        throw std::runtime_error("Division by zero is not allowed!");
+    }
+
+    auto remainderRange = std::ranges::subrange(
+        remainder,
+        std::ranges::copy(dividend, remainder).out
+    );
+
+    if (divisor > dividend) {
+        return std::make_pair(quotient, end(remainderRange));
+    }
+
+    const auto dvdSize = std::distance(begin(dividend), end(dividend));
+    const auto divSize = std::distance(begin(divisor), end(divisor));
+    const auto topDiv = *begin(divisor);
+
+    while(divisor < remainderRange) {
+        const auto topDvd = [&] {
+            auto top = std::array<Unsigned, 2>();
+
+            const auto it = std::reverse_iterator(end(remainderRange));
+            if (*it < topDiv) {
+                top[0] = *it;   
+            } else {
+                top[1] = *  it;
+                top[0] = *--it;
+            }
+            return top;
+        } ();
+
+        const auto multiplier = div(topDvd[0], topDvd[1], topDiv).first;
+        // const auto 
+    }
+}
+
+template<
+    std::ranges::bidirectional_range Range,
+    std::unsigned_integral Unsigned
+> requires std::same_as<Unsigned, std::ranges::range_value_t<Range>>
+constexpr auto approxDiv(
+    Range&& dividend, // big-endian
+    Unsigned divisor
+) -> std::array<Unsigned, 2> {
+    auto first = std::reverse_iterator(end(dividend));
+    auto last = std::reverse_iterator(begin(dividend));
+
+    if (first == last) {
+        return std::array<Unsigned, 2>();
+    }
+
+    const auto topDvd = *first;
+    if(++first == last) {
+        return std::array<Unsigned, 2>{
+            div(topDvd, divisor).first,
+            Unsigned()
+        };
+    }
+    
+    return div(*first, topDvd, divisor).first;
+}
+
+template<
+    std::unsigned_integral Unsigned,
+    std::size_t MultiplierSize
+>
+constexpr auto multiply(
+    const std::array<Unsigned, MultiplierSize>& multiplier
+)  {
+    return std::views::transform([
+            carry = std::array<Unsigned, MultiplierSize + 1>(),
+            multiplier
+        ](auto value) mutable -> Unsigned {
+            mul(
+                multiplier, 
+                value, 
+                begin(carry), 
+                begin(carry)
+            );
+
+            const auto result = carry[0];
+            std::copy(begin(carry) + 1, end(carry), begin(carry));
+            return result;
+    });
+}
+
+TEST(ArrayDivisionOperatorTests, siema) {
+    using Unsigned = std::uint8_t;
+
+    const auto values = std::vector<Unsigned>{50, 60, 3, 4};
+    const auto multiplier = std::array {
+        Unsigned(100),
+        Unsigned(4),
+        Unsigned(3),
+        Unsigned(1)
+    };
+
+    for (const auto& v : values | multiply(multiplier)) {
+        std::cout << +v << "\n";
+    }
+
+    // const auto dvd = std::vector<Unsigned>{0, 2, 0, 255, 254};
+    // const auto div = std::vector<Unsigned>{0, 250};
+
+    // const auto ratio = approxDiv(dvd, div.back());
+
+    // std::cout << +ratio[1] << ", " << +ratio[0] << std::endl;
+}
+
+
 template<std::unsigned_integral U>
 using DivOpParams = BinaryOpParams<
     std::vector<U>,

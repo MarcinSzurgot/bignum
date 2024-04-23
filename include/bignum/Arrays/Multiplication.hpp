@@ -14,7 +14,7 @@ template<
     std::forward_iterator OutputIterator,
     std::unsigned_integral Unsigned = std::iter_value_t<OutputIterator>
 >
-auto mul(
+constexpr auto mul(
     InputRange&& lhs,
     Unsigned rhs,
     OutputIterator result
@@ -34,7 +34,7 @@ template<
     std::forward_iterator OutputIterator,
     std::unsigned_integral Unsigned = std::iter_value_t<OutputIterator>
 >
-auto mul(
+constexpr auto mul(
     InputRange&& lhs,
     Unsigned rhs,
     InputIterator adding,
@@ -56,7 +56,7 @@ template<
     std::ranges::forward_range InputRange2, 
     std::forward_iterator OutputIterator
 >
-auto mul(
+constexpr auto mul(
     InputRange1&& lhs,
     InputRange2&& rhs,
     OutputIterator output

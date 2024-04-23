@@ -90,7 +90,7 @@ constexpr auto sub(
 }
 
 template<std::unsigned_integral U>
-constexpr auto mul(U lhs, U rhs) -> std::pair<U, U> {
+constexpr auto mul(U lhs, U rhs) -> std::array<U, 2> {
     const auto [lowerLhs, upperLhs] = halve(lhs);
     const auto [lowerRhs, upperRhs] = halve(rhs);
 
