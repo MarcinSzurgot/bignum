@@ -15,7 +15,7 @@ TEST_P(ArrayComparisonTest, LessThanOperation) {
     auto rhsSpan = std::span(rhs); 
 
     // ASSERT_EQ(lhs < rhs, expected);
-    ASSERT_EQ(lhsSpan < rhsSpan, expected);
+    ASSERT_EQ(less(lhsSpan, rhsSpan), expected);
 }
 
 INSTANTIATE_TEST_SUITE_P(

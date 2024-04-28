@@ -6,39 +6,33 @@
 namespace bignum {
 
 template<std::unsigned_integral U>
-auto operator==(
+auto equal(
     const BigUnsigned<U>& lhs,
     const BigUnsigned<U>& rhs
-) -> bool { return lhs.digits() == rhs.digits(); }
+) -> bool { return equal(lhs.digits(), rhs.digits()); }
 
 template<std::unsigned_integral U>
-auto operator!=(
+auto less(
     const BigUnsigned<U>& lhs,
     const BigUnsigned<U>& rhs
-) -> bool { return !(lhs == rhs); }
+) -> bool { return less(lhs.digits(), rhs.digits()); }
 
 template<std::unsigned_integral U>
-auto operator<(
+auto greaterEqual(
     const BigUnsigned<U>& lhs,
     const BigUnsigned<U>& rhs
-) -> bool { return lhs.digits() < rhs.digits(); }
+) -> bool { return not less(lhs, rhs); }
 
 template<std::unsigned_integral U>
-auto operator>=(
+auto greater(
     const BigUnsigned<U>& lhs,
     const BigUnsigned<U>& rhs
-) -> bool { return !(lhs < rhs); }
+) -> bool { return less(rhs, lhs); }
 
 template<std::unsigned_integral U>
-auto operator>(
+auto lessGreater(
     const BigUnsigned<U>& lhs,
     const BigUnsigned<U>& rhs
-) -> bool { return rhs < lhs; }
-
-template<std::unsigned_integral U>
-auto operator<=(
-    const BigUnsigned<U>& lhs,
-    const BigUnsigned<U>& rhs
-) -> bool { return !(lhs > rhs); }
+) -> bool { return not greater(lhs, rhs); }
 
 }

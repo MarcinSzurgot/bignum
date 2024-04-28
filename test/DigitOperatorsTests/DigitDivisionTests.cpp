@@ -66,6 +66,6 @@ TEST(DigitDivisionTests, TestDividingMultipleDigits) {
         mul(result, divisor, begin(expected));
         add(expected, remainder, begin(expected));
 
-        EXPECT_TRUE(dividend == expected);
+        EXPECT_TRUE(equal(dividend, expected));
     }
 }

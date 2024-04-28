@@ -14,7 +14,7 @@ auto divide(
     const BigUnsigned<U>& lhs,
     const BigUnsigned<U>& rhs
 ) -> std::pair<BigUnsigned<U>, BigUnsigned<U>> {
-    if (lhs < rhs) {
+    if (less(lhs, rhs)) {
         return {BigUnsigned(), lhs};
     }
 
@@ -73,7 +73,7 @@ auto operator-=(
     const BigUnsigned<U>& rhs
 ) -> BigUnsigned<U>& {
 
-    if (lhs < rhs) {
+    if (less(lhs, rhs)) {
         auto tmp = rhs;
         sub(
             tmp.access().digits(),

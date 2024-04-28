@@ -7,11 +7,6 @@
 
 namespace bignum {
 
-template<std::ranges::input_range Range>
-auto operator!(Range&& range) -> bool {
-    return begin(range) == end(range);
-}
-
 template<typename Range1, typename Range2>
 requires std::equality_comparable<std::ranges::range_value_t<Range1>> 
     && std::equality_comparable<std::ranges::range_value_t<Range2>> 
@@ -19,7 +14,7 @@ requires std::equality_comparable<std::ranges::range_value_t<Range1>>
         std::ranges::range_value_t<Range1>, 
         std::ranges::range_value_t<Range2>
     >
-auto operator==(
+auto equal(
     Range1&& lhs,
     Range2&& rhs
 ) -> bool {
@@ -34,29 +29,19 @@ auto operator==(
 }
 
 template<typename Range1, typename Range2>
-requires std::equality_comparable<std::ranges::range_value_t<Range1>> 
-    && std::equality_comparable<std::ranges::range_value_t<Range2>> 
-    && std::same_as<
-        std::ranges::range_value_t<Range1>, 
-        std::ranges::range_value_t<Range2>
-    >
-auto operator!=(
-    Range1&& lhs,
-    Range2&& rhs
-) -> bool { return !(lhs == rhs); }
-
-template<typename Range1, typename Range2>
 requires std::three_way_comparable<std::ranges::range_value_t<Range1>> 
     && std::three_way_comparable<std::ranges::range_value_t<Range2>> 
     && std::same_as<
         std::ranges::range_value_t<Range1>, 
         std::ranges::range_value_t<Range2>
     >
-auto operator<(
+auto less(
     Range1&& lhs,
     Range2&& rhs
 ) -> bool {
+    // std::cout << "zaczynamy\n";
     if (size(lhs) != size(rhs)) {
+        // std::cout << "porownanie: " << size(lhs) << ", " << size(rhs) << "\n";
         return size(lhs) < size(rhs);
     }
 
@@ -76,10 +61,10 @@ requires std::three_way_comparable<std::ranges::range_value_t<Range1>>
         std::ranges::range_value_t<Range1>, 
         std::ranges::range_value_t<Range2>
     >
-auto operator>=(
+auto greaterEqual(
     Range1&& lhs,
     Range2&& rhs
-) -> bool { return !(lhs < rhs); }
+) -> bool { return not less(lhs, rhs); }
 
 template<typename Range1, typename Range2>
 requires std::three_way_comparable<std::ranges::range_value_t<Range1>> 
@@ -88,10 +73,13 @@ requires std::three_way_comparable<std::ranges::range_value_t<Range1>>
         std::ranges::range_value_t<Range1>, 
         std::ranges::range_value_t<Range2>
     >
-auto operator>(
+auto greater(
     Range1&& lhs,
     Range2&& rhs
-) -> bool { return rhs < lhs; }
+) -> bool { 
+        // std::cout << "zaczynamy\n";
+    return less(rhs, lhs); 
+}
 
 template<typename Range1, typename Range2>
 requires std::three_way_comparable<std::ranges::range_value_t<Range1>> 
@@ -100,9 +88,9 @@ requires std::three_way_comparable<std::ranges::range_value_t<Range1>>
         std::ranges::range_value_t<Range1>, 
         std::ranges::range_value_t<Range2>
     >
-auto operator<=(
+auto lessEqual(
     Range1&& lhs,
     Range2&& rhs
-) -> bool { return !(lhs > rhs); }
+) -> bool { return not greater(lhs, rhs); }
 
 }

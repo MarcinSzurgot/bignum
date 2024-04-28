@@ -133,7 +133,7 @@ constexpr auto toChars(InputRange&& digits) -> std::string {
     auto result = std::string();
     result.reserve(size(digits) * Bits<Unsigned>::Size / 3);
 
-    while (!!quot) {
+    while (not empty(quot)) {
         const auto notLastDivision = (size(quot) > 1) || (quot[0] >= divisor);
         const auto mod = div(quot, divisor, begin(quot));
         const auto converted = converter.convert(mod, notLastDivision);

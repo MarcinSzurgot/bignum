@@ -16,7 +16,7 @@ TEST_P(ArraySubtractionTest, SubtractionOperation) {
     using namespace bignum;
 
     auto [num1, num2, expected] = GetParam();
-    auto [result, smaller] = num1 < num2
+    auto [result, smaller] = less(num1, num2)
     ? std::make_pair(num2, num1) 
     : std::make_pair(num1, num2);
 

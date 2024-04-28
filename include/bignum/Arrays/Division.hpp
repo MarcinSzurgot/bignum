@@ -38,14 +38,14 @@ auto div(
     typename std::span<U3>::size_type, 
     typename std::span<U4>::size_type
 > {
-    if (!rhs) {
+    if (empty(rhs)) {
         throw std::runtime_error("Division by zero is not allowed!");
     }
 
     std::ranges::fill(quotient, 0);
     std::ranges::copy(lhs, begin(remainder));
 
-    if (lhs < rhs) {
+    if (less(lhs, rhs)) {
         quotient = {begin(quotient), trimm(quotient)};
         remainder = {begin(remainder), trimm(remainder)};
         return {size(quotient), size(remainder)};
@@ -67,7 +67,7 @@ auto div(
         divSpan.subspan(bitDiff / Bits<U1>::Size).begin()
     );
 
-    while (remainder >= rhs) {
+    while (greaterEqual(remainder, rhs)) {
         const auto newBitDiff = topBit(remainder) - rhsTopBit;
         const auto [wholeDigitShift, bitShift] = div<U1>(bitDiff - newBitDiff, Bits<U1>::Size);
 
@@ -82,7 +82,7 @@ auto div(
 
         bitDiff = newBitDiff;
 
-        if (divSpan > remainder) {
+        if (greater(divSpan, remainder)) {
             rshift(divSpan, 1, begin(divSpan));
             divSpan.subspan(0, size(divSpan) * (bool) divSpan.back());
             bitDiff--;

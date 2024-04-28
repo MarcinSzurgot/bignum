@@ -30,7 +30,7 @@ struct BigUnsigned {
     template<std::unsigned_integral Digit>
     explicit BigUnsigned(Digit digit) : BigUnsigned(bignum::vector<Native>(digit)) { }
 
-    operator        bool() const { return !!digits_; }
+    operator        bool() const { return not empty(digits_); }
     operator std::string() const { return bignum::toChars(digits_); }
 
     Access access() { return {*this}; }
