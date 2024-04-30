@@ -8,32 +8,6 @@
 using namespace bignum;
 
 template<
-    std::ranges::bidirectional_range Range,
-    std::unsigned_integral Unsigned
-> requires std::same_as<Unsigned, std::ranges::range_value_t<Range>>
-constexpr auto approxDiv(
-    Range&& dividend, // big-endian
-    Unsigned divisor
-) -> std::array<Unsigned, 2> {
-    auto first = std::reverse_iterator(end(dividend));
-    auto last = std::reverse_iterator(begin(dividend));
-
-    if (first == last) {
-        return std::array<Unsigned, 2>();
-    }
-
-    const auto topDvd = *first;
-    if(++first == last) {
-        return std::array<Unsigned, 2>{
-            div(topDvd, divisor).first,
-            Unsigned()
-        };
-    }
-    
-    return div(*first, topDvd, divisor).first;
-}
-
-template<
     std::bidirectional_iterator Minuend,
     std::ranges::forward_range Subtrahend
 > requires std::same_as<
@@ -101,37 +75,23 @@ constexpr auto div3(
 
     const auto topDivisor = *(end(divisor) - 1);
 
+    std::cout << "top divisor: " << +topDivisor << "\n";
+
     while(less(divisor, remainderRange)) {
         const auto multiplier = approxDiv(remainderRange, topDivisor);
-
-        auto mulCarry = std::array<Unsigned, 3>();
-        auto subCarry = Unsigned();
-        auto divisorFirst = begin(divisor);
-        auto divisorLast = end(divisor);
         auto remainderOffset = std::prev(
             end(remainderRange), 
             size(divisor) + (size(remainderRange) != size(divisor))
         );
 
-        for (; divisorFirst != divisorLast; ++divisorFirst, ++remainderOffset) {
-            mul(
-                multiplier,
-                *divisorFirst,
-                begin(mulCarry),
-                begin(mulCarry)
-            );
+        std::cout << "multiplier: " << +multiplier[0] << ", " << +multiplier[1] << "\n";
 
-            const auto [subed, carry] = sub(*remainderOffset, mulCarry[0], subCarry);
-            *remainderOffset = subed;
-            subCarry = carry;
-            mulCarry[0] = mulCarry[1];
-            mulCarry[1] = mulCarry[2];
-            mulCarry[2] = Unsigned();
-        }
-
-        if (mulCarry[0]) {
-            *remainderOffset -= mulCarry[0];
-        }
+        mulSub(
+            remainderOffset, 
+            divisor,
+            multiplier,
+            remainderOffset
+        );
 
         add(
             quotientRange,
@@ -151,25 +111,39 @@ constexpr auto div3(
 TEST(ArrayDivisionOperatorTests, siema) {
     using Unsigned = std::uint8_t;
 
-    const auto dividend = std::vector<Unsigned>{0, 53, 0, 100};
-    const auto divisor  = std::vector<Unsigned>{0, 101};
+    const auto dividend = std::vector<Unsigned>{0, 0, 1, 202};
+    const auto divisor  = std::vector<Unsigned>{1, 100};
     auto quotient       = std::vector(size(dividend) - size(divisor), Unsigned());
-    auto remainder      = std::vector(size(dividend), Unsigned());
+    auto remainder      = dividend;
 
-    auto [quotientLast, remainderLast] = div3(
-        dividend, 
-        divisor, 
-        begin(quotient), 
-        begin(remainder)
+    const auto multiplier = approxDiv(dividend, divisor[1]);
+
+    std::cout << "multiplier: \n";
+    for (const auto m : multiplier) {
+        std::cout << +m << ", ";
+    }
+
+    std::cout << "\nremainder: \n";
+    for (const auto r : remainder) {
+        std::cout << +r << ", ";
+    }
+
+    mulSub(
+        std::ranges::subrange(begin(remainder) + 1, end(remainder)),
+        divisor,
+        multiplier,
+        begin(remainder) + 1
     );
 
-    quotient.erase(quotientLast, end(quotient));
-    remainder.erase(remainderLast, end(remainder));
+    // auto [quotientLast, remainderLast] = div3(
+    //     dividend, 
+    //     divisor, 
+    //     begin(quotient), 
+    //     begin(remainder)
+    // );
 
-    std::cout << "quotient: \n";
-    for (const auto q : quotient) {
-        std::cout << +q << ", ";
-    }
+    // quotient.erase(quotientLast, end(quotient));
+    // remainder.erase(remainderLast, end(remainder));
     std::cout << "\nremainder: \n";
     for (const auto r : remainder) {
         std::cout << +r << ", ";

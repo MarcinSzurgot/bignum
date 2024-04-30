@@ -71,5 +71,60 @@ constexpr auto mul(
     }
 }
 
+template<
+    std::ranges::input_range Minuend, 
+    std::ranges::input_range Subtrahend, 
+    std::unsigned_integral Unsigned,
+    std::input_iterator Result,
+    std::size_t MultiplierSize
+> requires
+    std::same_as<Unsigned, std::iter_value_t<Result>>
+    && std::same_as<Unsigned, std::ranges::range_value_t<Subtrahend>>
+    && std::same_as<Unsigned, std::ranges::range_value_t<Minuend>>
+constexpr auto mulSub(
+    Minuend&& minuend,
+    Subtrahend&& subtrahend,
+    const std::array<Unsigned, MultiplierSize>& multiplier,
+    Result result
+) -> void {
+    auto subCarry = Unsigned();
+
+    auto finalMulCarry = Unsigned();
+    auto multipliedSubtrahend = subtrahend | std::views::transform(
+        [
+            mulCarry = std::array<Unsigned, MultiplierSize + 1>(), 
+            multiplier,
+            &finalMulCarry
+        ] (auto&& s) mutable {
+            mul(
+                multiplier,
+                s,
+                begin(mulCarry),
+                begin(mulCarry)
+            );
+
+            const auto multiplied = mulCarry;
+            std::copy(begin(mulCarry) + 1, end(mulCarry), begin(mulCarry));
+            *(end(mulCarry) - 1) = Unsigned();
+
+            finalMulCarry = mulCarry[0];
+
+            return multiplied;
+        }
+    );
+
+    auto minuendFirst = begin(minuend);
+
+    for (auto&& s : multipliedSubtrahend) {
+        std::tie(*result, subCarry) = sub(*minuendFirst, s[0], subCarry);
+        ++result;
+        ++minuendFirst;
+    }
+
+    if (finalMulCarry) {
+        *result = sub(*(end(minuend) - 1), finalMulCarry, subCarry).first;
+    }
+}
+
 }
 

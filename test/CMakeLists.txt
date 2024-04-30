@@ -27,7 +27,9 @@ set(TEST_SOURCES
 
     ArrayArithmeticsTests/ArrayAddTests.cpp
     ArrayArithmeticsTests/ArrayDivisionOperatorTests.cpp
+    ArrayArithmeticsTests/ApproxDivTests.cpp
     ArrayArithmeticsTests/ArrayLeftShiftOperatorTests.cpp
+    ArrayArithmeticsTests/ArrayMulSubTests.cpp
     ArrayArithmeticsTests/ArrayMultiplicationOperatorTests.cpp
     ArrayArithmeticsTests/ArrayRightShiftOperatorTests.cpp
     ArrayArithmeticsTests/ArraySubtractionTests.cpp

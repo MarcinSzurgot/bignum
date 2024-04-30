@@ -23,4 +23,32 @@ constexpr auto div(
     });
 }
 
+template<
+    std::ranges::bidirectional_range Range,
+    std::unsigned_integral Unsigned
+> requires std::same_as<Unsigned, std::ranges::range_value_t<Range>>
+constexpr auto approxDiv(
+    Range&& dividend, // big-endian
+    Unsigned divisor
+) -> std::array<Unsigned, 2> {
+    auto first = std::reverse_iterator(end(dividend));
+    auto last = std::reverse_iterator(begin(dividend));
+
+    if (first == last) {
+        return std::array<Unsigned, 2>();
+    }
+
+    ++divisor;
+
+    const auto topDvd = *first;
+    if(++first == last) {
+        return std::array<Unsigned, 2>{
+            div(topDvd, divisor).first,
+            Unsigned()
+        };
+    }
+    
+    return div(*first, topDvd, divisor).first;
+}
+
 }
