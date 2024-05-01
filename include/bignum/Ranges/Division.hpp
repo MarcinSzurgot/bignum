@@ -20,7 +20,7 @@ constexpr auto div(
     return cascade(dividend, U(), quotient, [divisor](auto&& d, auto&& carry) {
         const auto [quotient, remainder] = div(d, carry, divisor);
         return std::make_pair(quotient[0], remainder);
-    });
+    }).result;
 }
 
 template<

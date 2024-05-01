@@ -90,7 +90,7 @@ constexpr auto fromChars(
         const auto stringDigit = chars.substr(0, maxDivisorPowerOf10);
         const auto digit = digitFromChars<U>(stringDigit);
         
-        if (const auto carry = add(digits, digit, begin(digits))) {
+        if (const auto carry = add(digits, digit, begin(digits)).result) {
             digits.push_back(carry);
         }
 
@@ -104,7 +104,7 @@ constexpr auto fromChars(
                 digits,
                 power,
                 begin(digits)
-            )) {
+            ).result) {
                 digits.push_back(carry);
             }
 

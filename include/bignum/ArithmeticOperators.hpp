@@ -62,7 +62,7 @@ auto operator+=(
         access.digits(),
         rhs.digits(),
         access.digits().begin()
-    ));
+    ).result);
 
     return lhs;
 }
@@ -210,7 +210,7 @@ auto operator*=(
     auto access = lhs.access();
     auto digits = access.digits();
 
-    access.push_back(mul(digits, rhs, digits.begin()));
+    access.push_back(mul(digits, rhs, digits.begin()).result);
 
     return lhs;
 }

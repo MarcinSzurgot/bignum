@@ -18,7 +18,7 @@ constexpr auto mul(
     InputRange&& lhs,
     Unsigned rhs,
     OutputIterator result
-) -> Unsigned {
+) -> CascadeResult<Unsigned, std::ranges::iterator_t<InputRange>, OutputIterator> {
     return cascade(lhs, Unsigned(), result, 
         [rhs, &result](auto next, auto carry){
             ++result;
@@ -46,7 +46,7 @@ constexpr auto mul(
             const auto [lower,     higher] = mul(next1,   rhs);
             const auto [result, nextCarry] = add(lower, next2, carry);
             return std::make_pair(result, nextCarry + higher);
-    }, adding);
+    }, adding).result;
 
     return std::make_pair(carry, result);
 }

@@ -28,7 +28,7 @@ auto rshift(
             const auto [lower, upper] = rshift(next, shift);
             return std::make_pair(carry | lower, upper);
         }
-    );
+    ).result;
 
     *output-- = carry;
 
@@ -52,7 +52,7 @@ auto lshift(
            const auto [lower, upper] = lshift(next, shift); 
            return std::make_pair(carry | lower, upper);
         }
-    );
+    ).result;
 }
 
 }
