@@ -9,6 +9,20 @@
 
 namespace bignum {
 
+// template<
+//     std::input_iterator Result,
+//     std::ranges::input_range    Range,
+//     std::ranges::input_range ...Ranges
+// > requires std::unsigned_integral<std::iter_value_t<Result>>
+//     &&  std::same_as<std::iter_value_t<Result>, std::ranges::range_value_t<Range>>
+//     && (std::same_as<std::iter_value_t<Result>, std::ranges::range_value_t<Ranges>> && ...)
+// using MultiplicativeResult = CascadeResult<
+//     std::iter_value_t<Result>,
+//     Result,
+//     std::ranges::iterator_t<Range>,
+//     std::ranges::iterator_t<Ranges>...
+// >;
+
 template<
     std::ranges::forward_range InputRange,
     std::forward_iterator OutputIterator,
@@ -18,10 +32,13 @@ constexpr auto mul(
     InputRange&& lhs,
     Unsigned rhs,
     OutputIterator result
-) -> CascadeResult<Unsigned, std::ranges::iterator_t<InputRange>, OutputIterator> {
+) -> CascadeResult<
+    Unsigned, 
+    OutputIterator,
+    std::ranges::iterator_t<InputRange>
+> {
     return cascade(lhs, Unsigned(), result, 
-        [rhs, &result](auto next, auto carry){
-            ++result;
+        [rhs](auto next, auto carry){
             const auto [lower,     higher] = mul(next,    rhs);
             const auto [result, nextCarry] = add(lower, carry);
             return std::make_pair(result, nextCarry + higher);
@@ -39,36 +56,18 @@ constexpr auto mul(
     Unsigned rhs,
     InputIterator adding,
     OutputIterator result
-) -> std::pair<Unsigned, OutputIterator> {
-    auto carry = cascade(lhs, Unsigned(), result, 
-        [rhs, &result](auto&& next1, auto&& next2, auto&& carry){
-            ++result;
+) -> CascadeResult<
+    Unsigned, 
+    OutputIterator,
+    std::ranges::iterator_t<InputRange>,
+    InputIterator
+> {
+    return cascade(lhs, Unsigned(), result, 
+        [rhs](auto&& next1, auto&& next2, auto&& carry){
             const auto [lower,     higher] = mul(next1,   rhs);
             const auto [result, nextCarry] = add(lower, next2, carry);
             return std::make_pair(result, nextCarry + higher);
-    }, adding).result;
-
-    return std::make_pair(carry, result);
-}
-
-template<
-    std::ranges::forward_range InputRange1, 
-    std::ranges::forward_range InputRange2, 
-    std::forward_iterator OutputIterator
->
-constexpr auto mul(
-    InputRange1&& lhs,
-    InputRange2&& rhs,
-    OutputIterator output
-) -> void {
-    for (auto&& r : rhs) {
-        auto [carry, continuation] = mul(lhs, r, output, output);
-        ++output;
-
-        for (; carry; ++continuation) {
-            std::tie(*continuation, carry) = add(*continuation, carry);
-        }
-    }
+    }, adding);
 }
 
 template<
@@ -87,42 +86,60 @@ constexpr auto mulSub(
     const std::array<Unsigned, MultiplierSize>& multiplier,
     Result result
 ) -> void {
-    auto subCarry = Unsigned();
-
-    auto finalMulCarry = Unsigned();
-    auto multipliedSubtrahend = subtrahend | std::views::transform(
-        [
-            mulCarry = std::array<Unsigned, MultiplierSize + 1>(), 
-            multiplier,
-            &finalMulCarry
-        ] (auto&& s) mutable {
-            mul(
-                multiplier,
-                s,
-                begin(mulCarry),
-                begin(mulCarry)
-            );
-
-            const auto multiplied = mulCarry;
-            std::copy(begin(mulCarry) + 1, end(mulCarry), begin(mulCarry));
-            *(end(mulCarry) - 1) = Unsigned();
-
-            finalMulCarry = mulCarry[0];
-
-            return multiplied;
-        }
-    );
-
     auto minuendFirst = begin(minuend);
+    auto mulCarry = std::array<Unsigned, 3>();
+    auto subCarry = std::pair<Unsigned, Unsigned>();
+    for (auto& s : subtrahend) {
+        const auto [lower0, higher0] = mul(multiplier[0], s);
+        const auto [lower1, higher1] = mul(multiplier[1], s);
 
-    for (auto&& s : multipliedSubtrahend) {
-        std::tie(*result, subCarry) = sub(*minuendFirst, s[0], subCarry);
-        ++result;
-        ++minuendFirst;
+        const auto [addLower0, addHigher0] = add(mulCarry[0], lower0);
+        const auto [addLower1, addHigher1] = add(mulCarry[1], higher0, lower1, addHigher0);
+        
+        mulCarry[0] = addLower0;
+        mulCarry[1] = addLower1;
+        mulCarry[2] = higher1 + addHigher1;
+        
+        subCarry = sub(*minuendFirst++, mulCarry[0], subCarry.second);
+        *result++ = subCarry.first;
+
+        mulCarry[0] = mulCarry[1];
+        mulCarry[1] = mulCarry[2];
+        mulCarry[2] = Unsigned();
     }
 
-    if (finalMulCarry) {
-        *result = sub(*(end(minuend) - 1), finalMulCarry, subCarry).first;
+    for(auto minuendLast = end(minuend); minuendFirst != minuendLast;) {
+        subCarry = sub(*minuendFirst++, mulCarry[0], subCarry.second);
+        *result++ = subCarry.first;
+
+        mulCarry[0] = mulCarry[1];
+        mulCarry[1] = mulCarry[2];
+        mulCarry[2] = Unsigned();
+    }
+}
+
+template<
+    std::ranges::forward_range InputRange1, 
+    std::ranges::forward_range InputRange2, 
+    std::forward_iterator OutputIterator
+>
+constexpr auto mul(
+    InputRange1&& lhs,
+    InputRange2&& rhs,
+    OutputIterator output
+) -> void {
+    for (auto&& r : rhs) {
+        auto [
+            carry, 
+            continuation,
+            _
+        ] = mul(lhs, r, output, output);
+
+        for (; carry; ++continuation) {
+            std::tie(*continuation, carry) = add(*continuation, carry);
+        }
+
+        ++output;
     }
 }
 

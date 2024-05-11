@@ -11,7 +11,7 @@
 
 using NativeDigit = std::uint8_t;
 
-template<std::ranges::forward_range Range>
+template<std::ranges::input_range Range>
 requires std::unsigned_integral<std::ranges::range_value_t<Range>>
 std::string toString(Range&& range) {
     auto first = begin(range);
@@ -56,7 +56,7 @@ struct RandomGenerator {
         return result;
     }
 
-    template<std::ranges::forward_range OutputRange>
+    template<std::ranges::input_range OutputRange>
     auto random(OutputRange&& output) -> void {
         using U = std::ranges::range_value_t<OutputRange>;
 
@@ -64,6 +64,13 @@ struct RandomGenerator {
         std::ranges::generate(output, [this, &dist]{
             return dist(generator_);
         });
+    }
+
+    template<std::unsigned_integral Unsigned, std::size_t Size>
+    auto random() -> std::array<Unsigned, Size> {
+        auto result = std::array<Unsigned, Size>();
+        random(result);
+        return result;
     }
 
     template<std::unsigned_integral U>
