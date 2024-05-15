@@ -2,161 +2,118 @@
 
 #include <bignum/Arrays/Comparators.hpp>
 #include <bignum/Arrays/Division.hpp>
+#include <bignum/Ranges/Division.hpp>
 
 #include "../Utils.hpp"
 
 using namespace bignum;
 
 template<
-    std::bidirectional_iterator Minuend,
-    std::ranges::forward_range Subtrahend
-> requires std::same_as<
-    std::iter_value_t<Minuend>, 
-    std::ranges::range_value_t<Subtrahend>
->
-// subtrahend shouldn't be shorter than minuend.
-constexpr auto cutToTop(
-    Minuend minuendFirst,
-    Minuend minuendLast,
-    Subtrahend&& subtrahend
-) -> Minuend {
-    const auto minuendSize = std::distance(minuendFirst, minuendLast);
-    const auto subtrahendSize = [&] {
-        if constexpr (std::ranges::sized_range<Subtrahend>) {
-            return size(subtrahend);
-        } else {
-            return std::distance(begin(subtrahend), end(subtrahend));
-        }
-    } ();
-    const auto offset = minuendSize - subtrahendSize;
+    std::ranges::input_range Minuend, 
+    std::ranges::input_range Subtrahend, 
+    std::unsigned_integral Unsigned,
+    std::input_iterator Result
+> requires
+    std::same_as<Unsigned, std::iter_value_t<Result>>
+    && std::same_as<Unsigned, std::ranges::range_value_t<Subtrahend>>
+    && std::same_as<Unsigned, std::ranges::range_value_t<Minuend>>
+constexpr auto mulSub(
+    Minuend&& minuend,
+    Subtrahend&& subtrahend,
+    Unsigned multiplier,
+    Result result
+) -> void {
+    auto minuendFirst = begin(minuend);
+    auto mulCarry = std::array<Unsigned, 2>();
+    auto subCarry = std::pair<Unsigned, Unsigned>();
+    for (auto& s : subtrahend) {
+        const auto [lower0, higher0] = mul(multiplier, s);
 
-    return std::next(minuendFirst, offset);
+        const auto [addLower0, addHigher0] = add(mulCarry[0], lower0);
+        const auto [addLower1, addHigher1] = add(mulCarry[1], higher0, addHigher0);
+        
+        subCarry = sub(*minuendFirst++, addLower0, subCarry.second);
+        *result++ = subCarry.first;
+
+        mulCarry[0] = addLower1;
+        mulCarry[1] = addHigher1;
+    }
+
+    for(auto minuendLast = end(minuend); minuendFirst != minuendLast;) {
+        subCarry = sub(*minuendFirst++, mulCarry[0], subCarry.second);
+        *result++ = subCarry.first;
+
+        mulCarry[0] = mulCarry[1];
+        mulCarry[1] = Unsigned();
+    }
 }
 
 template<
     std::ranges::bidirectional_range Dividend,
     std::ranges::bidirectional_range Divisor,
     std::bidirectional_iterator Quotient,
-    std::bidirectional_iterator Remainder
+    std::bidirectional_iterator Remainder,
+    std::unsigned_integral Unsigned = std::ranges::range_value_t<Dividend>
 > requires 
-    std::unsigned_integral<std::ranges::range_value_t<Dividend>>
-    && std::same_as<std::ranges::range_value_t<Dividend>, std::ranges::range_value_t<Divisor>>
-    && std::same_as<std::ranges::range_value_t<Dividend>, std::iter_value_t<Quotient>>
-    && std::same_as<std::ranges::range_value_t<Dividend>, std::iter_value_t<Remainder>>
-// quotient should be at least size of the size(dividend) - size(divisor)
-// remainder should be at least size of the size(divisor)
+    std::same_as<Unsigned, std::ranges::range_value_t<Divisor>>
+    && std::same_as<Unsigned, std::iter_value_t<Quotient>>
+    && std::same_as<Unsigned, std::iter_value_t<Remainder>>
+// quotient should be at least size of the size(dividend) - size(divisor) + 1
+// remainder should be at least size of the size(dividend)
 constexpr auto div3(
     Dividend&& dividend, // big-endian
     Divisor&& divisor, // big-endian
     Quotient quotient, // big-endian
     Remainder remainder // big-endian
 ) -> std::pair<Quotient, Remainder> {
-    using Unsigned = std::ranges::range_value_t<Dividend>;
+    using namespace std::ranges;
 
     if (empty(divisor)) {
-        throw std::runtime_error("Division by zero is not allowed!");
+        throw std::runtime_error("Cannot divide by zero.");
     }
 
-    auto remainderRange = std::ranges::subrange(
-        remainder,
-        std::ranges::copy(dividend, remainder).out
+    auto remainderRange = subrange(
+        remainder, 
+        copy(dividend, remainder).out
     );
 
-    if (greater(divisor, dividend)) {
-        return std::make_pair(quotient, end(remainderRange));
-    }
+    auto quotientLast = std::next(quotient, size(dividend) - size(divisor) + 1);
 
-    const auto quotientOffset = size(dividend) - size(divisor) + 1;
+    for (
+        auto approxDiv = bignum::approxDiv(remainderRange, divisor);
+        approxDiv.first > 0;
+        approxDiv      = bignum::approxDiv(remainderRange, divisor)
+    ) {
+        auto  quotientOffset = std::next(quotient, approxDiv.second);
+        auto remainderOffset = std::next(remainder, approxDiv.second);
 
-    auto quotientRange = std::ranges::subrange(
-        std::next(quotient, quotientOffset < 1 ? quotientOffset : quotientOffset - 2),
-        std::next(quotient, quotientOffset)
-    );
-
-    const auto topDivisor = *(end(divisor) - 1);
-
-    std::cout << "top divisor: " << +topDivisor << "\n";
-
-    while(less(divisor, remainderRange)) {
-        const auto multiplier = approxDiv(remainderRange, topDivisor);
-        auto remainderOffset = std::prev(
-            end(remainderRange), 
-            size(divisor) + (size(remainderRange) != size(divisor))
+        add(
+            subrange(
+                quotientOffset,
+                quotientLast
+            ),
+            approxDiv.first,
+            quotientOffset
         );
 
-        std::cout << "multiplier: " << +multiplier[0] << ", " << +multiplier[1] << "\n";
-
         mulSub(
-            remainderOffset, 
+            subrange(
+                remainderOffset,
+                remainderRange.end()
+            ),
             divisor,
-            multiplier,
+            approxDiv.first,
             remainderOffset
         );
 
-        add(
-            quotientRange,
-            multiplier,
-            begin(quotientRange)
-        );
-
-        remainderRange = std::ranges::subrange(
-            begin(remainderRange),
-            trimm(remainderRange)
-        );
+        remainderRange = subrange(remainder, trimm(remainderRange));
     }
 
-    return std::make_pair(end(quotientRange), end(remainderRange));
+    return {
+        trimm(subrange(quotient, quotientLast)), 
+        trimm(remainderRange)
+    };
 }
-
-TEST(ArrayDivisionOperatorTests, siema) {
-    using Unsigned = std::uint8_t;
-
-    const auto dividend = std::vector<Unsigned>{0, 0, 1, 202};
-    const auto divisor  = std::vector<Unsigned>{1, 100};
-    auto quotient       = std::vector(size(dividend) - size(divisor), Unsigned());
-    auto remainder      = dividend;
-
-    const auto multiplier = approxDiv(dividend, divisor[1]);
-
-    std::cout << "multiplier: \n";
-    for (const auto m : multiplier) {
-        std::cout << +m << ", ";
-    }
-
-    std::cout << "\nremainder: \n";
-    for (const auto r : remainder) {
-        std::cout << +r << ", ";
-    }
-
-    mulSub(
-        std::ranges::subrange(begin(remainder) + 1, end(remainder)),
-        divisor,
-        multiplier,
-        begin(remainder) + 1
-    );
-
-    // auto [quotientLast, remainderLast] = div3(
-    //     dividend, 
-    //     divisor, 
-    //     begin(quotient), 
-    //     begin(remainder)
-    // );
-
-    // quotient.erase(quotientLast, end(quotient));
-    // remainder.erase(remainderLast, end(remainder));
-    std::cout << "\nremainder: \n";
-    for (const auto r : remainder) {
-        std::cout << +r << ", ";
-    }
-
-    // const auto dvd = std::vector<Unsigned>{0, 2, 0, 255, 254};
-    // const auto div = std::vector<Unsigned>{0, 250};
-
-    // const auto ratio = approxDiv(dvd, div.back());
-
-    // std::cout << +ratio[1] << ", " << +ratio[0] << std::endl;
-}
-
 
 template<std::unsigned_integral U>
 using DivOpParams = BinaryOpParams<
@@ -171,22 +128,20 @@ using DivOpParams = BinaryOpParams<
 class ArrayDivisionOperatorTests : public ::testing::TestWithParam<DivOpParams<std::uint32_t>> {};
 
 TEST_P(ArrayDivisionOperatorTests, ArryDivisionTest) {
-    const auto [lhs, rhs, expected] = GetParam();
+    const auto [dividend, divisor, expected] = GetParam();
 
-    auto quotient = lhs;
-    std::ranges::fill(quotient, 0);
-    auto remainder = quotient;
+    auto quotient  = std::vector<std::uint32_t>(size(dividend) - size(divisor) + 1, 0);
+    auto remainder = std::vector<std::uint32_t>(size(dividend), 0);
 
-
-    const auto [quotSize, remSize] = div(
-        std::span(lhs),
-        std::span(rhs),
-        std::span(quotient),
-        std::span(remainder)
+    const auto [quotLast, remLast] = div3(
+        dividend,
+        divisor,
+        begin(quotient),
+        begin(remainder)
     );
 
-    quotient.resize(quotSize);
-    remainder.resize(remSize);
+    quotient .erase(quotLast, end(quotient));
+    remainder.erase( remLast, end(remainder));
 
     EXPECT_EQ(quotient,  expected.first);
     EXPECT_EQ(remainder, expected.second);
@@ -244,3 +199,52 @@ INSTANTIATE_TEST_SUITE_P(
         DivOpParams<std::uint64_t>({0xFFFFFFFF, 0x0, 0x1}, {0x2}, {{0x7FFFFFFF, 0x8000000000000000}, {0x1}})
     )
 );
+
+TEST(ArrayDivisionOperator64bitTests, ArryMassiveDivisionTest) {
+    using Unsigned = std::uint8_t;
+
+    auto random = RandomGenerator();
+
+    for (auto _ : std::views::iota(0, 1000)) {
+        auto multiplicand = random.random<Unsigned>(5);
+        auto multiplier   = random.random<Unsigned>(5);
+        auto addend       = random.random<Unsigned>(5);
+
+        auto product   = std::vector<Unsigned>(size(multiplicand) + size(multiplier) + 1, 0);
+        auto quotient  = std::vector<Unsigned>(size(multiplicand), 0);
+        auto remainder = std::vector<Unsigned>(size(product), 0);
+
+        mul(
+            multiplicand,
+            multiplier,
+            begin(product)  
+        );
+
+        add(
+            product,
+            addend,
+            begin(product)
+        );
+
+        product.erase(trimm(product), end(product));
+
+        std::cout << "Quotient:        " << toString(quotient)  << "\n";
+        std::cout << "expected.first:  " << toString(multiplicand) << "\n";
+        std::cout << "remainder:       " << toString(remainder)  << "\n";
+        std::cout << "product:         " << toString(product)  << "\n";
+        std::cout << "expected.second: " << toString(addend) << "\n";
+
+        auto [quotLast, remLast] = div3(
+            product,
+            multiplier,
+            begin(quotient),
+            begin(remainder)
+        );
+
+        quotient .erase(quotLast, end(quotient));
+        remainder.erase(remLast,  end(remainder));
+
+        ASSERT_EQ(quotient, multiplicand);
+        ASSERT_EQ(remainder, addend);
+    }
+}

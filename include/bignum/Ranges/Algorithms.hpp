@@ -36,6 +36,9 @@ constexpr auto cascade(
     std::ranges::iterator_t<Range>, 
     Inputs...
 > {
+    using std::begin;
+    using std::end;
+
     auto inputFirst = begin(input1);
     auto inputLast  = end(input1);
 

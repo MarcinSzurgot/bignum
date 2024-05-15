@@ -11,8 +11,8 @@ struct ApproxDivParams {
     using Unsigned = std::uint8_t;
 
     std::vector<Unsigned> dividend;
-    Unsigned divisor;
-    std::array<Unsigned, 2> expected;
+    std::vector<Unsigned> divisor;
+    std::pair<Unsigned, std::ranges::range_difference_t<std::vector<Unsigned>>> expected;
 };
 
 class ApproxDivTests : public ::testing::TestWithParam<ApproxDivParams> { };
@@ -29,10 +29,60 @@ INSTANTIATE_TEST_SUITE_P(
     ApproxDivTestsParams,
     ApproxDivTests,
     ::testing::Values(
-        ApproxDivParams({0, 4, 2}, 1, std::array<ApproxDivParams::Unsigned, 2> {2, 1}),
-        ApproxDivParams({}, 1, std::array<ApproxDivParams::Unsigned, 2> {0, 0}),
-        ApproxDivParams({2}, 1, std::array<ApproxDivParams::Unsigned, 2> {1, 0}),
-        ApproxDivParams({0, 100, 2}, 10, std::array<ApproxDivParams::Unsigned, 2> {55, 0}),
-        ApproxDivParams({0, 100, 121}, 10, std::array<ApproxDivParams::Unsigned, 2> {9, 11})
+        ApproxDivParams(
+            {0, 4, 2}, 
+            {1}, 
+            {2, 2}
+        ),
+        ApproxDivParams(
+            {},
+            {1},
+            {0, 0}
+        ),
+        ApproxDivParams(
+            {2}, 
+            {1},
+            {2, 0}
+        ),
+        ApproxDivParams(
+            {0, 100, 2}, 
+            {10}, 
+            {61, 1}
+        ),
+        ApproxDivParams(
+            {0, 100, 121}, 
+            {10}, 
+            {12, 2}
+        ),
+        ApproxDivParams(
+            {0xFF}, 
+            {0xFF}, 
+            {1, 0}
+        ),
+        ApproxDivParams(
+            {0xFF, 0xFF}, 
+            {0xFF}, 
+            {1, 1}
+        ),
+        ApproxDivParams(
+            {0, 0, 0, 0, 0, 10},
+            {0xFF, 0xFF, 5},
+            {1, 3}
+        ),
+        ApproxDivParams(
+            {0, 0, 5, 0, 0, 77},
+            {3, 42, 51, 76},
+            {1, 2}
+        ),
+        ApproxDivParams(
+            {0, 0, 5, 0, 0, 77},
+            {3, 42, 51, 77},
+            {252, 2}
+        ),
+        ApproxDivParams(
+            {0, 0, 5, 0, 0, 77},
+            {3, 42, 51, 0xFF},
+            {77, 1}
+        )
     )
 );

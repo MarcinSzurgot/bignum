@@ -14,6 +14,9 @@ using NativeDigit = std::uint8_t;
 template<std::ranges::input_range Range>
 requires std::unsigned_integral<std::ranges::range_value_t<Range>>
 std::string toString(Range&& range) {
+    using std::begin;
+    using std::end;
+
     auto first = begin(range);
     auto last = end(range);
 
