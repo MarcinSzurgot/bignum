@@ -75,14 +75,19 @@ INSTANTIATE_TEST_SUITE_P(
             {1, 2}
         ),
         ApproxDivParams(
-            {0, 0, 5, 0, 0, 77},
+            {0,  0,  5,  0, 0, 77},
             {3, 42, 51, 77},
-            {252, 2}
+            {252, 1}
         ),
         ApproxDivParams(
             {0, 0, 5, 0, 0, 77},
             {3, 42, 51, 0xFF},
             {77, 1}
+        ),
+        ApproxDivParams(
+            {0x0, 0x1},
+            {0x0, 0x1},
+            {1, 0}
         )
     )
 );

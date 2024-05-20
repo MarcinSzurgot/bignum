@@ -107,7 +107,7 @@ constexpr auto sub(
     InputRange1,
     InputRange2
 > { 
-    return additive(greater, lesser, output, [](auto&&... args){
+    return additive(greater, lesser, output, [](auto... args){
         return sub(args...);
     });
 }
@@ -126,7 +126,7 @@ constexpr auto add(
     InputRange1,
     InputRange2
 > { 
-    return additive(greater, lesser, output, [](auto&&... args){
+    return additive(greater, lesser, output, [](auto... args){
         return add(args...);
     });
 }

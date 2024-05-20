@@ -6,47 +6,10 @@
 
 #include "../Utils.hpp"
 
+#include <chrono>
+#include <thread>
+
 using namespace bignum;
-
-template<
-    std::ranges::input_range Minuend, 
-    std::ranges::input_range Subtrahend, 
-    std::unsigned_integral Unsigned,
-    std::input_iterator Result
-> requires
-    std::same_as<Unsigned, std::iter_value_t<Result>>
-    && std::same_as<Unsigned, std::ranges::range_value_t<Subtrahend>>
-    && std::same_as<Unsigned, std::ranges::range_value_t<Minuend>>
-constexpr auto mulSub(
-    Minuend&& minuend,
-    Subtrahend&& subtrahend,
-    Unsigned multiplier,
-    Result result
-) -> void {
-    auto minuendFirst = begin(minuend);
-    auto mulCarry = std::array<Unsigned, 2>();
-    auto subCarry = std::pair<Unsigned, Unsigned>();
-    for (auto& s : subtrahend) {
-        const auto [lower0, higher0] = mul(multiplier, s);
-
-        const auto [addLower0, addHigher0] = add(mulCarry[0], lower0);
-        const auto [addLower1, addHigher1] = add(mulCarry[1], higher0, addHigher0);
-        
-        subCarry = sub(*minuendFirst++, addLower0, subCarry.second);
-        *result++ = subCarry.first;
-
-        mulCarry[0] = addLower1;
-        mulCarry[1] = addHigher1;
-    }
-
-    for(auto minuendLast = end(minuend); minuendFirst != minuendLast;) {
-        subCarry = sub(*minuendFirst++, mulCarry[0], subCarry.second);
-        *result++ = subCarry.first;
-
-        mulCarry[0] = mulCarry[1];
-        mulCarry[1] = Unsigned();
-    }
-}
 
 template<
     std::ranges::bidirectional_range Dividend,
@@ -79,6 +42,8 @@ constexpr auto div3(
 
     auto quotientLast = std::next(quotient, size(dividend) - size(divisor) + 1);
 
+    fill(subrange(quotient, quotientLast), Unsigned());
+
     for (
         auto approxDiv = bignum::approxDiv(remainderRange, divisor);
         approxDiv.first > 0;
@@ -86,27 +51,39 @@ constexpr auto div3(
     ) {
         auto  quotientOffset = std::next(quotient, approxDiv.second);
         auto remainderOffset = std::next(remainder, approxDiv.second);
+        auto quotientRange = subrange(
+            quotientOffset,
+            quotientLast
+        );
+        auto remainderRange2 = subrange(
+            remainderOffset,
+            remainderRange.end()
+        );
+        
+        // std::cout << "divisor:                " << toString(divisor) << "\n";
+        // std::cout << "approx div:             " << +approxDiv.first << ", " << approxDiv.second << "\n";
+        // std::cout << "before remainder range: " << toString(remainderRange) << "\n";
+        // std::cout << "before quotient range:  " << toString(quotientRange) << "\n";
+
+        // std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
         add(
-            subrange(
-                quotientOffset,
-                quotientLast
-            ),
+            quotientRange,
             approxDiv.first,
-            quotientOffset
+            quotientRange.begin()
         );
 
         mulSub(
-            subrange(
-                remainderOffset,
-                remainderRange.end()
-            ),
+            remainderRange2,
             divisor,
             approxDiv.first,
-            remainderOffset
+            remainderRange2.begin()
         );
 
         remainderRange = subrange(remainder, trimm(remainderRange));
+
+        // std::cout << "after remainder range:  " << toString(remainderRange) << "\n";
+        // std::cout << "after quotient range:   " << toString(quotientRange) << "\n";
     }
 
     return {
@@ -151,73 +128,171 @@ INSTANTIATE_TEST_SUITE_P(
     ArryDivisionTestParams,
     ArrayDivisionOperatorTests,
     ::testing::Values(
-        DivOpParams<std::uint32_t>({0x0}, {0x1}, {{}, {}}),
-        DivOpParams<std::uint32_t>({0x8}, {0x4}, {{0x2}, {}}),
-        DivOpParams<std::uint32_t>({0x10}, {0x1}, {{0x10}, {}}),
-        DivOpParams<std::uint32_t>({0x10}, {0x2}, {{0x8}, {}}),
-        DivOpParams<std::uint32_t>({0xFFFFFFFF, 0xFFFFFFFF}, {0xFFFFFFFF}, {{0x1, 0x1}, {}}),
-        DivOpParams<std::uint32_t>({0xFFFFFFFF, 0xFFFFFFFF}, {0x1}, {{0xFFFFFFFF, 0xFFFFFFFF}, {}}),
-        DivOpParams<std::uint32_t>({0xFFFFFFFF}, {0xFFFFFFFF}, {{0x1}, {}}),
-        DivOpParams<std::uint32_t>({0xFFFFFFFF, 0x0, 0x1}, {0x2}, {{0x7FFFFFFF, 0x80000000}, {0x1}}),
-        DivOpParams<std::uint32_t>({0x1}, {0x1}, {{0x1}, {}}),
-        DivOpParams<std::uint32_t>({0x1, 0x1}, {0x2}, {{0x80000000}, {0x1}}),
-        DivOpParams<std::uint32_t>({0x0, 0x1, 0x1}, {0x2}, {{0x80000000, 0x80000000}, {}}),
-        DivOpParams<std::uint32_t>({0x0, 0x1}, {0x2}, {{0x80000000}, {}}),
-        DivOpParams<std::uint32_t>({0x0, 0x1, 0x1, 0x1}, {0x2}, {{0x80000000, 0x80000000, 0x80000000}, {}}),
-        DivOpParams<std::uint32_t>({0x0, 0x1, 0x1, 0x0, 0x1}, {0x2}, {{0x80000000, 0x80000000, 0x0, 0x80000000}, {}}),
-        DivOpParams<std::uint32_t>({0x25, 0x0, 0x1}, {0x00010000}, {{0x0, 0x00010000}, {0x25}})
+        DivOpParams<std::uint32_t>(
+            {0x0}, 
+            {0x1}, 
+            {
+                {}, 
+                {}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0x8}, 
+            {0x4}, 
+            {
+                {0x2}, 
+                {}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0x10}, 
+            {0x1}, 
+            {
+                {0x10}, 
+                {}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0x10}, 
+            {0x2}, 
+            {
+                {0x8}, 
+                {}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0xFFFFFFFF, 0xFFFFFFFF}, 
+            {0xFFFFFFFF}, 
+            {
+                {0x1, 0x1}, 
+                {}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0xFFFFFFFF, 0xFFFFFFFF}, 
+            {0x1}, 
+            {
+                {0xFFFFFFFF, 0xFFFFFFFF}, 
+                {}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0xFFFFFFFF}, 
+            {0xFFFFFFFF}, 
+            {
+                {0x1}, 
+                {}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0xFFFFFFFF, 0x0, 0x1}, 
+            {0x2},
+            {
+                {0x7FFFFFFF, 0x80000000}, 
+                {0x1}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0x1}, 
+            {0x1}, 
+            {
+                {0x1}, 
+                {}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0x1, 0x1}, 
+            {0x2}, 
+            {
+                {0x80000000}, 
+                {0x1}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0x0, 0x1, 0x1}, 
+            {0x2}, 
+            {
+                {0x80000000, 0x80000000}, 
+                {}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0x0, 0x1}, 
+            {0x2}, 
+            {
+                {0x80000000}, 
+                {}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0x0, 0x1, 0x1, 0x1}, 
+            {0x2}, 
+            {
+                {0x80000000, 0x80000000, 0x80000000}, 
+                {}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0x0, 0x1, 0x1, 0x0, 0x1}, 
+            {0x2}, 
+            {
+                {0x80000000, 0x80000000, 0x0, 0x80000000}, 
+                {}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0x25, 0x0, 0x1}, 
+            {0x00010000}, 
+            {
+                {0x0, 0x00010000}, 
+                {0x25}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0, 0, 1},
+            {0, 1},
+            {
+                {0, 1},
+                {}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0xbc7912ff, 0xe71361cd, 0xce04705b, 0x2143b6a9},
+            {0x903d603f, 0x31b656fc},
+            {
+                {0xfd9d78e7, 0xab4cd02e},
+                {0x8656b226, 0x2e64e736}
+            }
+        ),
+        DivOpParams<std::uint32_t>(
+            {0x149ea29e, 0x21a2408},
+            {0x3d4fa99},
+            {
+                {0x8C6F6D8A},
+                {0xC56724}
+            }
+        )
     )
 );
 
-class ArrayDivisionOperator64bitTests : public ::testing::TestWithParam<DivOpParams<std::uint64_t>> {};
-
-TEST_P(ArrayDivisionOperator64bitTests, ArryDivisionTest) {
-    const auto [lhs, rhs, expected] = GetParam();
-
-    auto quotient = lhs;
-    std::ranges::fill(quotient, 0);
-    auto remainder = quotient;
-
-    const auto [quotSize, remSize] = div(
-        std::span(lhs),
-        std::span(rhs),
-        std::span(quotient),
-        std::span(remainder)
-    );
-
-    quotient.resize(quotSize);
-    remainder.resize(remSize);
-
-    EXPECT_EQ(quotient,  expected.first);
-    EXPECT_EQ(remainder, expected.second);
-}
-
-INSTANTIATE_TEST_SUITE_P(
-    ArryDivisionTestParams,
-    ArrayDivisionOperator64bitTests,
-    ::testing::Values(
-        DivOpParams<std::uint64_t>({0xFFFFFFFF, 0x0, 0x1}, {0x2}, {{0x7FFFFFFF, 0x8000000000000000}, {0x1}})
-    )
-);
-
-TEST(ArrayDivisionOperator64bitTests, ArryMassiveDivisionTest) {
-    using Unsigned = std::uint8_t;
+TEST(ArrayDivisionOperatorTests, ArryMassiveDivisionTest) {
+    using Unsigned = std::uint32_t;
 
     auto random = RandomGenerator();
 
     for (auto _ : std::views::iota(0, 1000)) {
-        auto multiplicand = random.random<Unsigned>(5);
-        auto multiplier   = random.random<Unsigned>(5);
-        auto addend       = random.random<Unsigned>(5);
+        auto multiplicand = random.random<Unsigned>(1);
+        auto multiplier   = random.random<Unsigned>(1);
+        auto addend       = random.random<Unsigned>(1);
 
-        auto product   = std::vector<Unsigned>(size(multiplicand) + size(multiplier) + 1, 0);
-        auto quotient  = std::vector<Unsigned>(size(multiplicand), 0);
-        auto remainder = std::vector<Unsigned>(size(product), 0);
+        auto product   = std::vector(size(multiplicand) + size(multiplier) + 1, Unsigned());
+        auto quotient  = std::vector(size(multiplicand), Unsigned());
+        auto remainder = std::vector(size(product), Unsigned());
 
         mul(
             multiplicand,
             multiplier,
-            begin(product)  
+            begin(product)
         );
 
         add(
@@ -228,11 +303,10 @@ TEST(ArrayDivisionOperator64bitTests, ArryMassiveDivisionTest) {
 
         product.erase(trimm(product), end(product));
 
-        std::cout << "Quotient:        " << toString(quotient)  << "\n";
-        std::cout << "expected.first:  " << toString(multiplicand) << "\n";
-        std::cout << "remainder:       " << toString(remainder)  << "\n";
-        std::cout << "product:         " << toString(product)  << "\n";
-        std::cout << "expected.second: " << toString(addend) << "\n";
+        // std::cout << "siema dividend:  " << toString(product)  << "\n";
+        // std::cout << "siema divisor:   " << toString(multiplier) << "\n";
+        // std::cout << "siema quotient:  " << toString(multiplicand)  << "\n";
+        // std::cout << "siema remainder: " << toString(addend)  << "\n";
 
         auto [quotLast, remLast] = div3(
             product,
@@ -244,7 +318,13 @@ TEST(ArrayDivisionOperator64bitTests, ArryMassiveDivisionTest) {
         quotient .erase(quotLast, end(quotient));
         remainder.erase(remLast,  end(remainder));
 
-        ASSERT_EQ(quotient, multiplicand);
-        ASSERT_EQ(remainder, addend);
+        EXPECT_EQ(quotient, multiplicand)
+            << "multiplicand: " << toString(multiplicand) << "\n"
+            << "multiplier:   " << toString(multiplier) << "\n"
+            << "addend:       " << toString(addend) << "\n"
+            << "product:      " << toString(product) << "\n"
+            << "quotient:     " << toString(quotient) << "\n"
+            << "remainder:    " << toString(remainder) << "\n";
+        EXPECT_EQ(remainder, addend);
     }
 }

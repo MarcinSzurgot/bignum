@@ -37,11 +37,11 @@ constexpr auto mul(
     OutputIterator,
     std::ranges::iterator_t<InputRange>
 > {
-    return cascade(lhs, Unsigned(), result, 
-        [rhs](auto next, auto carry){
-            const auto [lower,     higher] = mul(next,    rhs);
-            const auto [result, nextCarry] = add(lower, carry);
-            return std::make_pair(result, nextCarry + higher);
+    return cascade(lhs, Unsigned(), result,
+        [rhs](auto left, auto carry){
+            const auto [lower,     higher] = mul(left,    rhs);
+            const auto [result, leftCarry] = add(lower, carry);
+            return std::make_pair(result, leftCarry + higher);
     });
 }
 
@@ -74,8 +74,7 @@ template<
     std::ranges::input_range Minuend, 
     std::ranges::input_range Subtrahend, 
     std::unsigned_integral Unsigned,
-    std::input_iterator Result,
-    std::size_t MultiplierSize
+    std::input_iterator Result
 > requires
     std::same_as<Unsigned, std::iter_value_t<Result>>
     && std::same_as<Unsigned, std::ranges::range_value_t<Subtrahend>>
@@ -83,38 +82,26 @@ template<
 constexpr auto mulSub(
     Minuend&& minuend,
     Subtrahend&& subtrahend,
-    const std::array<Unsigned, MultiplierSize>& multiplier,
+    Unsigned multiplier,
     Result result
 ) -> void {
     auto minuendFirst = begin(minuend);
-    auto mulCarry = std::array<Unsigned, 3>();
-    auto subCarry = std::pair<Unsigned, Unsigned>();
-    for (auto& s : subtrahend) {
-        const auto [lower0, higher0] = mul(multiplier[0], s);
-        const auto [lower1, higher1] = mul(multiplier[1], s);
 
-        const auto [addLower0, addHigher0] = add(mulCarry[0], lower0);
-        const auto [addLower1, addHigher1] = add(mulCarry[1], higher0, lower1, addHigher0);
-        
-        mulCarry[0] = addLower0;
-        mulCarry[1] = addLower1;
-        mulCarry[2] = higher1 + addHigher1;
-        
-        subCarry = sub(*minuendFirst++, mulCarry[0], subCarry.second);
-        *result++ = subCarry.first;
+    auto carry = Unsigned();
+    for (auto s : subtrahend) {
+        const auto [lower, higher] = mul(s, multiplier);
+        std::tie(*result, carry) = sub(*minuendFirst, lower, carry);
+        carry += higher;
 
-        mulCarry[0] = mulCarry[1];
-        mulCarry[1] = mulCarry[2];
-        mulCarry[2] = Unsigned();
+        ++result;
+        ++minuendFirst;
     }
 
-    for(auto minuendLast = end(minuend); minuendFirst != minuendLast;) {
-        subCarry = sub(*minuendFirst++, mulCarry[0], subCarry.second);
-        *result++ = subCarry.first;
+    for (auto minuendLast = end(minuend); minuendFirst != minuendLast;) {
+        std::tie(*result, carry) = sub(*minuendFirst, carry);
 
-        mulCarry[0] = mulCarry[1];
-        mulCarry[1] = mulCarry[2];
-        mulCarry[2] = Unsigned();
+        ++result;
+        ++minuendFirst;
     }
 }
 

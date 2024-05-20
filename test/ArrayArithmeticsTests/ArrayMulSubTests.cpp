@@ -17,35 +17,65 @@ struct ArrayMulSubParams {
 
     std::vector<Unsigned> minuend;
     std::vector<Unsigned> subtrahend;
-    std::array<Unsigned, 2> multiplier;
+    Unsigned multiplier;
     std::vector<Unsigned> expected;
 };
 
-class ArrayMulSubTests : public ::testing::TestWithParam<ArrayMulSubParams> { };
+template<
+    std::ranges::input_range Minuend,
+    std::ranges::input_range Subtrahend,
+    std::unsigned_integral Multiplier,
+    std::ranges::input_range Buffer,
+    std::input_iterator Difference
+> requires 
+    std::same_as<Multiplier, std::ranges::range_value_t<Minuend>>
+    && std::same_as<Multiplier, std::ranges::range_value_t<Subtrahend>>
+    && std::same_as<Multiplier, std::ranges::range_value_t<Buffer>>
+    && std::same_as<Multiplier, std::iter_value_t<Difference>>
+constexpr auto testingMulSub(
+    Minuend&& minuend,
+    Subtrahend&& subtrahend,
+    Multiplier multiplier,
+    Buffer&& buffer,
+    Difference difference
+) {
+    using std::ranges::subrange;
 
-TEST(ArrayMulSubTests, ArrayMulSubMassiveTests) {
-    using Unsigned = std::uint64_t;
+    const auto result = mul(subtrahend, multiplier, begin(buffer));
+    add(subrange(result.out, end(buffer)), result.result, result.out);
 
-    const auto minuendMaxSize = 7u;
+    auto bufferLast = end(buffer);
+    if (auto bufferBeforeLast = prev(bufferLast); *bufferBeforeLast == Multiplier()) {
+        bufferLast = bufferBeforeLast;
+    }
 
+    sub(
+        minuend, 
+        subrange(begin(buffer), bufferLast), 
+        difference
+    );
+}
+
+template<std::unsigned_integral Unsigned>
+void testMulSub(std::size_t iterations, std::size_t minuendMaxSize) {
     auto random = RandomGenerator();
 
-    auto multiplier = std::array<Unsigned, 2>();
+    auto multiplier = Unsigned();
     auto minuend    = std::vector<Unsigned>();
     auto subtrahend = std::vector<Unsigned>();
     auto expected   = std::vector<Unsigned>();
     auto actual     = std::vector<Unsigned>();
     auto buffer     = std::vector<Unsigned>();
 
-    for (auto _ : std::views::iota(0, 100000)) {
-        const auto    minuendSize = random.random(3u, minuendMaxSize);
-        const auto subtrahendSize = random.random(1u,    minuendSize - 2);
+    for (auto _ : std::views::iota(std::size_t(0), iterations)) {
+        const auto    minuendSize = random.random(std::size_t(2), minuendMaxSize);
+        const auto subtrahendSize = random.random(std::size_t(1), minuendSize - 1);
 
         minuend   .resize(   minuendSize);
         subtrahend.resize(subtrahendSize);
         expected  .resize(   minuendSize);
         actual    .resize(   minuendSize);
-        buffer    .resize(   minuendSize);
+        buffer    .resize(   minuendSize + 1);
 
         std::ranges::fill(minuend,    0);
         std::ranges::fill(subtrahend, 0);
@@ -55,19 +85,53 @@ TEST(ArrayMulSubTests, ArrayMulSubMassiveTests) {
     
         random.random(minuend);
         random.random(subtrahend);
-        random.random(multiplier);
+        multiplier = random.random<Unsigned>(Unsigned(), Unsigned(~Unsigned()));
 
-        mul(multiplier, subtrahend, begin(buffer));
-        sub(minuend, buffer, begin(expected));
-        mulSub(minuend, subtrahend, multiplier, begin(actual));
+        testingMulSub(
+            minuend,
+            subtrahend,
+            multiplier,
+            buffer,
+            begin(expected)
+        );
+
+        mulSub(
+            minuend, 
+            subtrahend, 
+            multiplier, 
+            begin(actual)
+        );
 
         EXPECT_EQ(expected, actual) 
+            << "minuend:    " << toString(minuend) << "\n"
+            << "subtrahend: " << toString(subtrahend) << "\n"
+            << "multiplier: " << +multiplier << "\n"
             << "expected:   " << toString(expected)   << "\n"
             << "actual:     " << toString(actual)     << "\n";
     }
 }
 
-TEST_P(ArrayMulSubTests, ArrayMulSubTests) {
+
+class ArrayMulSubTests : public ::testing::TestWithParam<ArrayMulSubParams> { };
+
+TEST(ArrayMulSubTests, ArrayMulSubMassiveTests) {
+    testMulSub<std::uint8_t >(1000000, 2);
+    testMulSub<std::uint16_t>(100000, 2);
+    testMulSub<std::uint32_t>(100000, 2);
+    testMulSub<std::uint64_t>(100000, 2);
+
+    testMulSub<std::uint8_t >(100000, 3);
+    testMulSub<std::uint16_t>(100000, 3);
+    testMulSub<std::uint32_t>(100000, 3);
+    testMulSub<std::uint64_t>(100000, 3);
+
+    testMulSub<std::uint8_t >(100000, 7);
+    testMulSub<std::uint16_t>(100000, 7);
+    testMulSub<std::uint32_t>(100000, 7);
+    testMulSub<std::uint64_t>(100000, 7);
+}
+
+TEST_P(ArrayMulSubTests, ArrayMulSubSimpleTests) {
 
     using Unsigned = ArrayMulSubParams::Unsigned;
 
@@ -79,10 +143,11 @@ TEST_P(ArrayMulSubTests, ArrayMulSubTests) {
     ] = GetParam();
 
     auto buffer = std::vector<Unsigned>();
-    buffer.resize(size(subtrahend) + 2);
-
     auto actual = std::vector<Unsigned>();
+
+    buffer.resize(size(subtrahend) + 1);
     actual.resize(size(expected));
+
     mulSub(
         minuend,
         subtrahend,
@@ -98,34 +163,58 @@ INSTANTIATE_TEST_SUITE_P(
     ArrayMulSubTests,
     ::testing::Values(
         ArrayMulSubParams(
-            {0, 0, 0, 1, 1, 0},
-            {0, 0, 0, 1}, 
-            std::array<ArrayMulSubParams::Unsigned, 2> {1, 1}, 
-            {0, 0, 0, 0, 0, 0}
+            {0, 0, 5},
+            {0, 0, 1},
+            1,
+            {0, 0, 4}
         ),
         ArrayMulSubParams(
-            {100, 56, 0, 5, 1, 0}, 
-            {10,   0, 0, 1}, 
-            std::array<ArrayMulSubParams::Unsigned, 2> {5, 0},
-            {50, 56, 0, 0, 1}
+            {0, 0, 5},
+            {0, 1, 1},
+            1,
+            {0, 255, 3}
         ),
         ArrayMulSubParams(
-            {70, 120, 0, 1, 1, 80, 0}, 
-            {0,    0, 0, 0, 1}, 
-            std::array<ArrayMulSubParams::Unsigned, 2> {50, 50}, 
-            {70, 120, 0, 1, 207, 29}
+            {0, 0, 0, 2},
+            {0, 1, 1},
+            1,
+            {0, 255, 254, 1}
         ),
         ArrayMulSubParams(
-            {0, 0, 0, 1, 1, 0}, 
-            {0, 0, 0, 1}, 
-            std::array<ArrayMulSubParams::Unsigned, 2> {1, 1}, 
-            {0, 0, 0, 0, 0, 0}
+            {0, 0, 4},
+            {0, 0, 1},
+            2,
+            {0, 0, 2}
         ),
         ArrayMulSubParams(
-            {0x55, 0x72, 0xee, 0xb8, 0x17},
-            {0x60, 0xe9},
-            std::array<ArrayMulSubParams::Unsigned, 2> {0x4c, 0x8f},
-            {0xd5, 0x89, 0x4c, 0x36, 0x17}
+            {0,     0, 4},
+            {255, 255, 0},
+            2,
+            {2,     0, 2}
+        ),
+        ArrayMulSubParams(
+            {0,     0, 4},
+            {255, 255},
+            2,
+            {2,     0, 2}
+        ),
+        ArrayMulSubParams(
+            {0,     0, 4},
+            {255, 255, 0},
+            2,
+            {2,     0, 2}
+        ),
+        ArrayMulSubParams(
+            {255, 255, 255},
+            {255, 255},
+            255,
+            {254,   0,   1}
+        ),
+        ArrayMulSubParams(
+            {0xbe, 0x42, 0xd6},
+            {0xfd, 0xa7},
+            64,
+            {0x7e, 0x43, 0xac}
         )
     )
 );

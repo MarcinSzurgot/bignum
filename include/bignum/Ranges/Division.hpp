@@ -51,6 +51,11 @@ constexpr auto approxDiv(
 
     const auto distance = Distance(size(dividend) - size(divisor));
 
+    // If sizes are equal and biggest digits are equal then it will fit only once
+    if (distance == Distance() && *dividendRevFirst == divisorTop) {
+        return {Unsigned(1), distance};
+    }
+
     // divisor size is 1 but dividend size is greater
     if (size(divisor) == 1) {
         if (*dividendRevFirst >= divisorTop) {
@@ -84,36 +89,8 @@ constexpr auto approxDiv(
             *dividendRevFirst,
             Unsigned(divisorTop + 1)
         ).first[0], 
-        distance
+        Distance(distance - 1)
     };
-}
-
-template<
-    std::ranges::bidirectional_range Dividend,
-    std::unsigned_integral Unsigned
-> requires std::same_as<Unsigned, std::ranges::range_value_t<Dividend>>
-constexpr auto approxDiv(
-    Dividend&& dividend, // big-endian
-    Unsigned divisor
-) -> std::array<Unsigned, 2> {
-    auto first = std::reverse_iterator(end(dividend));
-    auto last = std::reverse_iterator(begin(dividend));
-
-    if (first == last) {
-        return std::array<Unsigned, 2>();
-    }
-
-    const auto topDvd = *first;
-    const auto [bumped, overflow] = add(divisor, Unsigned(1));
-    
-    if(overflow || ++first == last) {
-        return std::array<Unsigned, 2>{
-            div(topDvd, overflow ? overflow : bumped).first,
-            Unsigned()
-        };
-    }
-    
-    return div(*first, topDvd, bumped).first;
 }
 
 }
