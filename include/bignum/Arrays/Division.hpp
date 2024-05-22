@@ -9,95 +9,89 @@
 #include <vector>
 
 #include <bignum/Arrays/Comparators.hpp>
+#include <bignum/Arrays/Multiplication.hpp>
 #include <bignum/Arrays/Shifts.hpp>
 #include <bignum/Digits/Arithmetics.hpp>
 #include <bignum/Ranges/Additive.hpp>
+#include <bignum/Ranges/Division.hpp>
 #include <bignum/Utils.hpp>
 
 namespace bignum {
 
 template<
-    typename U1, 
-    typename U2, 
-    typename U3, 
-    typename U4
+    std::ranges::bidirectional_range Dividend,
+    std::ranges::bidirectional_range Divisor,
+    std::bidirectional_iterator Quotient,
+    std::bidirectional_iterator Remainder,
+    std::unsigned_integral Unsigned = std::ranges::range_value_t<Dividend>
 > requires 
-    std::unsigned_integral<std::remove_const_t<U1>>
-    && std::unsigned_integral<std::remove_const_t<U2>>
-    && std::unsigned_integral<U3>
-    && std::unsigned_integral<U4>
-    && std::same_as<std::remove_const_t<U1>, std::remove_const_t<U2>>
-    && std::same_as<std::remove_const_t<U2>, U3>
-    && std::same_as<U3, U4>
-auto div(
-    std::span<U1> lhs,
-    std::span<U2> rhs,
-    std::span<U3> quotient,
-    std::span<U4> remainder
-) -> std::pair<
-    typename std::span<U3>::size_type, 
-    typename std::span<U4>::size_type
-> {
-    if (empty(rhs)) {
-        throw std::runtime_error("Division by zero is not allowed!");
+    std::same_as<Unsigned, std::ranges::range_value_t<Divisor>>
+    && std::same_as<Unsigned, std::iter_value_t<Quotient>>
+    && std::same_as<Unsigned, std::iter_value_t<Remainder>>
+// quotient should be at least size of the size(dividend) - size(divisor) + 1
+// remainder should be at least size of the size(dividend)
+constexpr auto div(
+    Dividend&& dividend, // big-endian
+    Divisor&& divisor, // big-endian
+    Quotient quotient, // big-endian
+    Remainder remainder // big-endian
+) -> std::pair<Quotient, Remainder> {
+    using namespace std::ranges;
+
+    if (empty(divisor)) {
+        throw std::runtime_error("Cannot divide by zero.");
     }
 
-    std::ranges::fill(quotient, 0);
-    std::ranges::copy(lhs, begin(remainder));
-
-    if (less(lhs, rhs)) {
-        quotient = {begin(quotient), trimm(quotient)};
-        remainder = {begin(remainder), trimm(remainder)};
-        return {size(quotient), size(remainder)};
-    }
-
-    const auto rhsTopBit = topBit(rhs);
-    const auto lhsTopBit = topBit(lhs);
-
-    // std::cout 
-    //     << "rhsTopBit: " << rhsTopBit << "\n"
-    //     << "lhsTopBit: " << lhsTopBit << "\n";
-
-    auto bitDiff = lhsTopBit - rhsTopBit;
-    auto divider = std::vector<U3>(size(lhs));
-    auto divSpan = std::span(divider);
-    divSpan.back() |= lshift(
-        rhs, 
-        bitDiff, 
-        divSpan.subspan(bitDiff / Bits<U1>::Size).begin()
+    auto remainderRange = subrange(
+        remainder, 
+        copy(dividend, remainder).out
     );
 
-    while (greaterEqual(remainder, rhs)) {
-        const auto newBitDiff = topBit(remainder) - rhsTopBit;
-        const auto [wholeDigitShift, bitShift] = div<U1>(bitDiff - newBitDiff, Bits<U1>::Size);
+    auto quotientLast = std::next(
+        quotient,
+        size(dividend) < size(divisor)
+        ? 0
+        : size(dividend) - size(divisor) + 1
+    );
 
-        rshift(
-            divSpan.subspan(wholeDigitShift),
-            bitShift, 
-            begin(divSpan)
+    fill(subrange(quotient, quotientLast), Unsigned());
+
+    for (
+        auto approxDiv = bignum::approxDiv(remainderRange, divisor);
+        approxDiv.first > 0;
+        approxDiv      = bignum::approxDiv(remainderRange, divisor)
+    ) {
+        auto  quotientOffset = std::next(quotient, approxDiv.second);
+        auto remainderOffset = std::next(remainder, approxDiv.second);
+
+        auto quotientRange = subrange(
+            quotientOffset,
+            quotientLast
+        );
+        auto remainderRange2 = subrange(
+            remainderOffset,
+            remainderRange.end()
         );
 
-        divSpan = divSpan.subspan(0, size(divSpan) - wholeDigitShift);
-        divSpan = {begin(divSpan), trimm(divSpan)};
+        add(
+            quotientRange,
+            approxDiv.first,
+            quotientRange.begin()
+        );
 
-        bitDiff = newBitDiff;
+        mulSub(
+            remainderRange2,
+            divisor,
+            approxDiv.first,
+            remainderRange2.begin()
+        );
 
-        if (greater(divSpan, remainder)) {
-            rshift(divSpan, 1, begin(divSpan));
-            divSpan.subspan(0, size(divSpan) * (bool) divSpan.back());
-            bitDiff--;
-        }
-
-        quotient[bitDiff / Bits<U1>::Size] |= U3(1) << (bitDiff & Bits<U1>::ShiftMask);
-
-        sub(remainder, divSpan, begin(remainder));
-
-        remainder = {begin(remainder), trimm(remainder)};
+        remainderRange = subrange(remainder, trimm(remainderRange));
     }
 
     return {
-        size(quotient) - (quotient.back() == 0u), 
-        size(remainder)
+        trimm(subrange(quotient, quotientLast)), 
+        trimm(remainderRange)
     };
 }
 

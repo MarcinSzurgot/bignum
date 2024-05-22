@@ -24,14 +24,14 @@ TEST_P(BigUnsignedDivisionTests, DivisionAssignmentOperator) {
     auto quotient  = std::vector<Unsigned>(size(num1) - size(num2) + 1);
     auto remainder = std::vector<Unsigned>(size(num1));
 
-    const auto [quotSize, _] = bignum::div(
-        std::span(num1), 
-        std::span(num2), 
-        std::span(quotient),
-        std::span(remainder)
+    const auto [quotLast, _] = bignum::div(
+        num1, 
+        num2, 
+        begin(quotient),
+        begin(remainder)
     );
 
-    quotient.resize(quotSize);
+    quotient.erase(quotLast, end(quotient));
 
     EXPECT_EQ(quotient, expected) 
         << "quotient: " << toString(quotient) << "\n"

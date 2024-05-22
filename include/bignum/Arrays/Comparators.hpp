@@ -39,9 +39,7 @@ auto less(
     Range1&& lhs,
     Range2&& rhs
 ) -> bool {
-    // std::cout << "zaczynamy\n";
     if (size(lhs) != size(rhs)) {
-        // std::cout << "porownanie: " << size(lhs) << ", " << size(rhs) << "\n";
         return size(lhs) < size(rhs);
     }
 
@@ -76,10 +74,7 @@ requires std::three_way_comparable<std::ranges::range_value_t<Range1>>
 auto greater(
     Range1&& lhs,
     Range2&& rhs
-) -> bool { 
-        // std::cout << "zaczynamy\n";
-    return less(rhs, lhs); 
-}
+) -> bool { return less(rhs, lhs); }
 
 template<typename Range1, typename Range2>
 requires std::three_way_comparable<std::ranges::range_value_t<Range1>> 

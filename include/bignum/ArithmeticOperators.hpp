@@ -21,15 +21,15 @@ auto divide(
     auto quotient  = std::vector<U>(size(lhs.digits()) - size(rhs.digits()) + 1); 
     auto remainder = std::vector<U>(size(lhs.digits()));
 
-    const auto [quotSize, remSize] = div(
+    const auto [quotLast, remLast] = div(
         lhs.digits(),
         rhs.digits(),
-        std::span(quotient),
-        std::span(remainder)
+        begin(quotient),
+        begin(remainder)
     );
 
-    quotient.resize(quotSize);
-    remainder.resize(remSize);
+    quotient.erase(quotLast, end(quotient));
+    remainder.erase(remLast, end(remainder));
 
     return {
         BigUnsigned(std::move(quotient)), 
