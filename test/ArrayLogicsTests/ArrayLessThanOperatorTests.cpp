@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <bignum/Arrays/Comparators.hpp>
+#include <bignum/Ranges/Comparators.hpp>
 
 #include "../Utils.hpp"
 
@@ -14,8 +14,9 @@ TEST_P(ArrayComparisonTest, LessThanOperation) {
     auto lhsSpan = std::span(lhs);
     auto rhsSpan = std::span(rhs); 
 
-    // ASSERT_EQ(lhs < rhs, expected);
-    ASSERT_EQ(less(lhsSpan, rhsSpan), expected);
+    ASSERT_EQ(less(lhsSpan, rhsSpan), expected)
+        << "lhs: " << toString(lhsSpan) << "\n"
+        << "rhs: " << toString(rhsSpan) << "\n";
 }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -25,8 +26,8 @@ INSTANTIATE_TEST_SUITE_P(
         LogicBinaryOp({0x12345678}, {0x12345678}, false),
         LogicBinaryOp({0x12345677}, {0x12345678}, true),
         LogicBinaryOp({0x12345679}, {0x12345678}, false),
-        LogicBinaryOp({0x0, 0x0}, {0x1}, false),
-        LogicBinaryOp({0x1}, {0x0, 0x0}, true),
+        LogicBinaryOp({0x0, 0x0}, {0x1}, true),
+        LogicBinaryOp({0x1}, {0x0, 0x0}, false),
         LogicBinaryOp({0x0, 0x1}, {0x1, 0x0}, false),
         LogicBinaryOp({0xFFFFFFFF, 0xFFFFFFFF}, {0xFFFFFFFF, 0x0}, false),
         LogicBinaryOp({0x0, 0xFFFFFFFF}, {0xFFFFFFFF, 0xFFFFFFFF}, true),

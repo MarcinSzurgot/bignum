@@ -40,7 +40,6 @@ set(TEST_SOURCES
     DigitOperatorsTests/ShiftsTests.cpp
 
     UtilsTests/LeadingZeroesTests.cpp
-    UtilsTests/TopBitTests.cpp
 )
 
 add_executable(tests ${TEST_SOURCES})

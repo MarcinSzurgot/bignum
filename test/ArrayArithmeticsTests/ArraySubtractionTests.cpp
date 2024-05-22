@@ -2,8 +2,8 @@
 
 #include <gtest/gtest.h>
 
-#include <bignum/Arrays/Comparators.hpp>
 #include <bignum/Ranges/Additive.hpp>
+#include <bignum/Ranges/Comparators.hpp>
 #include <bignum/Utils.hpp>
 
 #include "../Utils.hpp"

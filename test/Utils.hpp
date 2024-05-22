@@ -1,5 +1,7 @@
 #include <bignum/bignum.hpp>
 
+#include <bignum/Ranges/Comparators.hpp>
+
 #include <chrono>
 #include <concepts>
 #include <iostream>
@@ -69,13 +71,11 @@ struct RandomGenerator {
         });
     }
 
-    template<std::ranges::forward_range Range>
+    template<std::ranges::bidirectional_range Range>
     auto nonZero(Range&& output) -> void {
         for(
             random(output);
-            std::ranges::all_of(output, [](auto value){
-                return value == std::ranges::range_value_t<Range>();
-            });
+            bignum::zero(output);
             random(output)
         );
     }

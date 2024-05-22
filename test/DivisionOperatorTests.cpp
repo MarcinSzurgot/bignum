@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <bignum/Arrays/Division.hpp>
+#include <bignum/Ranges/Division.hpp>
 
 #include "Utils.hpp"
 

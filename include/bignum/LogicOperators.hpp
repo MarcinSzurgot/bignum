@@ -1,7 +1,7 @@
 #pragma once 
 
 #include <bignum/BigUnsigned.hpp>
-#include <bignum/Arrays/Comparators.hpp>
+#include <bignum/Ranges/Comparators.hpp>
 
 namespace bignum {
 

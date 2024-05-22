@@ -2,8 +2,8 @@
 
 #include <bignum/BigUnsigned.hpp>
 #include <bignum/Arrays/Multiplication.hpp>
-#include <bignum/Arrays/Division.hpp>
 #include <bignum/Ranges/Additive.hpp>
+#include <bignum/Ranges/Division.hpp>
 
 #include <concepts>
 
