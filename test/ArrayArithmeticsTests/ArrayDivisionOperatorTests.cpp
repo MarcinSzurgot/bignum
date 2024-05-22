@@ -40,7 +40,12 @@ constexpr auto div3(
         copy(dividend, remainder).out
     );
 
-    auto quotientLast = std::next(quotient, size(dividend) - size(divisor) + 1);
+    auto quotientLast = std::next(
+        quotient,
+        empty(dividend) 
+        ? 0
+        : size(dividend) - size(divisor) + 1
+    );
 
     fill(subrange(quotient, quotientLast), Unsigned());
 
@@ -59,13 +64,6 @@ constexpr auto div3(
             remainderOffset,
             remainderRange.end()
         );
-        
-        // std::cout << "divisor:                " << toString(divisor) << "\n";
-        // std::cout << "approx div:             " << +approxDiv.first << ", " << approxDiv.second << "\n";
-        // std::cout << "before remainder range: " << toString(remainderRange) << "\n";
-        // std::cout << "before quotient range:  " << toString(quotientRange) << "\n";
-
-        // std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
         add(
             quotientRange,
@@ -81,9 +79,6 @@ constexpr auto div3(
         );
 
         remainderRange = subrange(remainder, trimm(remainderRange));
-
-        // std::cout << "after remainder range:  " << toString(remainderRange) << "\n";
-        // std::cout << "after quotient range:   " << toString(quotientRange) << "\n";
     }
 
     return {
@@ -275,19 +270,59 @@ INSTANTIATE_TEST_SUITE_P(
     )
 );
 
-TEST(ArrayDivisionOperatorTests, ArryMassiveDivisionTest) {
-    using Unsigned = std::uint32_t;
-
+template<std::unsigned_integral Unsigned>
+void testingMassiveDivision(
+    std::size_t iterations,
+    std::size_t maxMultiplicandSize,
+    std::size_t maxMultiplierSize
+) {
     auto random = RandomGenerator();
 
-    for (auto _ : std::views::iota(0, 1000)) {
-        auto multiplicand = random.random<Unsigned>(1);
-        auto multiplier   = random.random<Unsigned>(1);
-        auto addend       = random.random<Unsigned>(1);
+    auto multiplicand = std::vector<Unsigned>();
+    auto multiplier   = std::vector<Unsigned>();
+    auto addend       = std::vector<Unsigned>();
+    auto product      = std::vector<Unsigned>();
+    auto quotient     = std::vector<Unsigned>();
+    auto remainder    = std::vector<Unsigned>();
 
-        auto product   = std::vector(size(multiplicand) + size(multiplier) + 1, Unsigned());
-        auto quotient  = std::vector(size(multiplicand), Unsigned());
-        auto remainder = std::vector(size(product), Unsigned());
+    const auto emptyRemainder = std::vector<Unsigned>();
+
+    for (auto _ : std::views::iota(std::size_t(), iterations)) {
+        const auto multiplicandSize = random.random(std::size_t(1), maxMultiplicandSize);
+        const auto multiplierSize   = random.random(std::size_t(1), maxMultiplierSize);
+        const auto addendSize       = random.random(std::size_t(1), multiplierSize);
+
+        multiplicand.resize(multiplicandSize);
+        multiplier  .resize(multiplierSize);
+        addend      .resize(addendSize);
+
+        random.random(multiplicand);
+        random.random(multiplier);
+        random.random(addend);
+
+        multiplicand.erase(trimm(multiplicand), end(multiplicand));
+        multiplier  .erase(trimm(multiplier),   end(multiplier));
+        addend      .erase(trimm(addend),       end(addend));
+
+        while(empty(multiplier) || std::ranges::all_of(multiplier, [](auto value) { return value == Unsigned(); })) {
+            multiplier.resize(multiplierSize);
+            random.random(multiplier);
+            multiplier.erase(trimm(multiplier), end(multiplier));
+        }
+
+        while(greaterEqual(addend, multiplier)) {
+            addend.resize(addendSize);
+            random.random(addend);
+            addend.erase(trimm(addend), end(addend));
+        }
+
+        product  .resize(size(multiplicand) + size(multiplier) + 1, Unsigned());
+        quotient .resize(size(multiplicand) + 1, Unsigned());
+        remainder.resize(size(product), Unsigned());
+
+        std::ranges::fill(product,   Unsigned());
+        std::ranges::fill(quotient,  Unsigned());
+        std::ranges::fill(remainder, Unsigned());
 
         mul(
             multiplicand,
@@ -303,12 +338,7 @@ TEST(ArrayDivisionOperatorTests, ArryMassiveDivisionTest) {
 
         product.erase(trimm(product), end(product));
 
-        // std::cout << "siema dividend:  " << toString(product)  << "\n";
-        // std::cout << "siema divisor:   " << toString(multiplier) << "\n";
-        // std::cout << "siema quotient:  " << toString(multiplicand)  << "\n";
-        // std::cout << "siema remainder: " << toString(addend)  << "\n";
-
-        auto [quotLast, remLast] = div3(
+        const auto [quotLast, remLast] = div3(
             product,
             multiplier,
             begin(quotient),
@@ -318,13 +348,20 @@ TEST(ArrayDivisionOperatorTests, ArryMassiveDivisionTest) {
         quotient .erase(quotLast, end(quotient));
         remainder.erase(remLast,  end(remainder));
 
-        EXPECT_EQ(quotient, multiplicand)
-            << "multiplicand: " << toString(multiplicand) << "\n"
-            << "multiplier:   " << toString(multiplier) << "\n"
-            << "addend:       " << toString(addend) << "\n"
-            << "product:      " << toString(product) << "\n"
-            << "quotient:     " << toString(quotient) << "\n"
-            << "remainder:    " << toString(remainder) << "\n";
+        EXPECT_EQ(quotient, multiplicand);
         EXPECT_EQ(remainder, addend);
     }
+}
+
+TEST(ArrayDivisionOperatorTests, ArryMassiveDivisionTest) {
+    testingMassiveDivision<std::uint8_t >(100000, 1, 1);
+    testingMassiveDivision<std::uint8_t >(100000, 2, 2);
+    testingMassiveDivision<std::uint16_t>(10000, 1, 1);
+    testingMassiveDivision<std::uint32_t>(10000, 1, 1);
+    testingMassiveDivision<std::uint64_t>(10000, 1, 1);
+
+    testingMassiveDivision<std::uint8_t >(1000, 100, 100);
+    testingMassiveDivision<std::uint16_t>(1000, 20, 20);
+    testingMassiveDivision<std::uint32_t>(1000, 20, 20);
+    testingMassiveDivision<std::uint64_t>(1000, 20, 20);
 }
