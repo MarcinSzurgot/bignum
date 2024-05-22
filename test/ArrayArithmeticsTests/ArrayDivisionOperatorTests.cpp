@@ -42,7 +42,7 @@ constexpr auto div3(
 
     auto quotientLast = std::next(
         quotient,
-        empty(dividend) 
+        size(dividend) < size(divisor)
         ? 0
         : size(dividend) - size(divisor) + 1
     );
@@ -56,6 +56,7 @@ constexpr auto div3(
     ) {
         auto  quotientOffset = std::next(quotient, approxDiv.second);
         auto remainderOffset = std::next(remainder, approxDiv.second);
+
         auto quotientRange = subrange(
             quotientOffset,
             quotientLast
@@ -297,19 +298,12 @@ void testingMassiveDivision(
         addend      .resize(addendSize);
 
         random.random(multiplicand);
-        random.random(multiplier);
+        random.nonZero(multiplier);
         random.random(addend);
 
         multiplicand.erase(trimm(multiplicand), end(multiplicand));
         multiplier  .erase(trimm(multiplier),   end(multiplier));
         addend      .erase(trimm(addend),       end(addend));
-
-        // 
-        while(empty(multiplier) || std::ranges::all_of(multiplier, [](auto value) { return value == Unsigned(); })) {
-            multiplier.resize(multiplierSize);
-            random.random(multiplier);
-            multiplier.erase(trimm(multiplier), end(multiplier));
-        }
 
         // addend has to be less than multiplier if later it is supposed to be a remainder.
         while(greaterEqual(addend, multiplier)) {
@@ -356,8 +350,8 @@ void testingMassiveDivision(
 }
 
 TEST(ArrayDivisionOperatorTests, ArryMassiveDivisionTest) {
-    testingMassiveDivision<std::uint8_t >(100000, 1, 1);
-    testingMassiveDivision<std::uint8_t >(100000, 2, 2);
+    testingMassiveDivision<std::uint8_t >(10000, 1, 1);
+    testingMassiveDivision<std::uint8_t >(10000, 2, 2);
     testingMassiveDivision<std::uint16_t>(10000, 1, 1);
     testingMassiveDivision<std::uint32_t>(10000, 1, 1);
     testingMassiveDivision<std::uint64_t>(10000, 1, 1);

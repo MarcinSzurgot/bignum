@@ -69,6 +69,17 @@ struct RandomGenerator {
         });
     }
 
+    template<std::ranges::forward_range Range>
+    auto nonZero(Range&& output) -> void {
+        for(
+            random(output);
+            std::ranges::all_of(output, [](auto value){
+                return value == std::ranges::range_value_t<Range>();
+            });
+            random(output)
+        );
+    }
+
     template<std::unsigned_integral Unsigned, std::size_t Size>
     auto random() -> std::array<Unsigned, Size> {
         auto result = std::array<Unsigned, Size>();
