@@ -304,12 +304,14 @@ void testingMassiveDivision(
         multiplier  .erase(trimm(multiplier),   end(multiplier));
         addend      .erase(trimm(addend),       end(addend));
 
+        // 
         while(empty(multiplier) || std::ranges::all_of(multiplier, [](auto value) { return value == Unsigned(); })) {
             multiplier.resize(multiplierSize);
             random.random(multiplier);
             multiplier.erase(trimm(multiplier), end(multiplier));
         }
 
+        // addend has to be less than multiplier if later it is supposed to be a remainder.
         while(greaterEqual(addend, multiplier)) {
             addend.resize(addendSize);
             random.random(addend);
