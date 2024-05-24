@@ -1,7 +1,8 @@
-#include <gtest/gtest.h>
-#include <bignum/Arrays/Shifts.hpp>
+#include <bignum/Ranges/Shifts.hpp>
 
 #include "../Utils.hpp"
+
+#include <gtest/gtest.h>
 
 using namespace bignum;
 

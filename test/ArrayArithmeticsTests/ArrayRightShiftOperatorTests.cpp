@@ -1,11 +1,11 @@
-#include <concepts>
-
-#include <gtest/gtest.h>
-#include <bignum/Arrays/Shifts.hpp>
+#include <bignum/Ranges/Shifts.hpp>
 #include <bignum/Digits/Arithmetics.hpp>
 #include <bignum/Utils.hpp>
 
 #include "../Utils.hpp"
+
+#include <gtest/gtest.h>
+#include <concepts>
 
 using namespace bignum;
 

@@ -1,9 +1,9 @@
 #pragma once 
 
 #include <bignum/BigUnsigned.hpp>
-#include <bignum/Arrays/Multiplication.hpp>
 #include <bignum/Ranges/Additive.hpp>
 #include <bignum/Ranges/Division.hpp>
+#include <bignum/Ranges/Multiplication.hpp>
 
 #include <concepts>
 

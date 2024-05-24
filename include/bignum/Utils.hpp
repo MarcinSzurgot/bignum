@@ -1,12 +1,9 @@
 #pragma once
 
-#include <bignum/Bits.hpp>
-
-#include <algorithm>
 #include <concepts>
-#include <cstdint>
 #include <ranges>
-#include <span>
+
+#include <bignum/Bits.hpp>
 
 namespace bignum {
 

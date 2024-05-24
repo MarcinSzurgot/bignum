@@ -1,12 +1,11 @@
-#include <bitset>
-#include <cstdint>
-#include <iostream>
-
-#include <gtest/gtest.h>
-
 #include <bignum/Digits/Arithmetics.hpp>
 
 #include "../Utils.hpp"
+
+#include <gtest/gtest.h>
+#include <bitset>
+#include <cstdint>
+#include <iostream>
 
 using namespace bignum;
 

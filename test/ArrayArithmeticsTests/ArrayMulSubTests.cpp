@@ -1,10 +1,9 @@
-#include <gtest/gtest.h>
-
 #include <bignum/Digits/Arithmetics.hpp>
-#include <bignum/Arrays/Multiplication.hpp>
+#include <bignum/Ranges/Multiplication.hpp>
 
 #include "../Utils.hpp"
 
+#include <gtest/gtest.h>
 #include <array>
 #include <concepts>
 #include <ranges>

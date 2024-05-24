@@ -1,9 +1,8 @@
-#include <gtest/gtest.h>
-
 #include <bignum/bignum.hpp>
 
 #include "Utils.hpp"
 
+#include <gtest/gtest.h>
 #include <tuple>
 
 using namespace bignum;

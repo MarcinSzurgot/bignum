@@ -1,10 +1,9 @@
-#include <gtest/gtest.h>
-
 #include <bignum/Ranges/Additive.hpp>
 
-#include <vector>
-
 #include "../Utils.hpp"
+
+#include <gtest/gtest.h>
+#include <vector>
 
 using namespace bignum;
 

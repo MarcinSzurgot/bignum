@@ -1,10 +1,10 @@
 #pragma once
 
-#include <bignum/Arrays/Multiplication.hpp>
-#include <bignum/Arrays/Shifts.hpp>
 #include <bignum/Digits/Arithmetics.hpp>
 #include <bignum/Ranges/Algorithms.hpp>
 #include <bignum/Ranges/Comparators.hpp>
+#include <bignum/Ranges/Multiplication.hpp>
+#include <bignum/Ranges/Shifts.hpp>
 #include <bignum/Utils.hpp>
 
 #include <ranges>

@@ -1,11 +1,10 @@
-#include <concepts>
-
-#include <gtest/gtest.h>
-
-#include <bignum/Arrays/Multiplication.hpp>
 #include <bignum/Digits/Arithmetics.hpp>
+#include <bignum/Ranges/Multiplication.hpp>
 
 #include "Utils.hpp"
+
+#include <gtest/gtest.h>
+#include <concepts>
 
 using namespace bignum;
 

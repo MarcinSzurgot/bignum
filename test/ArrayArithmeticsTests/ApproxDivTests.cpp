@@ -1,7 +1,6 @@
-#include <gtest/gtest.h>
-
 #include <bignum/Ranges/Division.hpp>
 
+#include <gtest/gtest.h>
 #include <concepts>
 #include <iterator>
 #include <ranges>

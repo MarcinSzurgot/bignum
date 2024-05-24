@@ -1,10 +1,9 @@
-#include <iostream>
-
-#include <gtest/gtest.h>
-
 #include <bignum/bignum.hpp>
 
 #include "../Utils.hpp"
+
+#include <gtest/gtest.h>
+#include <iostream>
 
 using namespace bignum;
 

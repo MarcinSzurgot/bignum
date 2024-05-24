@@ -1,10 +1,9 @@
-#include <gtest/gtest.h>
-
 #include <bignum/Ranges/Comparators.hpp>
 #include <bignum/Ranges/Division.hpp>
 
 #include "../Utils.hpp"
 
+#include <gtest/gtest.h>
 #include <chrono>
 #include <thread>
 

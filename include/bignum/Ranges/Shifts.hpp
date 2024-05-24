@@ -1,10 +1,10 @@
 #pragma once
 
-#include <concepts>
-#include <ranges>
-
 #include <bignum/Digits/Arithmetics.hpp>
 #include <bignum/Ranges/Algorithms.hpp>
+
+#include <concepts>
+#include <ranges>
 
 namespace bignum {
 

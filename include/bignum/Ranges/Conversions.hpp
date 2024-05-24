@@ -1,11 +1,11 @@
 #pragma once
 
-#include <bignum/Digits/Arithmetics.hpp>
-
 #include <algorithm>
 #include <array>
 #include <ranges>
 #include <vector>
+
+#include <bignum/Digits/Arithmetics.hpp>
 
 namespace bignum {
 

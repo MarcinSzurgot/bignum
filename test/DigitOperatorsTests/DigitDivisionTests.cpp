@@ -1,11 +1,10 @@
-#include <gtest/gtest.h>
-
 #include <bignum/Digits/Arithmetics.hpp>
 #include <bignum/Ranges/Division.hpp>
 
-#include <charconv>
-
 #include "../Utils.hpp"
+
+#include <gtest/gtest.h>
+#include <charconv>
 
 using namespace bignum;
 using namespace std::string_literals;

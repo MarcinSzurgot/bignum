@@ -1,14 +1,13 @@
-#include <chrono>
-#include <random>
-#include <string>
-
-#include <gtest/gtest.h>
-
 #include <bignum/BigUnsigned.hpp>
 #include <bignum/Digits/Arithmetics.hpp>
 #include <bignum/Ranges/String.hpp>
 
 #include "Utils.hpp"
+
+#include <gtest/gtest.h>
+#include <chrono>
+#include <random>
+#include <string>
 
 using namespace bignum;
 using namespace std::string_literals;

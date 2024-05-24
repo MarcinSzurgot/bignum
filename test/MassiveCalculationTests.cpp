@@ -1,8 +1,7 @@
-#include <gtest/gtest.h>
-
 #include <bignum/bignum.hpp>
 
 #include "Utils.hpp"
+#include <gtest/gtest.h>
 
 using namespace bignum;
 

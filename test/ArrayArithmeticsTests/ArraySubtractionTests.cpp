@@ -1,12 +1,11 @@
-#include <vector>
-
-#include <gtest/gtest.h>
-
 #include <bignum/Ranges/Additive.hpp>
 #include <bignum/Ranges/Comparators.hpp>
 #include <bignum/Utils.hpp>
 
 #include "../Utils.hpp"
+
+#include <gtest/gtest.h>
+#include <vector>
 
 using namespace bignum;
 

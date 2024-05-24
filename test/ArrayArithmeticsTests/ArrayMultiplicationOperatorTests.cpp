@@ -1,9 +1,9 @@
-#include <gtest/gtest.h>
-
-#include <bignum/Arrays/Multiplication.hpp>
+#include <bignum/Ranges/Multiplication.hpp>
 #include <bignum/Utils.hpp>
 
 #include "../Utils.hpp"
+
+#include <gtest/gtest.h>
 
 using namespace bignum;
 

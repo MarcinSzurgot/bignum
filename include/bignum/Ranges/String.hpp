@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bignum/Arrays/Multiplication.hpp>
 #include <bignum/Ranges/Additive.hpp>
 #include <bignum/Ranges/Comparators.hpp>
 #include <bignum/Ranges/Division.hpp>
+#include <bignum/Ranges/Multiplication.hpp>
 #include <bignum/Utils.hpp>
 
 #include <array>

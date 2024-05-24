@@ -1,8 +1,8 @@
-#pragma once 
-
-#include <concepts>
+#pragma once
 
 #include <bignum/BigUnsigned.hpp>
+
+#include <concepts>
 
 namespace bignum {
 
