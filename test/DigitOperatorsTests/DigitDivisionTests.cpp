@@ -40,18 +40,18 @@ TEST(DigitDivisionTests, TestDividingDoubleDigits) {
 TEST(DigitDivisionTests, TestDividingMultipleDigits) {
     using Unsigned = std::uint64_t;
 
-    auto maxSize         = std::size_t(20);
-    auto generator       = RandomGenerator();
-    auto dividendStorage = std::vector<Unsigned>(maxSize);
-    auto resultStorage   = std::vector<Unsigned>(maxSize);
-    auto expectedStorage = std::vector<Unsigned>(maxSize);
+    auto maxSize   = std::size_t(20);
+    auto generator = RandomGenerator();
+    auto dividend  = std::vector<Unsigned>(maxSize);
+    auto result    = std::vector<Unsigned>(maxSize);
+    auto expected  = std::vector<Unsigned>(maxSize);
 
     for (auto _ : std::views::iota(0, 1000)) {
         const auto size = generator.random<std::size_t>(1, maxSize);
 
-        auto dividend = std::span(begin(dividendStorage), size);
-        auto result   = std::span(begin(resultStorage), size);
-        auto expected = std::span(begin(expectedStorage), size);
+        dividend.resize(size);
+        result.resize(size);
+        expected.resize(size);
 
         generator.random(dividend);
 

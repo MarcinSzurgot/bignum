@@ -121,7 +121,10 @@ constexpr auto div(
 
     auto remainderRange = subrange(
         remainder, 
-        copy(dividend, remainder).out
+        copy(subrange(
+            begin(dividend), 
+            trimm(dividend)
+        ), remainder).out
     );
 
     auto quotientLast = std::next(
@@ -141,26 +144,17 @@ constexpr auto div(
         auto  quotientOffset = std::next(quotient, approxDiv.second);
         auto remainderOffset = std::next(remainder, approxDiv.second);
 
-        auto quotientRange = subrange(
-            quotientOffset,
-            quotientLast
-        );
-        auto remainderRange2 = subrange(
-            remainderOffset,
-            remainderRange.end()
-        );
-
         add(
-            quotientRange,
+            subrange(quotientOffset, quotientLast),
             approxDiv.first,
-            quotientRange.begin()
+            quotientOffset
         );
 
         mulSub(
-            remainderRange2,
+            subrange(remainderOffset, remainderRange.end()),
             divisor,
             approxDiv.first,
-            remainderRange2.begin()
+            remainderOffset
         );
 
         remainderRange = subrange(remainder, trimm(remainderRange));
@@ -168,7 +162,7 @@ constexpr auto div(
 
     return {
         trimm(subrange(quotient, quotientLast)), 
-        trimm(remainderRange)
+        remainderRange.end()
     };
 }
 

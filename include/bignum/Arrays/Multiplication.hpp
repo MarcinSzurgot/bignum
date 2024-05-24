@@ -24,6 +24,40 @@ namespace bignum {
 // >;
 
 template<
+    std::ranges::input_range Augend,
+    std::ranges::input_range Addend,
+    std::input_iterator OutputIterator,
+    std::unsigned_integral Unsigned = std::iter_value_t<OutputIterator>
+>
+constexpr auto mulAdd(
+    Augend&& augend,
+    Addend&& addend,
+    Unsigned multiplier,
+    OutputIterator result
+) {
+    auto result1 = cascade(
+        addend, 
+        Unsigned(), 
+        result, 
+        [multiplier](auto a, auto m, auto carry) {
+            const auto [product, productCarry] = mul(a, multiplier);
+            const auto [sum,         sumCarry] = add(m, product, carry);
+            return std::make_pair(sum, sumCarry + productCarry);
+        }, std::begin(augend)
+    );
+
+    cascade(
+        std::ranges::subrange(
+            std::get<1>(result1.ins),
+            end(augend)
+        ),
+        result1.result,
+        result1.out,
+        add<Unsigned>
+    );
+}
+
+template<
     std::ranges::forward_range InputRange,
     std::forward_iterator OutputIterator,
     std::unsigned_integral Unsigned = std::iter_value_t<OutputIterator>
@@ -46,31 +80,6 @@ constexpr auto mul(
 }
 
 template<
-    std::ranges::forward_range InputRange,
-    std::forward_iterator InputIterator,
-    std::forward_iterator OutputIterator,
-    std::unsigned_integral Unsigned = std::iter_value_t<OutputIterator>
->
-constexpr auto mul(
-    InputRange&& lhs,
-    Unsigned rhs,
-    InputIterator adding,
-    OutputIterator result
-) -> CascadeResult<
-    Unsigned, 
-    OutputIterator,
-    std::ranges::iterator_t<InputRange>,
-    InputIterator
-> {
-    return cascade(lhs, Unsigned(), result, 
-        [rhs](auto&& next1, auto&& next2, auto&& carry){
-            const auto [lower,     higher] = mul(next1,   rhs);
-            const auto [result, nextCarry] = add(lower, next2, carry);
-            return std::make_pair(result, nextCarry + higher);
-    }, adding);
-}
-
-template<
     std::ranges::input_range Minuend, 
     std::ranges::input_range Subtrahend, 
     std::unsigned_integral Unsigned,
@@ -85,24 +94,26 @@ constexpr auto mulSub(
     Unsigned multiplier,
     Result result
 ) -> void {
-    auto minuendFirst = begin(minuend);
+    auto result1 = cascade(
+        subtrahend, 
+        Unsigned(), 
+        result, 
+        [multiplier](auto s, auto m, auto carry) {
+            const auto [product, productCarry] = mul(s, multiplier);
+            const auto [diff, diffCarry] = sub(m, product, carry);
+            return std::make_pair(diff, diffCarry + productCarry);
+        }, begin(minuend)
+    );
 
-    auto carry = Unsigned();
-    for (auto s : subtrahend) {
-        const auto [lower, higher] = mul(s, multiplier);
-        std::tie(*result, carry) = sub(*minuendFirst, lower, carry);
-        carry += higher;
-
-        ++result;
-        ++minuendFirst;
-    }
-
-    for (auto minuendLast = end(minuend); minuendFirst != minuendLast;) {
-        std::tie(*result, carry) = sub(*minuendFirst, carry);
-
-        ++result;
-        ++minuendFirst;
-    }
+    cascade(
+        std::ranges::subrange(
+            std::get<1>(result1.ins),
+            end(minuend)
+        ),
+        result1.result,
+        result1.out,
+        sub<Unsigned>
+    );
 }
 
 template<
@@ -115,16 +126,18 @@ constexpr auto mul(
     InputRange2&& rhs,
     OutputIterator output
 ) -> void {
-    for (auto&& r : rhs) {
-        auto [
-            carry, 
-            continuation,
-            _
-        ] = mul(lhs, r, output, output);
+    auto outputLast = std::next(output, size(lhs) + size(rhs));
 
-        for (; carry; ++continuation) {
-            std::tie(*continuation, carry) = add(*continuation, carry);
-        }
+    for (auto&& r : rhs) {
+        mulAdd(
+            std::ranges::subrange(
+                output,
+                outputLast
+            ), 
+            lhs,
+            r,
+            output
+        );
 
         ++output;
     }

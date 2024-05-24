@@ -24,16 +24,22 @@ using AdditiveResult = CascadeResult<
 >;
 
 template<
-    std::ranges::forward_range Input,
+    std::ranges::input_range Input,
     std::unsigned_integral Unsigned,
-    std::forward_iterator Output
+    std::input_iterator Output
 > 
 constexpr auto sub(
     Input&& lhs, 
     Unsigned rhs,
     Output output
 ) -> AdditiveResult<Output, Input> { 
-    return cascade(lhs, rhs, output, sub<Unsigned>); 
+    return cascadeUntil(
+        lhs,
+        rhs,
+        output,
+        sub<Unsigned>,
+        [](auto value) { return value != Unsigned(); }
+    );
 }
 
 template<
@@ -45,90 +51,66 @@ constexpr auto add(
     Input&& lhs, 
     Unsigned rhs,
     Output output
-) -> AdditiveResult<Output, Input> { 
-    return cascade(lhs, rhs, output, add<Unsigned>);
+) -> AdditiveResult<Output, Input> {
+        return cascadeUntil(
+        lhs,
+        rhs,
+        output,
+        add<Unsigned>,
+        [](auto value) { return value != Unsigned(); }
+    );
 }
 
 template<
-    std::ranges::forward_range InputRange1,
-    std::ranges::forward_range InputRange2,
-    std::forward_iterator OutputIterator,
-    typename AdditiveOperator
->
-constexpr auto additive(
-    InputRange1&& greater,
-    InputRange2&& lesser,
-    OutputIterator output,
-    AdditiveOperator&& op
-) -> AdditiveResult<
-    OutputIterator,
-    InputRange1, 
-    InputRange2
-> {
-    auto result1 = cascade(
-        lesser, std::iter_value_t<OutputIterator>(), output, 
-        [&op](auto rhs, auto lhs, auto carry) {
-            return op(lhs, rhs, carry);
-        },
-        begin(greater)
-    );
-
-    auto result2 = cascade(
-        std::ranges::subrange(
-            std::get<1>(result1.ins),
-            end(greater)
-        ),
-        result1.result,
-        result1.out,
-        op
-    );
-
-    return {
-        result2.result,
-        result2.out,
-        std::make_tuple(
-            std::get<0>(result2.ins),
-            std::get<0>(result1.ins)
-        )
-    };
-}
-
-template<
-    std::ranges::forward_range InputRange1,
-    std::ranges::forward_range InputRange2,
-    std::forward_iterator OutputIterator
->
+    std::ranges::input_range LongerOrEqual,
+    std::ranges::input_range ShorterOrEqual,
+    std::input_iterator Output,
+    std::unsigned_integral Unsigned = std::iter_value_t<Output>
+> requires 
+    std::same_as<Unsigned, std::ranges::range_value_t<LongerOrEqual>>
+    && std::same_as<Unsigned, std::ranges::range_value_t<ShorterOrEqual>>
 constexpr auto sub(
-    InputRange1&& greater,
-    InputRange2&& lesser,
-    OutputIterator output
+    LongerOrEqual&& longerOrEqual,
+    ShorterOrEqual&& shorterOrEqual,
+    Output output
 ) -> AdditiveResult<
-    OutputIterator,
-    InputRange1,
-    InputRange2
+    Output,
+    LongerOrEqual,
+    ShorterOrEqual
 > { 
-    return additive(greater, lesser, output, [](auto... args){
-        return sub(args...);
-    });
+    return cascade(
+        longerOrEqual, 
+        shorterOrEqual,
+        Unsigned(),
+        output,
+        [](auto... values) { return sub(values...); }
+    );
 }
 
 template<
-    std::ranges::input_range InputRange1,
-    std::ranges::input_range InputRange2,
-    std::input_iterator OutputIterator
-> 
+    std::ranges::input_range LongerOrEqual,
+    std::ranges::input_range ShorterOrEqual,
+    std::input_iterator Output,
+    std::unsigned_integral Unsigned = std::iter_value_t<Output>
+> requires 
+    std::same_as<Unsigned, std::ranges::range_value_t<LongerOrEqual>>
+    && std::same_as<Unsigned, std::ranges::range_value_t<ShorterOrEqual>>
 constexpr auto add(
-    InputRange1&& greater,
-    InputRange2&& lesser,
-    OutputIterator output
+    LongerOrEqual&& longerOrEqual,
+    ShorterOrEqual&& shorterOrEqual,
+    Output output
 ) -> AdditiveResult<
-    OutputIterator,
-    InputRange1,
-    InputRange2
+    Output,
+    LongerOrEqual,
+    ShorterOrEqual
 > { 
-    return additive(greater, lesser, output, [](auto... args){
-        return add(args...);
-    });
+    return cascade(
+        longerOrEqual, 
+        shorterOrEqual,
+        Unsigned(),
+        output,
+        [](auto... values) { return add(values...); }
+    );
 }
 
 }
