@@ -49,8 +49,11 @@ struct RandomGenerator {
 
     }
 
-    template<std::integral I>
-    I random(I from, I to) {
+    template<std::integral Integer>
+    auto random(
+        Integer from =  Integer(), 
+        Integer to   = ~Integer()
+    ) -> Integer {
         return std::uniform_int_distribution(from, to)(generator_);
     }
 
@@ -95,6 +98,30 @@ struct RandomGenerator {
         auto number = BigUnsigned(random<U>(whole));
         number.access().digits().back() &= lshift(Bits<U>::Mask, bit).second;
         return number;
+    }
+
+    template<std::ranges::input_range String>
+    requires 
+        std::same_as<char, std::ranges::range_value_t<String>>
+        && std::ranges::sized_range<String>
+    auto string(String&& string) {
+        using namespace std::string_literals;
+
+        auto first = std::begin(string);
+        auto last  = std::end(string);
+
+        if (first == last) {
+            return;
+        }
+
+        *first++ = random<char>(
+            '0' + (size(string) > 1),
+            '9'
+        );
+
+        std::generate(first, last, [this] { 
+            return random<char>('0', '9'); 
+        });
     }
 
 private:

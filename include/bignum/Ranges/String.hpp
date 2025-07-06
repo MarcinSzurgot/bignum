@@ -6,6 +6,7 @@
 #include <bignum/Ranges/Multiplication.hpp>
 #include <bignum/Utils.hpp>
 
+#include <algorithm>
 #include <array>
 #include <charconv>
 #include <ranges>
@@ -16,10 +17,10 @@ namespace bignum {
 
 template<std::unsigned_integral U>
 constexpr static auto maxPower(U base) -> std::size_t {
-    auto prev = base;
+    U prev = base;
     auto pow = std::size_t();
 
-    for (auto acc = U(base * base); acc > prev; ++pow) {
+    for (U acc = U(base * base); acc > prev; ++pow) {
         prev = acc;
         acc *= base;
     }
@@ -77,13 +78,14 @@ constexpr auto digitFromChars(std::string_view chars) -> U {
 
 template<std::unsigned_integral U>
 constexpr auto fromChars(
-    std::string_view chars
-) -> std::vector<U> {
+    std::string_view chars,
+    std::vector<U>& digits
+) -> void {
     constexpr auto base = U(10);
     constexpr auto maxDivisorPowerOf10 = maxPower(base);
     constexpr auto divisor = powers<U>(maxDivisorPowerOf10);
 
-    auto digits = std::vector<U>();
+    digits.resize(0);
     digits.reserve(size(chars) / maxDivisorPowerOf10);
 
     for(; not empty(chars); chars = chars.substr(std::min(maxDivisorPowerOf10, size(chars)))) {
@@ -110,44 +112,62 @@ constexpr auto fromChars(
 
         }
     }
+}
 
+template<std::unsigned_integral U>
+constexpr auto fromChars(std::string_view chars) -> std::vector<U> {
+    auto digits = std::vector<U>();
+    fromChars(chars, digits);
     return digits;
 }
 
-template<std::ranges::input_range InputRange>
-requires std::unsigned_integral<std::ranges::range_value_t<InputRange>>
-    && std::ranges::sized_range<InputRange>
-constexpr auto toChars(InputRange&& digits) -> std::string {
-    using Unsigned = std::ranges::range_value_t<InputRange>;
+template<
+    std::ranges::input_range Input,
+    std::unsigned_integral Unsigned = std::ranges::range_value_t<Input>
+> requires std::ranges::sized_range<Input>
+constexpr auto toChars(
+    Input&& digits,
+    std::string& chars
+) -> void {
+    if (empty(digits)) {
+        chars.resize(1);
+        chars[0] = '0';
+        return;
+    }
 
     constexpr auto base = Unsigned(10);
     constexpr auto maxDivisorPowerOf10 = maxPower(base);
     constexpr auto divisor = powers<Unsigned>(maxDivisorPowerOf10);
 
     auto converter = ZeroLeadingCharConv<maxDivisorPowerOf10>();
-    auto buffer = std::vector(
-        std::reverse_iterator(end(digits)),
-        std::reverse_iterator(begin(digits))
-    );
-    auto quot = std::span(buffer);
-    auto result = std::string();
-    result.reserve(size(digits) * Bits<Unsigned>::Size / 3);
+    auto quot = digits;
+
+    chars.resize(0);
+    chars.reserve(size(digits) * Bits<Unsigned>::Size / 3);
 
     while (not empty(quot)) {
-        const auto notLastDivision = (size(quot) > 1) || (quot[0] >= divisor);
-        const auto mod = div(quot, divisor, begin(quot));
+        const auto notLastDivision = size(quot) > 1 || quot[0] >= divisor;
+        const auto mod = div(std::views::reverse(quot), divisor, rbegin(quot));
         const auto converted = converter.convert(mod, notLastDivision);
 
-        result.insert(
-            begin(result),
+        chars.insert(
+            begin(chars),
             begin(converted),
             end(converted)
         );
 
-        quot = quot.subspan(1);
+        quot.erase(trimm(quot), end(quot));
     }
+}
 
-    return result;
+template<
+    std::ranges::input_range Input,
+    std::unsigned_integral Unsigned = std::ranges::range_value_t<Input>
+> requires std::ranges::sized_range<Input>
+constexpr auto toChars(Input&& digits) -> std::string {
+    auto chars = std::string();
+    toChars(digits, chars);
+    return chars;
 }
 
 }

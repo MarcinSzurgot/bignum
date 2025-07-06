@@ -30,43 +30,39 @@ TEST_P(BigUnsignedStringConversionTest, ConstructorTests) {
 TEST(BigUnsignedStringConversionTest, OperationPerformance) {
     using namespace std::chrono;
 
-    auto rnd = [
-        generator = std::mt19937(
-            high_resolution_clock::now()
-            .time_since_epoch()
-            .count()
-        )
-    ] (int size) mutable -> std::string {
-        if (size == 0) {
-            return ""s;
-        }
+    auto random = RandomGenerator();
+    auto expected = std::string();
 
-        auto dist = std::uniform_int_distribution<char>('0', '9');
+    auto actual8  = std::string();
+    auto actual16 = std::string();
+    auto actual32 = std::string();
+    auto actual64 = std::string();
 
-        if (size == 1) {
-            return std::string(1, dist(generator));
-        }
-
-        auto string = std::string();
-        string.resize(size);
-
-        while ((string[0] = dist(generator)) == '0');
-
-        for (auto c = 1u; c < size; ++c) {
-            string[c] = dist(generator);
-        }
-
-        return string;
-    };
+    auto converted8  = std::vector<std::uint8_t>();
+    auto converted16 = std::vector<std::uint16_t>();
+    auto converted32 = std::vector<std::uint32_t>();
+    auto converted64 = std::vector<std::uint64_t>();
 
     const auto start = high_resolution_clock::now();
 
     for (auto i : std::views::iota(0, 1000)) {
-        const auto expected = rnd(100);
-        const auto converted = bignum::fromChars<std::uint64_t>(expected);
-        const auto actual = bignum::toChars(converted);
+        expected.resize(random.random(1u, 100u));
+        random.string(expected);
 
-        ASSERT_EQ(actual, expected);
+        bignum::fromChars(expected, converted8);
+        bignum::fromChars(expected, converted16);
+        bignum::fromChars(expected, converted32);
+        bignum::fromChars(expected, converted64);
+
+        bignum::toChars(converted8, actual8);
+        bignum::toChars(converted16, actual16);
+        bignum::toChars(converted32, actual32);
+        bignum::toChars(converted64, actual64);
+
+        ASSERT_EQ(actual8,  expected);
+        ASSERT_EQ(actual16, expected);
+        ASSERT_EQ(actual32, expected);
+        ASSERT_EQ(actual64, expected);
     }
 
     const auto end = high_resolution_clock::now();
